@@ -1,0 +1,58 @@
+# ----- Java / Maven -----
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# ----- Maven Wrapper jar (script auto-downloads it) -----
+!.mvn/wrapper/maven-wrapper.jar
+
+# ----- IDE: IntelliJ IDEA -----
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# ----- IDE: Eclipse / STS -----
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache
+bin/
+
+# ----- IDE: VS Code -----
+.vscode/
+*.code-workspace
+
+# ----- IDE: NetBeans -----
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# ----- OS -----
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ----- Logs -----
+*.log
+logs/
+
+# ----- Env / secrets -----
+.env
+.env.*
+!.env.example
+
+# ----- Local agent tooling -----
+.kimi/
+KIMI.md

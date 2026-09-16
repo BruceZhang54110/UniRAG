@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unirag.infratrccture.mapper.TenantResourceConfigMapper">
+
+    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.TenantResourceConfig">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="tenant_id" column="tenant_id" jdbcType="BIGINT"/>
+            <result property="resource_type" column="resource_type" jdbcType="VARCHAR"/>
+            <result property="resource_key" column="resource_key" jdbcType="VARCHAR"/>
+            <result property="is_primary" column="is_primary" jdbcType="BOOLEAN"/>
+            <result property="config" column="config" jdbcType="OTHER"/>
+            <result property="enabled" column="enabled" jdbcType="BOOLEAN"/>
+            <result property="created_at" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updated_at" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="deleted" column="deleted" jdbcType="BOOLEAN"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,tenant_id,resource_type,
+        resource_key,is_primary,config,
+        enabled,created_at,updated_at,
+        deleted
+    </sql>
+</mapper>
