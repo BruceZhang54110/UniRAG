@@ -1,4 +1,15 @@
 {
+  "version": "0.14.2",
+  "integration_state_schema": 1,
+  "installed_integrations": [
+    "kimi"
+  ],
+  "integration_settings": {
+    "kimi": {
+      "script": "sh",
+      "invoke_separator": "-"
+    }
+  },
   "integration": "kimi",
-  "version": "0.7.5"
+  "default_integration": "kimi"
 }

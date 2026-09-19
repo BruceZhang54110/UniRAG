@@ -6,5 +6,5 @@
   "here": true,
   "integration": "kimi",
   "script": "sh",
-  "speckit_version": "0.7.5"
+  "speckit_version": "0.14.2"
 }

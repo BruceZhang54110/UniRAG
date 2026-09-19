@@ -47,7 +47,7 @@ class ConfigHygieneTest {
     void noHardcodedSecretPatternsInConfig() throws Exception {
         String content = Files.readString(MAIN_YML);
         assertTrue(content.lines().noneMatch(line ->
-                        line.matches(".*(api-key|password|apikey)\\s*:\\s*(?!\\$\\{).*")
+                        line.matches(".*(api-key|password|apikey)\\s*:\\s*(?!\\s*\\$\\{).*")
                                 && !line.trim().startsWith("#")),
                 "secret-like keys must use ${...} placeholders");
     }
@@ -55,10 +55,13 @@ class ConfigHygieneTest {
     private static Object getNested(Map<String, Object> root, String... path) {
         Object current = root;
         for (String key : path) {
-            if (!(current instanceof Map<?, ?> map) || !map.containsKey(key)) {
+            if (!(current instanceof Map<?, ?>)) {
                 fail("missing config path: " + String.join(".", path));
             }
-            current = ((Map<String, Object>) map).get(key);
+            current = ((Map<String, Object>) current).get(key);
+            if (current == null) {
+                fail("missing config path: " + String.join(".", path));
+            }
         }
         return current;
     }

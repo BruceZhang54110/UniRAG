@@ -2,18 +2,19 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.unirag.infratrccture.mapper.TenantResourceConfigMapper">
+<mapper namespace="com.unirag.infrastructure.mp.mapper.TenantResourceConfigMapper">
 
     <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.TenantResourceConfig">
             <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="tenant_id" column="tenant_id" jdbcType="BIGINT"/>
-            <result property="resource_type" column="resource_type" jdbcType="VARCHAR"/>
-            <result property="resource_key" column="resource_key" jdbcType="VARCHAR"/>
-            <result property="is_primary" column="is_primary" jdbcType="BOOLEAN"/>
-            <result property="config" column="config" jdbcType="OTHER"/>
+            <result property="tenantId" column="tenant_id" jdbcType="BIGINT"/>
+            <result property="tenantCode" column="tenant_code" jdbcType="VARCHAR"/>
+            <result property="resourceType" column="resource_type" jdbcType="VARCHAR"/>
+            <result property="resourceKey" column="resource_key" jdbcType="VARCHAR"/>
+            <result property="primary" column="is_primary" jdbcType="BOOLEAN"/>
+            <result property="config" column="config" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
             <result property="enabled" column="enabled" jdbcType="BOOLEAN"/>
-            <result property="created_at" column="created_at" jdbcType="TIMESTAMP"/>
-            <result property="updated_at" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
             <result property="deleted" column="deleted" jdbcType="BOOLEAN"/>
     </resultMap>
 
@@ -23,4 +24,15 @@
         enabled,created_at,updated_at,
         deleted
     </sql>
+
+    <select id="findAllEnabled" resultMap="BaseResultMap">
+        SELECT c.id, c.tenant_id, t.tenant_code AS tenant_code,
+               c.resource_type, c.resource_key, c.is_primary, c.config,
+               c.enabled, c.created_at, c.updated_at, c.deleted
+        FROM tenant_resource_config c
+        JOIN tenant t ON t.id = c.tenant_id
+        WHERE c.deleted = FALSE AND c.enabled = TRUE
+          AND t.deleted = FALSE AND t.enabled = TRUE
+        ORDER BY c.id ASC
+    </select>
 </mapper>

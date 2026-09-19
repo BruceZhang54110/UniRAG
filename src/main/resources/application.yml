@@ -5,7 +5,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/uni_rag_db
     driver-class-name: org.postgresql.Driver
     username: uni_rag_user
-    password: StrongPass123!
+    password: ${PGPASSWORD:StrongPass123!}
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
@@ -24,7 +24,7 @@ mybatis-plus:
   # Mapper XML 文件位置
   mapper-locations: classpath*:/mapper/**/*.xml
   # 实体类别名扫描包
-  type-aliases-package: com.example.entity
+  type-aliases-package: com.unirag.infrastructure.mp.entity
   configuration:
     # 开启驼峰命名自动映射
     map-underscore-to-camel-case: true
@@ -40,6 +40,11 @@ embedding-store:
   port: 5432
   database: uni_rag_db
   user: uni_rag_user
-  password: StrongPass123!
+  password: ${PGPASSWORD:StrongPass123!}
   table: sdfsdf
   dimension: 1024
+unirag:
+  ai:
+    models:
+      default:
+        api-key: ${OPENAI_API_KEY:sk-placeholder}

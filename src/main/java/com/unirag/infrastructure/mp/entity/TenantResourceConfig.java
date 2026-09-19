@@ -1,61 +1,53 @@
 package com.unirag.infrastructure.mp.entity;
 
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
- * 
  * @TableName tenant_resource_config
  */
 @Data
+@TableName(value = "tenant_resource_config", autoResultMap = true)
 public class TenantResourceConfig {
-    /**
-     * 
-     */
+
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    /**
-     * 
-     */
-    private Long tenant_id;
+    @TableField("tenant_id")
+    private Long tenantId;
 
-    /**
-     * 
-     */
-    private String resource_type;
+    /** 联表查询时从 tenant.tenant_code 带出，非本表字段。 */
+    @TableField(exist = false)
+    private String tenantCode;
 
-    /**
-     * 
-     */
-    private String resource_key;
+    @TableField("resource_type")
+    private String resourceType;
 
-    /**
-     * 
-     */
-    private Boolean is_primary;
+    @TableField("resource_key")
+    private String resourceKey;
 
-    /**
-     * 
-     */
-    private Object config;
+    @TableField("is_primary")
+    private Boolean primary;
 
-    /**
-     * 
-     */
+    @TableField(value = "config", typeHandler = JacksonTypeHandler.class)
+    private JsonNode config;
+
+    @TableField("enabled")
     private Boolean enabled;
 
-    /**
-     * 
-     */
-    private Date created_at;
+    @TableField("created_at")
+    private Date createdAt;
 
-    /**
-     * 
-     */
-    private Date updated_at;
+    @TableField("updated_at")
+    private Date updatedAt;
 
-    /**
-     * 
-     */
+    @TableField("deleted")
     private Boolean deleted;
 }
