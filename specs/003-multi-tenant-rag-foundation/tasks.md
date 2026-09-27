@@ -27,9 +27,9 @@ description: "Task list for feature implementation: 多租户 RAG 资源基座"
 
 **Purpose**: 存量修正、测试基础设施（Testcontainers 真实 DB），解锁后续所有工作
 
-- [ ] T001 修正 `src/main/resources/application.yml`：`mybatis-plus.type-aliases-package` 改为 `com.unirag.infrastructure.mp.entity`；`spring.datasource.password` 改为 `${PGPASSWORD:StrongPass123!}` 占位符形式；新增 `unirag.ai.models.default.api-key: ${OPENAI_API_KEY:sk-placeholder}` 结构，使既有 `src/test/java/com/unirag/ConfigHygieneTest.java` 通过（R13）
-- [ ] T002 [P] 修正 mapper XML namespace 拼写错误（`infratrccture.mapper` → `infrastructure.mp.mapper`）：`src/main/resources/mapper/TenantResourceConfigMapper.xml` 与 `src/main/resources/mapper/TenantMapper.xml`（R13）
-- [ ] T003 接入真实数据库测试基础设施：删除 `src/test/resources/application.yml` 中 `DataSourceAutoConfiguration` 的排除（测试上下文即复用主配置指向的本地开发库 `uni_rag_db`，R12）；新建 `src/test/java/com/unirag/AbstractPostgresIntegrationTest.java`——仅承担测试约定基类职责：Javadoc 固化**每个测试类使用全局唯一租户码**（如 `acmeUS1`、`globexUS1`）防 Bean 名冲突、提供可选 `@Sql` 类后清理模板；EMBEDDING_STORE 测试配置在未装 pgvector 扩展时统一 `"create-table": false`（构建期不建表）。pom.xml **不新增任何测试依赖**
+- [x] T001 修正 `src/main/resources/application.yml`：`mybatis-plus.type-aliases-package` 改为 `com.unirag.infrastructure.mp.entity`；`spring.datasource.password` 改为 `${PGPASSWORD:StrongPass123!}` 占位符形式；新增 `unirag.ai.models.default.api-key: ${OPENAI_API_KEY:sk-placeholder}` 结构，使既有 `src/test/java/com/unirag/ConfigHygieneTest.java` 通过（R13）
+- [x] T002 [P] 修正 mapper XML namespace 拼写错误（`infratrccture.mapper` → `infrastructure.mp.mapper`）：`src/main/resources/mapper/TenantResourceConfigMapper.xml` 与 `src/main/resources/mapper/TenantMapper.xml`（R13）
+- [x] T003 接入真实数据库测试基础设施：删除 `src/test/resources/application.yml` 中 `DataSourceAutoConfiguration` 的排除（测试上下文即复用主配置指向的本地开发库 `uni_rag_db`，R12）；新建 `src/test/java/com/unirag/AbstractPostgresIntegrationTest.java`——仅承担测试约定基类职责：Javadoc 固化**每个测试类使用全局唯一租户码**（如 `acmeUS1`、`globexUS1`）防 Bean 名冲突、提供可选 `@Sql` 类后清理模板；EMBEDDING_STORE 测试配置在未装 pgvector 扩展时统一 `"create-table": false`（构建期不建表）。pom.xml **不新增任何测试依赖**
 
 ---
 
@@ -39,11 +39,11 @@ description: "Task list for feature implementation: 多租户 RAG 资源基座"
 
 **⚠️ CRITICAL**: 本阶段完成前不可开始任何用户故事
 
-- [ ] T004 升级持久化实体 `src/main/java/com/unirag/infrastructure/mp/entity/TenantResourceConfig.java`：字段改 camelCase + `@TableField` 显式列映射；类注解 `@TableName(value = "tenant_resource_config", autoResultMap = true)`；`config` 字段类型改 `JsonNode` 并加 `@TableField(typeHandler = JacksonTypeHandler.class)`（R7）
-- [ ] T005 [P] 补全领域对象 `src/main/java/com/unirag/tenant/resource/TenantResourceConfig.java`：Lombok `@Value`（或 final + 构造器）访问器，字段 `id/tenantCode/resourceType/resourceKey/primary/config(JsonNode)/enabled`，与 data-model.md 一致（R9）
-- [ ] T006 [P] 新建三个基础类型：`src/main/java/com/unirag/tenant/resource/ResourceType.java` 增加 `beanPrefix()`（LLM→llm、EMBEDDING_MODEL→embeddingModel、EMBEDDING_STORE→embeddingStore、RERANK_MODEL→rerankModel）；`src/main/java/com/unirag/tenant/resource/TenantResourceKey.java`（record/值对象，全字段 equals/hashCode）；`src/main/java/com/unirag/tenant/resource/TenantResourceNotFoundException.java`（message 模板见 contracts/tenant-resource-router.md）
-- [ ] T007 [P] 新建不可变注册索引 `src/main/java/com/unirag/tenant/resource/TenantResourceIndex.java`：`Map<TenantResourceKey,String> beanNames`、`Map<(tenantCode,ResourceType), NavigableMap<Long,TenantResourceKey>> primaries`、`Set<(tenantCode,ResourceType)>` registeredPairs；不可变快照方法；Bean 命名工具 `beanNameOf(type, tenantCode, key)`（非法字符 `[^a-zA-Z0-9_-]`→`_`，R2）
-- [ ] T008 实现查询链路：`src/main/resources/mapper/TenantResourceConfigMapper.xml` 增加 `findAllEnabled` 联表 SQL（`tenant_resource_config deleted=false AND enabled=true` 且 `EXISTS` 关联 `tenant deleted=false AND enabled=true`，`ORDER BY tenant_resource_config.id ASC`）；`src/main/java/com/unirag/infrastructure/mp/mapper/TenantResourceConfigMapper.java` 声明方法；`src/main/java/com/unirag/infrastructure/mp/service/impl/TenantResourceConfigServiceImpl.java` 实现 `findAllEnabled()` 并将持久化实体转换为领域 `TenantResourceConfig`（含 tenantCode 联表带出）（R6/R9）。验收：在 Testcontainers 基类上写一个查询冒烟用例（插两租户+停用租户+停用配置，断言只返回启用数据且 tenantCode 正确、按 id 升序）
+- [x] T004 升级持久化实体 `src/main/java/com/unirag/infrastructure/mp/entity/TenantResourceConfig.java`：字段改 camelCase + `@TableField` 显式列映射；类注解 `@TableName(value = "tenant_resource_config", autoResultMap = true)`；`config` 字段类型改 `JsonNode` 并加 `@TableField(typeHandler = JacksonTypeHandler.class)`（R7）
+- [x] T005 [P] 补全领域对象 `src/main/java/com/unirag/tenant/resource/TenantResourceConfig.java`：Lombok `@Value`（或 final + 构造器）访问器，字段 `id/tenantCode/resourceType/resourceKey/primary/config(JsonNode)/enabled`，与 data-model.md 一致（R9）
+- [x] T006 [P] 新建三个基础类型：`src/main/java/com/unirag/tenant/resource/ResourceType.java` 增加 `beanPrefix()`（LLM→llm、EMBEDDING_MODEL→embeddingModel、EMBEDDING_STORE→embeddingStore、RERANK_MODEL→rerankModel）；`src/main/java/com/unirag/tenant/resource/TenantResourceKey.java`（record/值对象，全字段 equals/hashCode）；`src/main/java/com/unirag/tenant/resource/TenantResourceNotFoundException.java`（message 模板见 contracts/tenant-resource-router.md）
+- [x] T007 [P] 新建不可变注册索引 `src/main/java/com/unirag/tenant/resource/TenantResourceIndex.java`：`Map<TenantResourceKey,String> beanNames`、`Map<(tenantCode,ResourceType), NavigableMap<Long,TenantResourceKey>> primaries`、`Set<(tenantCode,ResourceType)>` registeredPairs；不可变快照方法；Bean 命名工具 `beanNameOf(type, tenantCode, key)`（非法字符 `[^a-zA-Z0-9_-]`→`_`，R2）
+- [x] T008 实现查询链路：`src/main/resources/mapper/TenantResourceConfigMapper.xml` 增加 `findAllEnabled` 联表 SQL（`tenant_resource_config deleted=false AND enabled=true` 且 `EXISTS` 关联 `tenant deleted=false AND enabled=true`，`ORDER BY tenant_resource_config.id ASC`）；`src/main/java/com/unirag/infrastructure/mp/mapper/TenantResourceConfigMapper.java` 声明方法；`src/main/java/com/unirag/infrastructure/mp/service/impl/TenantResourceConfigServiceImpl.java` 实现 `findAllEnabled()` 并将持久化实体转换为领域 `TenantResourceConfig`（含 tenantCode 联表带出）（R6/R9）。验收：在 Testcontainers 基类上写一个查询冒烟用例（插两租户+停用租户+停用配置，断言只返回启用数据且 tenantCode 正确、按 id 升序）
 
 **Checkpoint**: 领域/持久化对象、命名规则、查询、索引骨架就绪，真实 DB 冒烟通过
 
@@ -57,13 +57,13 @@ description: "Task list for feature implementation: 多租户 RAG 资源基座"
 
 ### Tests for User Story 1 ⚠️（先写，确认失败后再实现）
 
-- [ ] T009 [P] [US1] 新建 `src/test/java/com/unirag/tenant/resource/TenantResourceRegistrarIT.java`（继承 `AbstractPostgresIntegrationTest`）：用 `JdbcTemplate` 插入两租户（`acmeUS1`/`globexUS1`）各 LLM+EMBEDDING_MODEL 配置（JSON 含区分性参数，如不同 `model-name`），调用 `tenantResourceRegistrar.loadAndRegister()`（R14），断言——场景 1：容器中存在 `llm_acmeUS1_default`、`llm_globexUS1_default` 等 4 个 Bean 且经 Provider 解析出的参数各自生效（如 `OpenAiChatModel` 的 modelName 可通过反射或 getter 断言）；场景 3：仅插入 LLM 的租户其 EMBEDDING_STORE Bean 不存在且不报错；场景 2：未插入数据的租户码查询无 Bean。Provider 构建不得发起真实网络调用（langchain4j builder 仅本地构造；EMBEDDING_STORE 用例配置 `"create-table": false`，R12）
+- [x] T009 [P] [US1] 新建 `src/test/java/com/unirag/tenant/resource/TenantResourceRegistrarIT.java`（继承 `AbstractPostgresIntegrationTest`）：用 `JdbcTemplate` 插入两租户（`acmeUS1`/`globexUS1`）各 LLM+EMBEDDING_MODEL 配置（JSON 含区分性参数，如不同 `model-name`），调用 `tenantResourceRegistrar.loadAndRegister()`（R14），断言——场景 1：容器中存在 `llm_acmeUS1_default`、`llm_globexUS1_default` 等 4 个 Bean 且经 Provider 解析出的参数各自生效（如 `OpenAiChatModel` 的 modelName 可通过反射或 getter 断言）；场景 3：仅插入 LLM 的租户其 EMBEDDING_STORE Bean 不存在且不报错；场景 2：未插入数据的租户码查询无 Bean。Provider 构建不得发起真实网络调用（langchain4j builder 仅本地构造；EMBEDDING_STORE 用例配置 `"create-table": false`，R12）
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] 新建三个 Provider（`src/main/java/com/unirag/tenant/resource/provider/`）：`LlmResourceProvider.java`（JSON→`OpenAiChatModel`，schema 见 contracts/resource-config-schemas.md，必填缺失抛 `IllegalArgumentException`）；`EmbeddingModelResourceProvider.java`（→`OpenAiEmbeddingModel`）；`EmbeddingStoreResourceProvider.java`（→`PgVectorEmbeddingStore`，builder 字段与既有 `EmbeddingStoreConfig` 注释代码一致）；均 `@Component`，实现 `TenantResourceProvider<T>`，不打印 config 原文（FR-008）
-- [ ] T011 [US1] 完成 `src/main/java/com/unirag/tenant/resource/TenantResourceRegistrar.java`（R1/R4/R6/R14）：核心逻辑抽为 public 幂等 `loadAndRegister()`（重复调用跳过已注册 beanName 并 DEBUG 日志），`run()` 仅委托；流程＝`findAllEnabled()`→按 `resourceType` 匹配 Provider（无 Provider 记 WARN 跳过）→try 中先 `provider.build(config)` 成功后再 `applicationContext.registerBean(beanName, beanType, () -> instance)`→构建并发布 `TenantResourceIndex`；成功日志 `Registered tenant resource: <beanName>`，失败日志 ERROR 含 tenantCode/type/key/reason 且不含敏感配置（FR-006/008）；重复 primary 记 ERROR 取 id 最小者（FR-011 防御）
-- [ ] T012 [US1] 新建 `src/main/java/com/unirag/tenant/resource/TenantResourceAutoConfiguration.java`：`@Configuration` `@Bean` 装配 Registrar（注入 `List<TenantResourceProvider<?>>`、`GenericApplicationContext`、`TenantResourceConfigService`）与 `TenantResourceIndex`→`TenantResourceRouter`（Router 类在 US2 实现，可先以接口/占位方式接线或留待 T015，保持编译通过）
+- [x] T010 [P] [US1] 新建三个 Provider（`src/main/java/com/unirag/tenant/resource/provider/`）：`LlmResourceProvider.java`（JSON→`OpenAiChatModel`，schema 见 contracts/resource-config-schemas.md，必填缺失抛 `IllegalArgumentException`）；`EmbeddingModelResourceProvider.java`（→`OpenAiEmbeddingModel`）；`EmbeddingStoreResourceProvider.java`（→`PgVectorEmbeddingStore`，builder 字段与既有 `EmbeddingStoreConfig` 注释代码一致）；均 `@Component`，实现 `TenantResourceProvider<T>`，不打印 config 原文（FR-008）
+- [x] T011 [US1] 完成 `src/main/java/com/unirag/tenant/resource/TenantResourceRegistrar.java`（R1/R4/R6/R14）：核心逻辑抽为 public 幂等 `loadAndRegister()`（重复调用跳过已注册 beanName 并 DEBUG 日志），`run()` 仅委托；流程＝`findAllEnabled()`→按 `resourceType` 匹配 Provider（无 Provider 记 WARN 跳过）→try 中先 `provider.build(config)` 成功后再 `applicationContext.registerBean(beanName, beanType, () -> instance)`→构建并发布 `TenantResourceIndex`；成功日志 `Registered tenant resource: <beanName>`，失败日志 ERROR 含 tenantCode/type/key/reason 且不含敏感配置（FR-006/008）；重复 primary 记 ERROR 取 id 最小者（FR-011 防御）
+- [x] T012 [US1] 新建 `src/main/java/com/unirag/tenant/resource/TenantResourceAutoConfiguration.java`：`@Configuration` `@Bean` 装配 Registrar（注入 `List<TenantResourceProvider<?>>`、`GenericApplicationContext`、`TenantResourceConfigService`）与 `TenantResourceIndex`→`TenantResourceRouter`（Router 类在 US2 实现，可先以接口/占位方式接线或留待 T015，保持编译通过）
 
 **Checkpoint**: US1 独立可用——真实 DB 下 `./mvnw test` 的 US1 用例通过，注册日志正确
 
@@ -77,11 +77,11 @@ description: "Task list for feature implementation: 多租户 RAG 资源基座"
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T013 [P] [US2] 新建 `src/test/java/com/unirag/tenant/resource/TenantResourceRouterIT.java`（继承基类）：插入 `acmeUS2`（LLM default(primary)+backup、EMBEDDING_MODEL 两条无 primary）数据后 `loadAndRegister()`；断言契约表全部情形——get 命中返回同一单例、未命中抛 `TenantResourceNotFoundException` 且 message 含 tenant/type/key、getPrimary("acmeUS2", LLM) 返回 default、getPrimary(EMBEDDING_MODEL) 无 primary 且多条抛异常、另造仅单实例租户 `soloUS2` 验证唯一实例回退、跨租户同 key（`acmeUS2`/`globexUS2` 各插同名 LLM default）返回不同实例
+- [x] T013 [P] [US2] 新建 `src/test/java/com/unirag/tenant/resource/TenantResourceRouterIT.java`（继承基类）：插入 `acmeUS2`（LLM default(primary)+backup、EMBEDDING_MODEL 两条无 primary）数据后 `loadAndRegister()`；断言契约表全部情形——get 命中返回同一单例、未命中抛 `TenantResourceNotFoundException` 且 message 含 tenant/type/key、getPrimary("acmeUS2", LLM) 返回 default、getPrimary(EMBEDDING_MODEL) 无 primary 且多条抛异常、另造仅单实例租户 `soloUS2` 验证唯一实例回退、跨租户同 key（`acmeUS2`/`globexUS2` 各插同名 LLM default）返回不同实例
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] 新建 `src/main/java/com/unirag/tenant/resource/TenantResourceRouter.java`：`@Component`，构造注入 `GenericApplicationContext` 与 `TenantResourceIndex`（Registrar 构建、AutoConfiguration 提供）；`get()` 索引未命中抛 `TenantResourceNotFoundException`，命中 `applicationContext.getBean(beanName, beanType)`；`getPrimary()` 按 data-model.md 语义表实现（含唯一实例回退）
+- [x] T014 [US2] 新建 `src/main/java/com/unirag/tenant/resource/TenantResourceRouter.java`：`@Component`，构造注入 `GenericApplicationContext` 与 `TenantResourceIndex`（Registrar 构建、AutoConfiguration 提供）；`get()` 索引未命中抛 `TenantResourceNotFoundException`，命中 `applicationContext.getBean(beanName, beanType)`；`getPrimary()` 按 data-model.md 语义表实现（含唯一实例回退）
 
 **Checkpoint**: US1+US2 闭环——真实 DB 下加载、取回、异常语义全部通过
 
@@ -95,12 +95,12 @@ description: "Task list for feature implementation: 多租户 RAG 资源基座"
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T015 [P] [US3] 新建 `src/test/java/com/unirag/tenant/resource/TenantResourceRegistrarFailureIT.java`（继承基类，用 Spring Boot 自带 `OutputCaptureExtension` 捕获日志，不加新依赖）：插入 `badUS3` 租户——LLM default（合法）、EMBEDDING_MODEL broken（缺 `api-key`）、另租户 `goodUS3` 全合法；`loadAndRegister()` 后断言——合法 Bean 全部存在、broken Bean 不存在（FR-010 不部分注册）、捕获日志含 `badUS3`/`EMBEDDING_MODEL`/`broken`/原因且不含插入的 api-key 值（FR-006/008）；`TenantResourceHealthIndicator` 用例：details 中 loadedCount/failedCount/failures 明细与插入数据一致
+- [x] T015 [P] [US3] 新建 `src/test/java/com/unirag/tenant/resource/TenantResourceRegistrarFailureIT.java`（继承基类，用 Spring Boot 自带 `OutputCaptureExtension` 捕获日志，不加新依赖）：插入 `badUS3` 租户——LLM default（合法）、EMBEDDING_MODEL broken（缺 `api-key`）、另租户 `goodUS3` 全合法；`loadAndRegister()` 后断言——合法 Bean 全部存在、broken Bean 不存在（FR-010 不部分注册）、捕获日志含 `badUS3`/`EMBEDDING_MODEL`/`broken`/原因且不含插入的 api-key 值（FR-006/008）；`TenantResourceHealthIndicator` 用例：details 中 loadedCount/failedCount/failures 明细与插入数据一致
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] 新建 `src/main/java/com/unirag/tenant/observability/TenantResourceHealthIndicator.java`：实现 `HealthIndicator`，details 输出 `{loadedCount, failedCount, failures:[{tenantCode, resourceType, resourceKey, error}]}`，status 恒 UP（R10）；失败明细由 Registrar 在 loadAndRegister 中收集并经 holder/索引暴露
-- [ ] T017 [US3] 在 `TenantResourceAutoConfiguration` 注册 HealthIndicator Bean 并接线失败明细来源；运行 `./mvnw test` 全绿 + 既有 `HealthEndpointTest` 保持通过（不回退）
+- [x] T016 [US3] 新建 `src/main/java/com/unirag/tenant/observability/TenantResourceHealthIndicator.java`：实现 `HealthIndicator`，details 输出 `{loadedCount, failedCount, failures:[{tenantCode, resourceType, resourceKey, error}]}`，status 恒 UP（R10）；失败明细由 Registrar 在 loadAndRegister 中收集并经 holder/索引暴露
+- [x] T017 [US3] 在 `TenantResourceAutoConfiguration` 注册 HealthIndicator Bean 并接线失败明细来源；运行 `./mvnw test` 全绿 + 既有 `HealthEndpointTest` 保持通过（不回退）
 
 **Checkpoint**: 全部 US 完成；故障隔离与健康可见性在真实 DB 下达成（SC-003）
 
@@ -110,8 +110,8 @@ description: "Task list for feature implementation: 多租户 RAG 资源基座"
 
 **Purpose**: 端到端验证与收尾
 
-- [ ] T018 [P] 按 `quickstart.md` 场景 2 做手工端到端复核（docker pgvector + 插入 acme/globex 数据 + 启动观察日志），确认 5 成功/1 失败隔离、health details、空载启动——与自动化 IT 互为印证
-- [ ] T019 全量 `./mvnw test`（含嵌入式 PG 集成套件）+ `quickstart.md` 场景 3 启动耗时对比（<10%）；更新 `README.md` 简述资源基座用法（Router 获取示例 + 配置表说明），链接 specs/003 文档
+- [x] T018 [P] 按 `quickstart.md` 场景 2 做手工端到端复核（docker pgvector + 插入 acme/globex 数据 + 启动观察日志），确认 5 成功/1 失败隔离、health details、空载启动——与自动化 IT 互为印证
+- [x] T019 全量 `./mvnw test`（含嵌入式 PG 集成套件）+ `quickstart.md` 场景 3 启动耗时对比（<10%）；更新 `README.md` 简述资源基座用法（Router 获取示例 + 配置表说明），链接 specs/003 文档
 
 ---
 
