@@ -56,3 +56,5 @@ logs/
 # ----- Local agent tooling -----
 .kimi/
 KIMI.md
+.specify
+.kimi-code
