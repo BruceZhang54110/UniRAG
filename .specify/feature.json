@@ -1,3 +1,3 @@
 {
-  "feature_directory": "specs/003-multi-tenant-rag-foundation"
+  "feature_directory": "specs/004-pgvector-embedding-store"
 }

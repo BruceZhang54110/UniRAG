@@ -28,8 +28,10 @@ mybatis-plus:
   configuration:
     # 开启驼峰命名自动映射
     map-underscore-to-camel-case: true
-    # 打印 SQL 日志（开发环境使用）
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # SQL 日志走 SLF4J（默认 INFO 不输出）。禁止用 StdOutImpl：findAllEnabled 会打印
+    # 含密码的 config JSONB 原文到控制台，违反 FR-008。排查 SQL 时按需打开：
+    # logging.level.com.unirag.infrastructure.mp.mapper: debug
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 management:
   endpoints:
     web:

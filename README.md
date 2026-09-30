@@ -54,6 +54,16 @@ src/
         └── HealthEndpointTest.java         # /actuator/health 契约测试
 ```
 
+## 多租户向量存储（004）
+
+应用在启动时自动完成向量环境准备（Flyway V3 幂等启用 pgvector 扩展），并按租户资源配置为每个租户创建独立的向量表与 `EmbeddingStore` Bean：
+
+- 配置：在 `tenant_resource_config` 中插入 `resource_type = 'EMBEDDING_STORE'` 的记录（JSON 含 host/port/database/user/password/table/dimension/create-table，Schema 见 specs/003 contracts）
+- 获取：`tenantResourceRouter.get(tenantCode, ResourceType.EMBEDDING_STORE, key, EmbeddingStore.class)`
+- 保证：加载期校验表名合法性、表存在性与维度一致性；不同租户配置同名表时后加载者被隔离拒绝；就绪保证条款见 [specs/004 contracts](specs/004-pgvector-embedding-store/contracts/embedding-store-guarantees.md)
+
+同一租户可配置多个向量存储资源（不同 key/表/维度），支撑粗细粒度等多嵌入表场景。
+
 ## 技术基线
 
 - Spring Boot **3.5.16**（父 POM 锁定）
