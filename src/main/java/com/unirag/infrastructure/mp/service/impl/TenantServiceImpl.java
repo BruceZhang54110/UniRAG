@@ -11,4 +11,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> implements TenantService {
+
+    @Override
+    public Tenant findByCode(String tenantCode) {
+        return baseMapper.findByCode(tenantCode);
+    }
 }

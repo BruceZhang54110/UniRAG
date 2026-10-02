@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unirag.infrastructure.mp.mapper.IngestionPipelineMapper">
+
+    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.IngestionPipeline">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="tenantId" column="tenant_id" jdbcType="BIGINT"/>
+            <result property="pipelineKey" column="pipeline_key" jdbcType="VARCHAR"/>
+            <result property="strategy" column="strategy" jdbcType="VARCHAR"/>
+            <result property="maxSegmentTokens" column="max_segment_tokens" jdbcType="INTEGER"/>
+            <result property="overlapTokens" column="overlap_tokens" jdbcType="INTEGER"/>
+            <result property="embeddingStoreKey" column="embedding_store_key" jdbcType="VARCHAR"/>
+            <result property="embeddingModelKey" column="embedding_model_key" jdbcType="VARCHAR"/>
+            <result property="enabled" column="enabled" jdbcType="BOOLEAN"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="deleted" column="deleted" jdbcType="BOOLEAN"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,tenant_id,pipeline_key,
+        strategy,max_segment_tokens,overlap_tokens,
+        embedding_store_key,embedding_model_key,enabled,
+        created_at,updated_at,deleted
+    </sql>
+
+    <select id="findEnabledByTenant" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM ingestion_pipeline
+        WHERE tenant_id = #{tenantId} AND enabled = TRUE AND deleted = FALSE
+        ORDER BY id ASC
+    </select>
+</mapper>

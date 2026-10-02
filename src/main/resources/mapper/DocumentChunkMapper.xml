@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unirag.infrastructure.mp.mapper.DocumentChunkMapper">
+
+    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.DocumentChunk">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="documentId" column="document_id" jdbcType="BIGINT"/>
+            <result property="pipelineId" column="pipeline_id" jdbcType="BIGINT"/>
+            <result property="seqIndex" column="seq_index" jdbcType="INTEGER"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="tokenCount" column="token_count" jdbcType="INTEGER"/>
+            <result property="embeddingId" column="embedding_id" jdbcType="VARCHAR"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,document_id,pipeline_id,
+        seq_index,content,token_count,
+        embedding_id,created_at
+    </sql>
+
+    <select id="findByDocumentAndPipeline" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM document_chunk
+        WHERE document_id = #{documentId} AND pipeline_id = #{pipelineId}
+        ORDER BY seq_index ASC
+    </select>
+
+    <delete id="deleteByDocumentAndPipeline">
+        DELETE FROM document_chunk
+        WHERE document_id = #{documentId} AND pipeline_id = #{pipelineId}
+    </delete>
+</mapper>

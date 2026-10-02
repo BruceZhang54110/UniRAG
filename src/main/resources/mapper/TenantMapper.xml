@@ -6,11 +6,11 @@
 
     <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.Tenant">
             <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="tenantCode" column="tenant_code" jdbcType="VARCHAR"/>
+            <result property="tenant_code" column="tenant_code" jdbcType="VARCHAR"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="enabled" column="enabled" jdbcType="BOOLEAN"/>
-            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
-            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="created_at" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updated_at" column="updated_at" jdbcType="TIMESTAMP"/>
             <result property="deleted" column="deleted" jdbcType="BOOLEAN"/>
     </resultMap>
 
@@ -19,4 +19,11 @@
         enabled,created_at,updated_at,
         deleted
     </sql>
+
+    <select id="findByCode" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tenant
+        WHERE tenant_code = #{tenantCode} AND deleted = FALSE
+    </select>
 </mapper>
