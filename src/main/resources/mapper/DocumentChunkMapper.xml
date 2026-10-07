@@ -7,6 +7,7 @@
     <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.DocumentChunk">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="documentId" column="document_id" jdbcType="BIGINT"/>
+            <result property="documentVersionId" column="document_version_id" jdbcType="BIGINT"/>
             <result property="pipelineId" column="pipeline_id" jdbcType="BIGINT"/>
             <result property="seqIndex" column="seq_index" jdbcType="INTEGER"/>
             <result property="content" column="content" jdbcType="VARCHAR"/>
@@ -16,17 +17,19 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,document_id,pipeline_id,
+        id,document_id,document_version_id,pipeline_id,
         seq_index,content,token_count,
         embedding_id,created_at
     </sql>
 
     <select id="findByDocumentAndPipeline" resultMap="BaseResultMap">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM document_chunk
-        WHERE document_id = #{documentId} AND pipeline_id = #{pipelineId}
-        ORDER BY seq_index ASC
+        SELECT c.id, c.document_id, c.document_version_id, c.pipeline_id,
+               c.seq_index, c.content, c.token_count, c.embedding_id, c.created_at
+        FROM document_chunk c
+        LEFT JOIN document_ingestion_version v ON v.id = c.document_version_id
+        WHERE c.document_id = #{documentId} AND c.pipeline_id = #{pipelineId}
+          AND (c.document_version_id IS NULL OR v.active = TRUE)
+        ORDER BY c.seq_index ASC
     </select>
 
     <delete id="deleteByDocumentAndPipeline">

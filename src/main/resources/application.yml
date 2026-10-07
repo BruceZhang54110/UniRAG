@@ -1,6 +1,11 @@
 spring:
   application:
     name: unirag
+  servlet:
+    multipart:
+      # 应用层上限由 unirag.upload.* 控制；此处仅为容器兜底（略大于单文件上限 50MB）
+      max-file-size: 60MB
+      max-request-size: 70MB
   datasource:
     url: jdbc:postgresql://localhost:5432/uni_rag_db
     driver-class-name: org.postgresql.Driver
@@ -50,3 +55,29 @@ unirag:
     models:
       default:
         api-key: ${OPENAI_API_KEY:sk-placeholder}
+  # 原文文件存储；默认值适用于本地开发，生产凭据应由环境变量或密钥管理系统提供。
+  storage:
+    backend: postgresql            # 存储后端：postgresql、fs 或 s3；默认 postgresql。
+    # PostgreSQL 连接串；留空时复用 spring.datasource 的连接参数，避免重复配置凭据。
+    connection-string: ""
+    table: document_blob           # PostgreSQL 后端的键值表名，Flyway V5 创建。
+    key-field: path                # 键列名，须与 document_blob 表结构一致。
+    value-field: data              # 内容列名，须与 document_blob 表结构一致。
+    root: /                        # OpenDAL 对象键前缀，默认不额外添加前缀。
+    fs-root: ./unirag-files        # backend=fs 时的本地存储目录。
+  # 上传限制；大小单位为字节，时长使用 Spring Duration 格式。
+  upload:
+    max-file-size: 52428800        # 单文件最大 50 MiB，适用于一次性及分块上传。
+    chunk-size: 5242880            # 固定分块大小 5 MiB，尾块可更小。
+    one-shot-threshold: 10485760   # 一次性 multipart 上限 10 MiB；更大文件使用分块上传。
+    session-ttl: 24h               # 未完成会话保留 24 小时，之后允许清理。
+    janitor-interval: 1h           # 每 1 小时扫描并清理过期会话。
+  ingestion:
+    async:
+      enabled: false
+      max-attempts: 3
+      backoff-base: 30s
+      backoff-max: 15m
+      lease: 5m
+      poll-interval: 1s
+      batch-size: 10

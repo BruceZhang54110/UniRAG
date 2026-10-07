@@ -9,13 +9,18 @@ package com.unirag.ingestion;
  * @param content    文档内容（必填，非空白；本期为纯文本/Markdown）
  * @param source     可选来源标识
  */
-public record IngestRequest(String tenantCode, String docName, String title, String content, String source) {
+public record IngestRequest(String tenantCode, String docName, String title, String content, String source,
+                            Long versionId, Long jobId, String expectedFingerprint) {
+
+    public IngestRequest(String tenantCode, String docName, String title, String content, String source) {
+        this(tenantCode, docName, title, content, source, null, null, null);
+    }
 
     public IngestRequest(String tenantCode, String docName, String title, String content) {
-        this(tenantCode, docName, title, content, null);
+        this(tenantCode, docName, title, content, null, null, null, null);
     }
 
     public IngestRequest(String tenantCode, String docName, String content) {
-        this(tenantCode, docName, null, content, null);
+        this(tenantCode, docName, null, content, null, null, null, null);
     }
 }

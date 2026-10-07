@@ -33,11 +33,11 @@ import java.util.List;
 @Service
 public class PipelineExecutor {
 
-    /** 向量 metadata 契约四键（contracts §3，键名本期锁定，006 检索过滤依赖）。 */
     static final String META_DOC_NAME = "doc_name";
     static final String META_DOCUMENT_ID = "document_id";
     static final String META_PIPELINE_KEY = "pipeline_key";
     static final String META_CHUNK_INDEX = "chunk_index";
+    static final String META_DOCUMENT_VERSION_ID = "document_version_id";
 
     static final int MAX_ERROR_LENGTH = 500;
 
@@ -69,12 +69,20 @@ public class PipelineExecutor {
         EmbeddingStore<TextSegment> store = null;
         List<String> writtenIds = List.of();
         try {
+            IngestionRun previousRun = findPreviousRun(document, pipeline);
+            if (previousRun != null && RunStatus.SUCCESS.name().equals(previousRun.getStatus())) {
+                return RunOutcome.success(pipeline, previousRun.getChunkCount());
+            }
+            if (previousRun != null) {
+                runService.removeById(previousRun.getId());
+            }
+
             EmbeddingModel model = router.get(tenantCode, ResourceType.EMBEDDING_MODEL,
                     pipeline.getEmbeddingModelKey(), EmbeddingModel.class);
             store = router.get(tenantCode, ResourceType.EMBEDDING_STORE,
                     pipeline.getEmbeddingStoreKey(), EmbeddingStore.class);
 
-            clearOldChunks(document.getId(), pipeline.getId(), store);
+            clearOldChunks(document.getId(), document.getIngestionVersionId(), pipeline.getId(), store);
 
             List<TextSegment> segments = split(pipeline, document, content);
             Response<List<Embedding>> response = model.embedAll(segments);
@@ -82,6 +90,9 @@ public class PipelineExecutor {
             store.addAll(writtenIds, response.content(), segments);
 
             List<DocumentChunk> chunks = toChunks(document, pipeline, segments, writtenIds);
+            if (document.getIngestionVersionId() != null) {
+                chunks.forEach(chunk -> chunk.setDocumentVersionId(document.getIngestionVersionId()));
+            }
             chunkService.saveBatch(chunks);
 
             saveRun(document, pipeline, RunStatus.SUCCESS, chunks.size(), null, startedAt);
@@ -93,14 +104,34 @@ public class PipelineExecutor {
             String reason = truncate(rootCauseMessage(e));
             log.error("Pipeline ingestion failed: tenant={}, doc={}, pipeline={}, reason={}",
                     tenantCode, document.getDocName(), pipeline.getPipelineKey(), reason);
-            saveRun(document, pipeline, RunStatus.FAILED, 0, reason, startedAt);
+            if (findPreviousRun(document, pipeline) == null) {
+                saveRun(document, pipeline, RunStatus.FAILED, 0, reason, startedAt);
+            }
             return RunOutcome.failed(pipeline, reason);
         }
     }
 
+    private IngestionRun findPreviousRun(Document document, IngestionPipeline pipeline) {
+        if (document.getIngestionJobId() == null && document.getIngestionVersionId() == null) {
+            return null;
+        }
+        var query = runService.lambdaQuery().eq(IngestionRun::getDocumentId, document.getId())
+                .eq(IngestionRun::getPipelineId, pipeline.getId());
+        if (document.getIngestionJobId() != null) {
+            query.eq(IngestionRun::getJobId, document.getIngestionJobId());
+        } else if (document.getIngestionVersionId() != null) {
+            query.eq(IngestionRun::getDocumentVersionId, document.getIngestionVersionId());
+        }
+        return query.last("LIMIT 1").one();
+    }
+
     /** 先清：删旧 chunk 行 + 按旧 embedding_id 删旧向量（research.md R6）。 */
-    private void clearOldChunks(Long documentId, Long pipelineId, EmbeddingStore<TextSegment> store) {
-        List<DocumentChunk> oldChunks = chunkService.findByDocumentAndPipeline(documentId, pipelineId);
+    private void clearOldChunks(Long documentId, Long versionId, Long pipelineId, EmbeddingStore<TextSegment> store) {
+        List<DocumentChunk> oldChunks = versionId == null
+                ? chunkService.findByDocumentAndPipeline(documentId, pipelineId)
+                : chunkService.lambdaQuery().eq(DocumentChunk::getDocumentId, documentId)
+                .eq(DocumentChunk::getDocumentVersionId, versionId)
+                .eq(DocumentChunk::getPipelineId, pipelineId).list();
         List<String> oldEmbeddingIds = oldChunks.stream()
                 .map(DocumentChunk::getEmbeddingId)
                 .filter(id -> id != null && !id.isBlank())
@@ -108,7 +139,13 @@ public class PipelineExecutor {
         if (!oldEmbeddingIds.isEmpty()) {
             store.removeAll(oldEmbeddingIds);
         }
-        chunkService.deleteByDocumentAndPipeline(documentId, pipelineId);
+        if (versionId == null) {
+            chunkService.deleteByDocumentAndPipeline(documentId, pipelineId);
+        } else {
+            chunkService.lambdaUpdate().eq(DocumentChunk::getDocumentId, documentId)
+                    .eq(DocumentChunk::getDocumentVersionId, versionId)
+                    .eq(DocumentChunk::getPipelineId, pipelineId).remove();
+        }
     }
 
     /** 切片并附加契约四键 metadata（contracts §3）。 */
@@ -124,6 +161,9 @@ public class PipelineExecutor {
             metadata.put(META_DOCUMENT_ID, document.getId());
             metadata.put(META_PIPELINE_KEY, pipeline.getPipelineKey());
             metadata.put(META_CHUNK_INDEX, i);
+            if (document.getIngestionVersionId() != null) {
+                metadata.put(META_DOCUMENT_VERSION_ID, document.getIngestionVersionId());
+            }
             segments.add(TextSegment.from(raw.get(i).text(), metadata));
         }
         return segments;
@@ -136,6 +176,7 @@ public class PipelineExecutor {
         for (int i = 0; i < segments.size(); i++) {
             DocumentChunk chunk = new DocumentChunk();
             chunk.setDocumentId(document.getId());
+            chunk.setDocumentVersionId(document.getIngestionVersionId());
             chunk.setPipelineId(pipeline.getId());
             chunk.setSeqIndex(i);
             chunk.setContent(segments.get(i).text());
@@ -151,6 +192,8 @@ public class PipelineExecutor {
                          int chunkCount, String errorMessage, Date startedAt) {
         IngestionRun run = new IngestionRun();
         run.setDocumentId(document.getId());
+        run.setDocumentVersionId(document.getIngestionVersionId());
+        run.setJobId(document.getIngestionJobId());
         run.setPipelineId(pipeline.getId());
         run.setStatus(status.name());
         run.setChunkCount(chunkCount);

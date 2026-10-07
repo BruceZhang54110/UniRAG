@@ -16,6 +16,8 @@ public interface TenantMapper extends BaseMapper<Tenant> {
      * 按租户码查询未软删除租户（ingestion 等按 tenant_code 定位租户，research.md R5）。
      */
     Tenant findByCode(@Param("tenantCode") String tenantCode);
+
+    Tenant findEnabledById(@Param("tenantId") Long tenantId);
 }
 
 

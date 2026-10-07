@@ -23,6 +23,9 @@ public class DocumentChunk {
     @TableField("document_id")
     private Long documentId;
 
+    @TableField("document_version_id")
+    private Long documentVersionId;
+
     @TableField("pipeline_id")
     private Long pipelineId;
 

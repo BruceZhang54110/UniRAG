@@ -7,6 +7,8 @@
     <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.IngestionRun">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="documentId" column="document_id" jdbcType="BIGINT"/>
+            <result property="documentVersionId" column="document_version_id" jdbcType="BIGINT"/>
+            <result property="jobId" column="job_id" jdbcType="BIGINT"/>
             <result property="pipelineId" column="pipeline_id" jdbcType="BIGINT"/>
             <result property="status" column="status" jdbcType="VARCHAR"/>
             <result property="chunkCount" column="chunk_count" jdbcType="INTEGER"/>
@@ -16,7 +18,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,document_id,pipeline_id,
+        id,document_id,document_version_id,job_id,pipeline_id,
         status,chunk_count,error_message,
         started_at,finished_at
     </sql>

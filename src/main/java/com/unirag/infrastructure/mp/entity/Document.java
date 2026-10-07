@@ -53,4 +53,11 @@ public class Document {
 
     @TableField("deleted")
     private Boolean deleted;
+
+    /** Async worker only: fixed version snapshot used to isolate chunks and runs. */
+    @TableField(exist = false)
+    private Long ingestionVersionId;
+
+    @TableField(exist = false)
+    private Long ingestionJobId;
 }

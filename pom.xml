@@ -22,6 +22,8 @@
         <langchain4j.version>1.20.0</langchain4j.version>
         <!-- langchain4j-pgvector 尚无 1.20.0 正式版，最新为 beta30；待正式版发布后对齐 -->
         <langchain4j-pgvector.version>1.20.0-beta30</langchain4j-pgvector.version>
+        <!-- Apache OpenDAL Java 绑定（独立于 Rust core 版本号，见 opendal.apache.org/docs/bindings/java） -->
+        <opendal.version>0.50.6</opendal.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>21</maven.compiler.release>
@@ -71,6 +73,12 @@
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <version>3.5.17</version>
         </dependency>
+        <!-- MP 3.5.9+ 分页插件独立成模块，版本与 mybatis-plus 主版本对齐 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>3.5.17</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -89,9 +97,29 @@
             <artifactId>jasypt-spring-boot-starter</artifactId>
             <version>4.0.4</version>
         </dependency>
+        <!-- Apache OpenDAL：统一存储抽象。主 artifact + 平台 classifier（原生库随 classifier 带入） -->
+        <dependency>
+            <groupId>org.apache.opendal</groupId>
+            <artifactId>opendal</artifactId>
+            <version>${opendal.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.opendal</groupId>
+            <artifactId>opendal</artifactId>
+            <version>${opendal.version}</version>
+            <classifier>${os.detected.classifier}</classifier>
+        </dependency>
     </dependencies>
 
     <build>
+        <extensions>
+            <!-- OpenDAL 原生库按平台探测 classifier（linux-x86_64/osx-aarch_64/...） -->
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.0</version>
+            </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

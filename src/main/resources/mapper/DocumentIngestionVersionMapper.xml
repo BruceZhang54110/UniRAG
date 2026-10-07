@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unirag.infrastructure.mp.mapper.DocumentIngestionVersionMapper">
+    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.DocumentIngestionVersion">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="tenantId" column="tenant_id" jdbcType="BIGINT"/>
+        <result property="documentId" column="document_id" jdbcType="BIGINT"/>
+        <result property="version" column="version" jdbcType="INTEGER"/>
+        <result property="contentFingerprint" column="content_fingerprint" jdbcType="CHAR"/>
+        <result property="storagePath" column="storage_path" jdbcType="VARCHAR"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
+        <result property="mimeType" column="mime_type" jdbcType="VARCHAR"/>
+        <result property="sizeBytes" column="size_bytes" jdbcType="BIGINT"/>
+        <result property="active" column="active" jdbcType="BOOLEAN"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+</mapper>

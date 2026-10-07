@@ -83,6 +83,10 @@ public class IngestionService {
         String fingerprint = DocumentFingerprint.sha256(request.content());
         Document document = documentService.findByTenantAndName(tenant.getId(), request.docName());
 
+        if (request.versionId() != null) {
+            return doVersionedIngest(request, tenant, pipelines, document, fingerprint);
+        }
+
         if (document != null && fingerprint.equals(document.getContentFingerprint())) {
             // 同内容重复摄取：no-op，数据不动（contracts §5 / research.md R4）
             List<RunOutcome> noopRuns = recordNoopRuns(document, pipelines);
@@ -117,6 +121,27 @@ public class IngestionService {
                 request.tenantCode(), request.docName(), finalStatus, saved.getVersion(), totalChunks);
         return new IngestOutcome(saved.getId(), request.docName(),
                 IngestOutcome.Status.valueOf(finalStatus.name()), saved.getVersion(), runs, null);
+    }
+
+    private IngestOutcome doVersionedIngest(IngestRequest request, Tenant tenant,
+                                            List<IngestionPipeline> pipelines, Document document,
+                                            String fingerprint) {
+        if (document == null || !fingerprint.equals(request.expectedFingerprint())) {
+            throw new IllegalStateException("INGESTION_VERSION_CONTENT_MISMATCH");
+        }
+        document.setIngestionVersionId(request.versionId());
+        document.setIngestionJobId(request.jobId());
+        if (pipelines.isEmpty()) {
+            return new IngestOutcome(document.getId(), request.docName(), IngestOutcome.Status.FAILED,
+                    document.getVersion(), List.of(), "NO_ENABLED_PIPELINE");
+        }
+        List<RunOutcome> runs = pipelines.stream()
+                .map(pipeline -> pipelineExecutor.execute(request.tenantCode(), document, pipeline, request.content()))
+                .toList();
+        DocumentStatus status = summarize(runs);
+        return new IngestOutcome(document.getId(), request.docName(),
+                IngestOutcome.Status.valueOf(status.name()), request.versionId().intValue(), runs,
+                status == DocumentStatus.INGESTED ? null : "PIPELINE_FAILED");
     }
 
     /** 新文档插入 INGESTING 行（先拿 id 供向量 metadata 回链）；既有文档替换：version+1、状态归位 INGESTING。 */

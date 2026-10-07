@@ -26,4 +26,10 @@
         FROM tenant
         WHERE tenant_code = #{tenantCode} AND deleted = FALSE
     </select>
+
+    <select id="findEnabledById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM tenant
+        WHERE id = #{tenantId} AND enabled = TRUE AND deleted = FALSE
+    </select>
 </mapper>

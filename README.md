@@ -64,6 +64,12 @@ src/
 
 同一租户可配置多个向量存储资源（不同 key/表/维度），支撑粗细粒度等多嵌入表场景。
 
+## 文档上传与存储（007）
+
+文档上传接口支持纯文本和 Markdown：小文件通过 multipart 一次性上传，大文件通过固定分块协议断点续传。上传完成后会自动触发租户启用的摄取管线，并提供原文下载、文档列表和详情查询。
+
+原文通过 Apache OpenDAL 统一存储抽象，默认写入 PostgreSQL `bytea` 键值表；存储后端可通过 `unirag.storage.backend` 切换为文件系统或 S3。租户由 `X-Tenant-Code` 请求头定位，上传限制和会话清理周期见 `application.yml` 中的 `unirag.upload.*` 配置。
+
 ## 技术基线
 
 - Spring Boot **3.5.16**（父 POM 锁定）

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unirag.infrastructure.mp.mapper.UploadChunkMapper">
+
+    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.UploadChunk">
+            <result property="sessionId" column="session_id" jdbcType="BIGINT"/>
+            <result property="seq" column="seq" jdbcType="INTEGER"/>
+            <result property="sizeBytes" column="size_bytes" jdbcType="INTEGER"/>
+            <result property="data" column="data"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        session_id,seq,size_bytes,
+        data,created_at
+    </sql>
+
+    <select id="findSeqsBySessionId" resultType="java.lang.Integer">
+        SELECT seq
+        FROM upload_chunk
+        WHERE session_id = #{sessionId}
+        ORDER BY seq
+    </select>
+
+    <select id="findBySessionIdOrderBySeq" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM upload_chunk
+        WHERE session_id = #{sessionId}
+        ORDER BY seq
+    </select>
+
+    <delete id="deleteBySessionId">
+        DELETE FROM upload_chunk
+        WHERE session_id = #{sessionId}
+    </delete>
+</mapper>

@@ -92,6 +92,8 @@ public abstract class AbstractIngestionIT extends AbstractPostgresIntegrationTes
         if (tenantId != null) {
             jdbcTemplate.update("DELETE FROM document_chunk WHERE document_id IN (SELECT id FROM document WHERE tenant_id = ?)", tenantId);
             jdbcTemplate.update("DELETE FROM ingestion_run WHERE document_id IN (SELECT id FROM document WHERE tenant_id = ?)", tenantId);
+            jdbcTemplate.update("DELETE FROM document_ingestion_job WHERE tenant_id = ?", tenantId);
+            jdbcTemplate.update("DELETE FROM document_ingestion_version WHERE tenant_id = ?", tenantId);
             jdbcTemplate.update("DELETE FROM document WHERE tenant_id = ?", tenantId);
         }
         for (String table : vectorTables) {

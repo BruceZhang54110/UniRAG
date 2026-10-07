@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unirag.infrastructure.mp.mapper.DocumentIngestionJobMapper">
+    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.DocumentIngestionJob">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="tenantId" column="tenant_id" jdbcType="BIGINT"/>
+        <result property="documentId" column="document_id" jdbcType="BIGINT"/>
+        <result property="documentVersionId" column="document_version_id" jdbcType="BIGINT"/>
+        <result property="documentVersion" column="document_version" jdbcType="INTEGER"/>
+        <result property="contentFingerprint" column="content_fingerprint" jdbcType="CHAR"/>
+        <result property="status" column="status" jdbcType="VARCHAR"/>
+        <result property="stage" column="stage" jdbcType="VARCHAR"/>
+        <result property="attemptCount" column="attempt_count" jdbcType="INTEGER"/>
+        <result property="maxAttempts" column="max_attempts" jdbcType="INTEGER"/>
+        <result property="nextAttemptAt" column="next_attempt_at" jdbcType="TIMESTAMP"/>
+        <result property="leaseToken" column="lease_token" jdbcType="VARCHAR"/>
+        <result property="leasedUntil" column="leased_until" jdbcType="TIMESTAMP"/>
+        <result property="lastErrorCode" column="last_error_code" jdbcType="VARCHAR"/>
+        <result property="lastErrorMessage" column="last_error_message" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result property="startedAt" column="started_at" jdbcType="TIMESTAMP"/>
+        <result property="finishedAt" column="finished_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, tenant_id, document_id, document_version_id, document_version,
+        content_fingerprint, status, stage, attempt_count, max_attempts,
+        next_attempt_at, lease_token, leased_until, last_error_code,
+        last_error_message, created_at, updated_at, started_at, finished_at
+    </sql>
+
+    <select id="claimBatch" resultMap="BaseResultMap">
+        WITH candidates AS (
+            SELECT id FROM document_ingestion_job
+            WHERE (status IN ('QUEUED', 'RETRYING') AND next_attempt_at &lt;= CURRENT_TIMESTAMP)
+               OR (status = 'PROCESSING' AND leased_until &lt;= CURRENT_TIMESTAMP)
+            ORDER BY next_attempt_at, id
+            FOR UPDATE SKIP LOCKED
+            LIMIT #{limit}
+        ), claimed AS (
+            UPDATE document_ingestion_job j
+            SET status = 'PROCESSING', stage = 'CLAIMED',
+                lease_token = md5(random()::text || clock_timestamp()::text || j.id::text),
+                leased_until = CURRENT_TIMESTAMP + (#{leaseMillis} * INTERVAL '1 millisecond'),
+                attempt_count = j.attempt_count + CASE WHEN j.status = 'PROCESSING' THEN 0 ELSE 1 END,
+                started_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP,
+                last_error_code = CASE WHEN j.status = 'PROCESSING' THEN 'LEASE_EXPIRED' ELSE j.last_error_code END,
+                last_error_message = CASE WHEN j.status = 'PROCESSING' THEN 'Worker lease expired; processing resumed.' ELSE j.last_error_message END
+            FROM candidates c WHERE j.id = c.id
+            RETURNING j.*
+        ) SELECT * FROM claimed ORDER BY id
+    </select>
+
+    <select id="lockTenant" resultType="long">
+        SELECT id FROM tenant WHERE id = #{tenantId} FOR UPDATE
+    </select>
+    <select id="nextVersion" resultType="int">
+        SELECT COALESCE(MAX(version), 0) + 1 FROM document_ingestion_version
+        WHERE tenant_id = #{tenantId} AND document_id = #{documentId}
+    </select>
+    <insert id="insertVersionSnapshot">
+        INSERT INTO document_ingestion_version
+            (tenant_id, document_id, version, content_fingerprint, storage_path, title,
+             file_name, mime_type, size_bytes, active, created_at, updated_at)
+        VALUES (#{version.tenantId}, #{version.documentId}, #{version.version}, #{version.contentFingerprint}, #{version.storagePath}, #{version.title},
+                #{version.fileName}, #{version.mimeType}, #{version.sizeBytes}, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ON CONFLICT (tenant_id, document_id, version) DO NOTHING
+    </insert>
+    <insert id="insertJob">
+        INSERT INTO document_ingestion_job
+            (tenant_id, document_id, document_version_id, document_version, content_fingerprint,
+             status, stage, attempt_count, max_attempts, next_attempt_at, created_at, updated_at)
+        VALUES (#{job.tenantId}, #{job.documentId}, #{job.documentVersionId}, #{job.documentVersion}, #{job.contentFingerprint},
+                'QUEUED', 'UPLOADED', 0, #{job.maxAttempts}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ON CONFLICT (tenant_id, document_id, document_version, content_fingerprint) DO NOTHING
+    </insert>
+    <select id="findDocumentName" resultType="string">
+        SELECT doc_name FROM document WHERE tenant_id = #{tenantId} AND id = #{documentId}
+    </select>
+    <update id="markIngesting">
+        UPDATE document_ingestion_job SET stage='INGESTING', updated_at=CURRENT_TIMESTAMP
+        WHERE id=#{id} AND status='PROCESSING' AND lease_token=#{token} AND leased_until &gt; CURRENT_TIMESTAMP
+    </update>
+    <select id="lockForReady" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM document_ingestion_job
+        WHERE id=#{id} AND tenant_id=#{tenantId} AND status='PROCESSING' AND lease_token=#{token}
+          AND leased_until &gt; CURRENT_TIMESTAMP AND document_version_id=#{versionId}
+        FOR UPDATE
+    </select>
+    <select id="countVersionChunks" resultType="int">
+        SELECT COUNT(*) FROM document_chunk WHERE document_id=#{documentId} AND document_version_id=#{versionId}
+    </select>
+    <update id="deactivateActiveVersions">
+        UPDATE document_ingestion_version SET active=FALSE, updated_at=CURRENT_TIMESTAMP
+        WHERE tenant_id=#{tenantId} AND document_id=#{documentId} AND id&lt;&gt;#{versionId} AND active=TRUE
+    </update>
+    <update id="activateVersion">
+        UPDATE document_ingestion_version SET active=TRUE, updated_at=CURRENT_TIMESTAMP
+        WHERE id=#{versionId} AND tenant_id=#{tenantId} AND document_id=#{documentId}
+    </update>
+    <update id="finalizeReady">
+        UPDATE document_ingestion_job SET status='READY', stage='READY', lease_token=NULL,
+            leased_until=NULL, finished_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP,
+            last_error_code=NULL, last_error_message=NULL
+        WHERE id=#{id} AND status='PROCESSING' AND lease_token=#{token}
+          AND leased_until &gt; CURRENT_TIMESTAMP AND document_version_id=#{versionId}
+    </update>
+    <update id="updateDocumentReady">
+        UPDATE document d SET title=v.title, content_fingerprint=v.content_fingerprint,
+            status='INGESTED', version=v.version,
+            chunk_count=(SELECT COUNT(*) FROM document_chunk c WHERE c.document_id=d.id AND c.document_version_id=v.id),
+            updated_at=CURRENT_TIMESTAMP
+        FROM document_ingestion_version v
+        WHERE v.id=#{versionId} AND v.document_id=d.id AND v.tenant_id=d.tenant_id
+          AND d.id=#{documentId} AND d.tenant_id=#{tenantId}
+    </update>
+    <update id="markRetryOrFailed">
+        UPDATE document_ingestion_job
+        SET status=CASE WHEN #{attempt} &gt;= #{maxAttempts} THEN 'FAILED' ELSE 'RETRYING' END,
+            stage=CASE WHEN #{attempt} &gt;= #{maxAttempts} THEN 'FAILED' ELSE 'CLAIMED' END,
+            next_attempt_at=CURRENT_TIMESTAMP + (#{delayMillis} * INTERVAL '1 millisecond'),
+            lease_token=NULL, leased_until=NULL,
+            finished_at=CASE WHEN #{attempt} &gt;= #{maxAttempts} THEN CURRENT_TIMESTAMP ELSE NULL END,
+            last_error_code=#{code}, last_error_message=#{message}, updated_at=CURRENT_TIMESTAMP
+        WHERE id=#{id} AND status='PROCESSING' AND lease_token=#{token}
+    </update>
+    <update id="recoverExpiredLeases">
+        UPDATE document_ingestion_job SET status='RETRYING', stage='CLAIMED', lease_token=NULL, leased_until=NULL,
+            next_attempt_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP
+        WHERE status='PROCESSING' AND leased_until &lt;= CURRENT_TIMESTAMP
+    </update>
+</mapper>

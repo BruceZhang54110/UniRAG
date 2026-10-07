@@ -18,9 +18,13 @@ public final class DocumentFingerprint {
      * 计算内容的 SHA-256 指纹（64 字符小写 hex）。
      */
     public static String sha256(String content) {
+        return sha256(content.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static String sha256(byte[] content) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(content.getBytes(StandardCharsets.UTF_8));
+            byte[] hash = digest.digest(content);
             StringBuilder hex = new StringBuilder(hash.length * 2);
             for (byte b : hash) {
                 hex.append(Character.forDigit((b >> 4) & 0xF, 16));
@@ -28,7 +32,6 @@ public final class DocumentFingerprint {
             }
             return hex.toString();
         } catch (NoSuchAlgorithmException e) {
-            // SHA-256 为 JDK 强制实现算法，不可能到达
             throw new IllegalStateException("SHA-256 algorithm not available", e);
         }
     }

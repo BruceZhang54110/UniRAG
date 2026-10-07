@@ -31,4 +31,36 @@
         FROM document
         WHERE tenant_id = #{tenantId} AND doc_name = #{docName} AND deleted = FALSE
     </select>
+
+    <select id="pageUploadList" resultType="map">
+        SELECT d.doc_name,
+               COALESCE(v.title, d.title) AS title,
+               COALESCE(d.status, 'INGESTED') AS status,
+               COALESCE(v.version, d.version) AS version,
+               COALESCE(v_chunks.chunk_count, d.chunk_count) AS chunk_count,
+               COALESCE(v.size_bytes, f.size_bytes) AS size_bytes,
+               COALESCE(v.mime_type, f.mime_type) AS mime_type, d.created_at
+        FROM document d
+        LEFT JOIN document_file f ON f.document_id = d.id
+        LEFT JOIN document_ingestion_version v ON v.document_id=d.id AND v.tenant_id=d.tenant_id AND v.active=TRUE
+        LEFT JOIN LATERAL (SELECT COUNT(*) AS chunk_count FROM document_chunk c WHERE c.document_id=d.id AND (c.document_version_id=v.id OR (v.id IS NULL AND c.document_version_id IS NULL))) v_chunks ON TRUE
+        WHERE d.tenant_id = #{tenantId} AND d.deleted = FALSE
+        ORDER BY d.created_at DESC, d.id DESC
+    </select>
+
+    <select id="findUploadDetailByTenantAndName" resultType="map">
+        SELECT d.id AS document_id, d.doc_name, COALESCE(v.title, d.title) AS title,
+               COALESCE(d.status, 'INGESTED') AS status, COALESCE(v.version, d.version) AS version,
+               COALESCE(v_chunks.chunk_count, d.chunk_count) AS chunk_count,
+               COALESCE(v.file_name, f.file_name) AS file_name,
+               COALESCE(v.mime_type, f.mime_type) AS mime_type,
+               COALESCE(v.size_bytes, f.size_bytes) AS size_bytes,
+               COALESCE(v.storage_path, f.storage_path) AS storage_path,
+               d.created_at, d.updated_at
+        FROM document d
+        LEFT JOIN document_file f ON f.document_id = d.id
+        LEFT JOIN document_ingestion_version v ON v.document_id=d.id AND v.tenant_id=d.tenant_id AND v.active=TRUE
+        LEFT JOIN LATERAL (SELECT COUNT(*) AS chunk_count FROM document_chunk c WHERE c.document_id=d.id AND (c.document_version_id=v.id OR (v.id IS NULL AND c.document_version_id IS NULL))) v_chunks ON TRUE
+        WHERE d.tenant_id = #{tenantId} AND d.doc_name = #{docName} AND d.deleted = FALSE
+    </select>
 </mapper>

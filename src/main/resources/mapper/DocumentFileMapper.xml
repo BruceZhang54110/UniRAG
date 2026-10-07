@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unirag.infrastructure.mp.mapper.DocumentFileMapper">
+
+    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.DocumentFile">
+            <id property="documentId" column="document_id" jdbcType="BIGINT"/>
+            <result property="storagePath" column="storage_path" jdbcType="VARCHAR"/>
+            <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
+            <result property="mimeType" column="mime_type" jdbcType="VARCHAR"/>
+            <result property="sizeBytes" column="size_bytes" jdbcType="BIGINT"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        document_id,storage_path,file_name,
+        mime_type,size_bytes,created_at,
+        updated_at
+    </sql>
+
+    <select id="findByDocumentId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM document_file
+        WHERE document_id = #{documentId}
+    </select>
+</mapper>

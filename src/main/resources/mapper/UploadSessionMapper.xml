@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unirag.infrastructure.mp.mapper.UploadSessionMapper">
+
+    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.UploadSession">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="tenantId" column="tenant_id" jdbcType="BIGINT"/>
+            <result property="docName" column="doc_name" jdbcType="VARCHAR"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="totalSize" column="total_size" jdbcType="BIGINT"/>
+            <result property="chunkSize" column="chunk_size" jdbcType="INTEGER"/>
+            <result property="totalChunks" column="total_chunks" jdbcType="INTEGER"/>
+            <result property="contentSha256" column="content_sha256" jdbcType="CHAR"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="expiresAt" column="expires_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,tenant_id,doc_name,
+        title,total_size,chunk_size,
+        total_chunks,content_sha256,status,
+        created_at,updated_at,expires_at
+    </sql>
+
+    <select id="findExpiredInitSessions" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM upload_session
+        WHERE status = 'INIT' AND expires_at &lt; #{now}
+    </select>
+</mapper>
