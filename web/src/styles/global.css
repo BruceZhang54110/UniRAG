@@ -1,0 +1,90 @@
+/**
+ * 首页响应式与容器规则（T028 / ui-contract §4）。
+ *
+ * 断点契约：
+ * - ≥1280px：内容区最大 880px 居中（由 `HomePage` 的内联样式承担）；
+ * - 1024–1280px：侧栏可折叠（`ConsoleShell` 自身行为），内容区自适应；
+ * - 768–1024px：导航层由 2:1 左右分栏改为上下堆叠；
+ * - <768px：最近更新只显示 4 条，内容区增加两侧留白。
+ *
+ * 任一断点下不得出现横向滚动：所有容器宽度均以 100% 为上限，不使用固定宽度。
+ */
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.home-content {
+  padding: 48px 0 64px;
+}
+
+/* 知识导航层：左（最近更新）2 : 右（行动卡）1 */
+.home-nav-layer {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.recent-documents-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.recent-doc-item {
+  min-width: 0;
+}
+
+.recent-doc-button {
+  transition: background 120ms ease;
+}
+
+.recent-doc-button:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.recent-doc-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+.recent-documents-browse {
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recent-doc-button {
+    transition: none;
+  }
+}
+
+@media (max-width: 1279px) {
+  .home-content {
+    padding: 40px 0 56px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .home-nav-layer {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .home-content {
+    padding: 24px 16px 40px;
+  }
+
+  /* 窄屏只保留 4 条最近更新（ui-contract §4） */
+  .recent-doc-item:nth-child(n + 5) {
+    display: none;
+  }
+}

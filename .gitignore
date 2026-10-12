@@ -52,6 +52,15 @@ logs/
 .env
 .env.*
 !.env.example
+*.local
+.env.local
+
+# ----- Frontend (web/) -----
+node_modules/
+web/dist/
+web/node_modules/
+web/.vite/
+web/coverage/
 
 # ----- Local agent tooling -----
 .kimi/
