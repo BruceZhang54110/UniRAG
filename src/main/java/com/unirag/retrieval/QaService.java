@@ -9,6 +9,8 @@ import com.unirag.retrieval.pipeline.DefaultPipeline;
 import com.unirag.retrieval.pipeline.Stage;
 import com.unirag.retrieval.pipeline.StageContext;
 import com.unirag.retrieval.pipeline.StageStatus;
+import com.unirag.retrieval.rerank.RerankProperties;
+import com.unirag.retrieval.rerank.RerankSupport;
 import com.unirag.retrieval.stage.ChatGenerationStage;
 import com.unirag.retrieval.stage.MergeStage;
 import com.unirag.retrieval.stage.PromptAssemblyStage;
@@ -31,11 +33,15 @@ public class QaService {
     private final TenantContext tenantContext;
     private final DefaultPipeline pipeline;
     private final ObservationMetrics metrics;
+    private final RerankSupport rerankSupport;
+    private final RerankProperties rerankProperties;
     private final List<Stage<?, ?>> chain;
 
     public QaService(TenantContext tenantContext,
                      DefaultPipeline pipeline,
                      ObservationMetrics metrics,
+                     RerankSupport rerankSupport,
+                     RerankProperties rerankProperties,
                      QueryEmbeddingStage queryEmbeddingStage,
                      VectorSearchStage vectorSearchStage,
                      MergeStage mergeStage,
@@ -44,6 +50,8 @@ public class QaService {
         this.tenantContext = tenantContext;
         this.pipeline = pipeline;
         this.metrics = metrics;
+        this.rerankSupport = rerankSupport;
+        this.rerankProperties = rerankProperties;
         this.chain = List.of(queryEmbeddingStage, vectorSearchStage, mergeStage,
                 promptAssemblyStage, chatGenerationStage);
     }
@@ -55,8 +63,13 @@ public class QaService {
         StageContext ctx = new StageContext(traceId, StageResult.KIND_QA, tenantCode, tenantId,
                 request.sessionId(), request.question(), null);
         // 问题即检索查询；问答不接受单文档过滤（contracts §3）
+        boolean rerankIntent = request.rerank() == null || request.rerank();
+        boolean rerank = rerankIntent && rerankSupport.enabledFor(tenantCode);
+        int recallTopK = rerank
+                ? Math.max(request.topK(), rerankProperties.recallTopK())
+                : request.topK();
         RetrievalRequest retrievalRequest = new RetrievalRequest(request.question(), request.granularity(),
-                null, request.topK(), request.minScore());
+                null, request.topK(), request.minScore(), recallTopK, rerank);
         long startedAt = System.nanoTime();
         QaAnswer answer;
         try {

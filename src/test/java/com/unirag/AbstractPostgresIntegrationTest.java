@@ -20,7 +20,9 @@ import org.springframework.boot.test.context.SpringBootTest;
  */
 @SpringBootTest(properties = {
         // 集成测试关闭 MyBatis SQL 控制台输出：防止测试数据（含 api-key）进入日志，干扰 FR-008 断言
-        "mybatis-plus.configuration.log-impl=org.apache.ibatis.logging.nologging.NoLoggingImpl"
+        "mybatis-plus.configuration.log-impl=org.apache.ibatis.logging.nologging.NoLoggingImpl",
+        // 集成测试使用确定性嵌入模型（分数约 0.55），与生产 bge-m3 的分布不同，沿用旧行为不过滤
+        "unirag.retrieval.default-min-score=0.0"
 })
 public abstract class AbstractPostgresIntegrationTest {
 }

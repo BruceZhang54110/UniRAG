@@ -36,6 +36,11 @@ public class TenantResourceRouter {
         return applicationContext.getBean(index.beanName(tenantCode, type, resourceKey), beanType);
     }
 
+    /** 只读索引：该租户是否已有可用的 primary 资源（不构建/不解析实例）。 */
+    public boolean hasPrimary(String tenantCode, ResourceType type) {
+        return indexRegistry.get().primaryKey(tenantCode, type).isPresent();
+    }
+
     public <T> T getPrimary(String tenantCode, ResourceType type, Class<T> beanType) {
         TenantResourceIndex index = indexRegistry.get();
         TenantResourceKey key = index.primaryKey(tenantCode, type)

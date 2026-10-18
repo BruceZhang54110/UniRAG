@@ -65,6 +65,10 @@ public class RetrievalObservation {
     @TableField("error_message")
     private String errorMessage;
 
+    /** 重排候选明细（仅 ID/分数/keep-drop），用于灰度与排障；可空。 */
+    @TableField("detail")
+    private String detail;
+
     @TableField("query_digest")
     private String queryDigest;
 

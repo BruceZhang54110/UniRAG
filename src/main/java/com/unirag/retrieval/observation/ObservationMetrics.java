@@ -40,6 +40,12 @@ public class ObservationMetrics {
         registry.counter("unirag.retrieval.table.failures", TENANT_TAG, tenantCode).increment();
     }
 
+    /** 重排调用量与延迟（011，FR-007）；状态只取 SUCCESS/DEGRADED。 */
+    public void recordRerank(String tenantCode, StageStatus status, Duration duration) {
+        registry.counter("unirag.rerank.requests", TENANT_TAG, tenantCode, STATUS_TAG, status.name()).increment();
+        timer("unirag.rerank.duration", tenantCode).record(duration);
+    }
+
     /** 留存清理量（T040）：全局计数，不带租户标签（清理任务不区分租户）。 */
     public void recordRetentionCleanup(int deleted) {
         if (deleted > 0) {

@@ -44,21 +44,30 @@ public class DefaultPipeline {
         for (Stage<?, ?> stage : stages) {
             StageName name = stage.name();
             long startedAt = System.nanoTime();
+            log.debug("[retrieval] trace={} stage={} begin kind={} tenant={}",
+                    ctx.traceId(), name, ctx.kind(), ctx.tenantCode());
             Object output;
             try {
                 Object effectiveInput = applyBeforeEnhancements(name, current, ctx);
                 notifyObserversBefore(name, effectiveInput, ctx);
                 output = applyAfterEnhancements(name, execute(stage, effectiveInput, ctx), ctx);
             } catch (ShortCircuit shortCircuit) {
-                notifyObserversAfter(name, shortCircuit.output(),
-                        StageOutcome.success(elapsedMillis(startedAt)), ctx);
+                long elapsed = elapsedMillis(startedAt);
+                log.debug("[retrieval] trace={} stage={} short-circuit elapsed={}ms",
+                        ctx.traceId(), name, elapsed);
+                notifyObserversAfter(name, shortCircuit.output(), StageOutcome.success(elapsed), ctx);
                 return shortCircuit.output();
             } catch (RuntimeException e) {
+                long elapsed = elapsedMillis(startedAt);
+                log.debug("[retrieval] trace={} stage={} failed elapsed={}ms error={}",
+                        ctx.traceId(), name, elapsed, describe(e));
                 // 阶段失败（含 FAIL_CLOSED 的扩展失败）也要留痕，运维才能定位失败阶段与原因
-                notifyObserversAfter(name, null, StageOutcome.failed(elapsedMillis(startedAt), describe(e)), ctx);
+                notifyObserversAfter(name, null, StageOutcome.failed(elapsed, describe(e)), ctx);
                 throw e;
             }
-            notifyObserversAfter(name, output, StageOutcome.success(elapsedMillis(startedAt)), ctx);
+            long elapsed = elapsedMillis(startedAt);
+            log.debug("[retrieval] trace={} stage={} success elapsed={}ms", ctx.traceId(), name, elapsed);
+            notifyObserversAfter(name, output, StageOutcome.success(elapsed), ctx);
             current = output;
         }
         return current;

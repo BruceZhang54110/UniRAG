@@ -100,6 +100,22 @@ class QaServiceIT extends AbstractRetrievalIT {
     }
 
     @Test
+    void 只返回回答实际引用的片段且保持提示词顺序() {
+        when(chatModel.chat(any(ChatRequest.class)))
+                .thenReturn(chatResponse("只依据第二条资料作答。[2]"));
+
+        QaService.QaResult result = ask();
+
+        List<RetrievedChunk> citations = result.answer().citations();
+        assertThat(citations).hasSize(1);
+        RetrievedChunk citation = citations.get(0);
+        assertThat(capturedUserPrompt()).contains(
+                "[2] 来源：docName=" + citation.docName()
+                        + "，pipelineKey=" + citation.pipelineKey()
+                        + "，chunkIndex=" + citation.chunkIndex());
+    }
+
+    @Test
     void 系统提示词与生成参数按契约设置() {
         ask();
         ChatRequest request = capturedRequest();

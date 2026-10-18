@@ -1,6 +1,7 @@
 package com.unirag.retrieval.web;
 
 import com.unirag.retrieval.QaService;
+import com.unirag.retrieval.RetrievalProperties;
 import com.unirag.upload.support.ApiResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,13 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class QaController {
 
     private final QaService qaService;
+    private final RetrievalProperties properties;
 
-    public QaController(QaService qaService) {
+    public QaController(QaService qaService, RetrievalProperties properties) {
         this.qaService = qaService;
+        this.properties = properties;
     }
 
     @PostMapping("/ask")
     public ApiResponse<AskResponse> ask(@RequestBody AskRequest request) {
-        return ApiResponse.ok(AskResponse.of(qaService.ask(request.toModel())));
+        return ApiResponse.ok(AskResponse.of(qaService.ask(request.toModel(properties.defaultMinScore()))));
     }
 }

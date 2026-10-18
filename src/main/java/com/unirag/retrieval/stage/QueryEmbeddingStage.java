@@ -12,6 +12,7 @@ import com.unirag.tenant.resource.TenantResourceRouter;
 import com.unirag.upload.support.ApiException;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -22,6 +23,7 @@ import java.util.Map;
  * 查询向量化（FR-001）：先解析目标表，再经 {@link TenantResourceRouter} 取各表所属管线的
  * EMBEDDING_MODEL 把查询向量化。同一租户不同管线可配不同嵌入模型，故按模型分别向量化。
  */
+@Slf4j
 @Component
 public class QueryEmbeddingStage implements Stage<RetrievalRequest, QueryVector> {
 
@@ -41,6 +43,13 @@ public class QueryEmbeddingStage implements Stage<RetrievalRequest, QueryVector>
     @Override
     public QueryVector execute(RetrievalRequest request, StageContext ctx) {
         List<TargetTable> targets = targetResolver.resolve(ctx.tenantId(), request.granularity());
+        log.debug("[retrieval] trace={} QUERY_EMBEDDING query={} granularity={} documentId={} topK={} minScore={}",
+                ctx.traceId(), request.query(), request.granularity(), request.documentId(),
+                request.topK(), request.minScore());
+        if (log.isDebugEnabled()) {
+            log.debug("[retrieval] trace={} QUERY_EMBEDDING targets={}", ctx.traceId(),
+                    targets.stream().map(t -> t.storeKey() + "/" + t.pipelineKey() + "/" + t.modelKey()).toList());
+        }
         Map<String, Embedding> embeddings = new LinkedHashMap<>();
         for (TargetTable target : targets) {
             embeddings.computeIfAbsent(target.modelKey(), modelKey -> embed(ctx, modelKey, request.query()));

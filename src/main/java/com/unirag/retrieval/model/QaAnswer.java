@@ -5,7 +5,8 @@ import java.util.List;
 /**
  * 问答结果（data-model.md §5，contracts/retrieval-api.md §3）：回答文本 + 引用清单 + 降级语义。
  *
- * @param citations    顺序与提示词中引用标注一致
+ * @param citations    顺序与提示词中引用标注一致；只含回答实际引用到的片段，
+ *                     回答未标注时回退为全部检索片段
  * @param degradeReason 取值见 {@link #NO_CONTEXT}
  */
 public record QaAnswer(String answer, List<RetrievedChunk> citations, boolean degraded, String degradeReason) {

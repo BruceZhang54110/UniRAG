@@ -7,6 +7,7 @@ import com.unirag.retrieval.pipeline.StageName;
 import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingMatch;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -18,6 +19,7 @@ import java.util.Objects;
  * {@code (documentId, pipelineKey, chunkIndex)} 升序兜底，截断到全局 topK，不做跨表去重
  * —— 粗/细粒度片段文本本就不同，"粗排定位、细排佐证"需要两者并存。
  */
+@Slf4j
 @Component
 public class MergeStage implements Stage<VectorSearchResult, MergeResult> {
 
@@ -48,8 +50,19 @@ public class MergeStage implements Stage<VectorSearchResult, MergeResult> {
                 .flatMap(hits -> hits.matches().stream().map(match -> toChunk(hits, match)))
                 .filter(Objects::nonNull)
                 .sorted(ORDER)
-                .limit(search.query().request().topK())
+                .limit(search.query().request().recallTopK())
                 .toList();
+        if (log.isDebugEnabled()) {
+            log.debug("[retrieval] trace={} MERGE topK={} recallTopK={} searchedTables={} failedTables={} merged={}",
+                    ctx.traceId(), search.query().request().topK(), search.query().request().recallTopK(),
+                    search.searchedTables(), search.failedTables().size(), chunks.size());
+            for (int i = 0; i < chunks.size(); i++) {
+                RetrievedChunk chunk = chunks.get(i);
+                log.debug("[retrieval] trace={} MERGE rank={} score={} docId={} docName={} pipeline={} chunkIndex={}",
+                        ctx.traceId(), i + 1, String.format("%.4f", chunk.score()), chunk.documentId(),
+                        chunk.docName(), chunk.pipelineKey(), chunk.chunkIndex());
+            }
+        }
         return new MergeResult(search.query().request(), chunks, search.searchedTables(),
                 search.failedTables());
     }

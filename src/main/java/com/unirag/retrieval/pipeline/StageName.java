@@ -16,6 +16,9 @@ public enum StageName {
     /** 跨表确定性归并 + topK。 */
     MERGE,
 
+    /** 重排序；以 MERGE 的增强型扩展执行，观测上独立成行。 */
+    RERANK,
+
     /** 提示词组装。 */
     PROMPT_ASSEMBLY,
 

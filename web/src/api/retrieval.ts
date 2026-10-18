@@ -34,7 +34,7 @@ export interface AskParams {
   /** 摄取管线 key 或向量存储资源 key；省略表示检索全部已启用管线 */
   granularity?: string;
   topK?: number;
-  /** 取值范围 `[0,1]`，语义为 `(1 + cosine_similarity) / 2` */
+  /** 取值范围 `[0,1]`，语义为 `(1 + cosine_similarity) / 2`；省略时后端按校准默认 0.70 过滤 */
   minScore?: number;
   sessionId?: string;
   signal?: AbortSignal;

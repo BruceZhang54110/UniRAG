@@ -5,9 +5,12 @@ import com.unirag.tenant.resource.ResourceType;
 import com.unirag.tenant.resource.TenantResourceNotFoundException;
 import com.unirag.upload.support.TenantContext;
 import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.output.Response;
+import dev.langchain4j.model.scoring.ScoringModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -15,8 +18,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.util.List;
 import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
 
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -81,6 +88,19 @@ public abstract class AbstractRetrievalIT extends AbstractIngestionIT {
         when(tenantResourceRouter.get(eq(tenantCode), eq(ResourceType.EMBEDDING_MODEL), eq(modelKey),
                 eq(EmbeddingModel.class)))
                 .thenThrow(TenantResourceNotFoundException.notFound(tenantCode, ResourceType.EMBEDDING_MODEL, modelKey));
+    }
+
+    /** 装配替身重排序模型：按片段文本给出确定性分数，不访问外网。 */
+    protected ScoringModel stubRerankModel(String tenantCode, ToDoubleFunction<TextSegment> scorer) {
+        ScoringModel model = mock(ScoringModel.class);
+        when(model.scoreAll(anyList(), anyString())).thenAnswer(invocation -> {
+            List<TextSegment> segments = invocation.getArgument(0);
+            return Response.from(segments.stream().map(scorer::applyAsDouble).toList());
+        });
+        when(tenantResourceRouter.hasPrimary(tenantCode, ResourceType.RERANK_MODEL)).thenReturn(true);
+        when(tenantResourceRouter.getPrimary(eq(tenantCode), eq(ResourceType.RERANK_MODEL),
+                eq(ScoringModel.class))).thenReturn(model);
+        return model;
     }
 
     protected ChatResponse chatResponse(String text) {

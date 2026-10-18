@@ -66,7 +66,7 @@ class QaApiIT extends AbstractRetrievalIT {
                 .andExpect(jsonPath("$.data.answer").value(ANSWER))
                 .andExpect(jsonPath("$.data.degraded").value(false))
                 .andExpect(jsonPath("$.data.degradeReason").doesNotExist())
-                .andExpect(jsonPath("$.data.citations", hasSize(2)))
+                .andExpect(jsonPath("$.data.citations", hasSize(1)))
                 .andExpect(jsonPath("$.data.citations[0].docName").value(DOC))
                 .andExpect(jsonPath("$.data.citations[0].pipelineKey").value("main"))
                 .andExpect(jsonPath("$.data.citations[0].chunkIndex").isNumber())

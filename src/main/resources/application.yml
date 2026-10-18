@@ -52,6 +52,19 @@ embedding-store:
   table: sdfsdf
   dimension: 1024
 unirag:
+  # 检索默认参数（010）：调用方省略 minScore 时使用。
+  retrieval:
+    # 校准值 0.70：demo 租户（BAAI/bge-m3）46 次真实检索中，不相关查询最高 0.6958、
+    # 相关查询最低 0.7075；分数语义为 (1 + cosine_similarity) / 2，0.70 ≈ 余弦 0.40。
+    # 不同嵌入模型分布差异大，可用 UNIRAG_DEFAULT_MIN_SCORE 覆盖（测试环境覆盖为 0.0）。
+    default-min-score: ${UNIRAG_DEFAULT_MIN_SCORE:0.70}
+    # 重排序（011）：租户配置了 RERANK_MODEL 才真正启用；未配置时行为不变。
+    rerank:
+      enabled: ${UNIRAG_RERANK_ENABLED:true}       # 全局开关；无租户模型时无效果
+      shadow: ${UNIRAG_RERANK_SHADOW:false}        # 观察模式：计算并记录，不改变返回
+      recall-top-k: ${UNIRAG_RERANK_RECALL_TOP_K:20} # 内部召回数；实际取 max(topK, 该值)
+      # 重排阈值：BGE reranker 的 relevance_score 刻度；0.5 为首期保守起点，可按模型/语料校准。
+      min-score: ${UNIRAG_RERANK_MIN_SCORE:0.5}
   ai:
     models:
       default:
@@ -88,3 +101,9 @@ unirag:
     retention: 30d                 # 记录留存时长，超期由清理任务物理删除（Duration 格式）。
     cleanup-interval: 1h           # 清理任务执行间隔。
     max-error-message-length: 500  # 单条错误原因最大留存长度（与 005 ingestion_run 约定一致）。
+logging:
+  level:
+    # 检索链路调试日志（每次查询的目标表、命中片段分数/文档/片段号/摘录、归并与提示词统计）。
+    # 生产环境可用 UNIRAG_RETRIEVAL_LOG_LEVEL=info 关闭。
+    com.unirag.retrieval.stage: ${UNIRAG_RETRIEVAL_LOG_LEVEL:debug}
+    com.unirag.retrieval.pipeline: ${UNIRAG_RETRIEVAL_LOG_LEVEL:debug}

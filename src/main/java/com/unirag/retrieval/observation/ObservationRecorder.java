@@ -28,6 +28,8 @@ public class ObservationRecorder {
 
     private static final int SESSION_ID_MAX_LENGTH = 128;
 
+    private static final int DETAIL_MAX_LENGTH = 2000;
+
     private final RetrievalObservationService observationService;
     private final ObservationProperties properties;
 
@@ -38,8 +40,13 @@ public class ObservationRecorder {
     }
 
     public void record(StageContext ctx, StageResult result) {
+        record(ctx, result, null);
+    }
+
+    /** 带重排明细的写入；detail 只允许 ID/分数/keep-drop，落库前截断。 */
+    public void record(StageContext ctx, StageResult result, String detail) {
         try {
-            observationService.save(toEntity(ctx, result));
+            observationService.save(toEntity(ctx, result, detail));
         } catch (Exception e) {
             recordDegradation(ctx, result, e);
         }
@@ -53,14 +60,14 @@ public class ObservationRecorder {
                 result.durationMs(), result.hitCount(), result.topScore(), result.itemCount(),
                 "观测写库降级: " + cause.getClass().getSimpleName());
         try {
-            observationService.save(toEntity(ctx, degraded));
+            observationService.save(toEntity(ctx, degraded, null));
         } catch (Exception second) {
             log.warn("观测降级事件记录亦失败: traceId={}, tenant={}, stage={}, type={}",
                     ctx.traceId(), ctx.tenantCode(), result.stage(), second.getClass().getName());
         }
     }
 
-    private RetrievalObservation toEntity(StageContext ctx, StageResult result) {
+    private RetrievalObservation toEntity(StageContext ctx, StageResult result, String detail) {
         RetrievalObservation entity = new RetrievalObservation();
         entity.setTraceId(ctx.traceId());
         entity.setTenantId(ctx.tenantId());
@@ -74,6 +81,7 @@ public class ObservationRecorder {
         entity.setTopScore(result.topScore());
         entity.setItemCount(result.itemCount());
         entity.setErrorMessage(Redaction.sanitize(result.errorMessage(), properties.getMaxErrorMessageLength()));
+        entity.setDetail(Redaction.sanitize(detail, DETAIL_MAX_LENGTH));
         entity.setQueryDigest(Redaction.sanitize(ctx.queryDigest(), QUERY_DIGEST_MAX_LENGTH));
         entity.setDocumentId(ctx.documentId());
         entity.setCreatedAt(new Date());

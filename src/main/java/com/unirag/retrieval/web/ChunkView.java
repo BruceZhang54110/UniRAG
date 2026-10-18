@@ -11,10 +11,12 @@ public record ChunkView(long documentId,
                         Long documentVersionId,
                         int chunkIndex,
                         double score,
+                        Double rerankScore,
                         String text) {
 
     static ChunkView of(RetrievedChunk chunk) {
         return new ChunkView(chunk.documentId(), chunk.docName(), chunk.pipelineKey(),
-                chunk.documentVersionId(), chunk.chunkIndex(), chunk.score(), chunk.text());
+                chunk.documentVersionId(), chunk.chunkIndex(), chunk.score(),
+                chunk.rerankScore(), chunk.text());
     }
 }

@@ -4,6 +4,7 @@ import com.unirag.retrieval.model.RetrievedChunk;
 import com.unirag.retrieval.pipeline.Stage;
 import com.unirag.retrieval.pipeline.StageContext;
 import com.unirag.retrieval.pipeline.StageName;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
  * <p>片段顺序即标注顺序即 {@code citations} 顺序 —— 引用清单与提示词中用户看到的编号一一对应，
  * 因此这里不重排、不去重。检索为空时返回空上下文，由后续阶段走"无知识"降级。
  */
+@Slf4j
 @Component
 public class PromptAssemblyStage implements Stage<MergeResult, PromptBundle> {
 
@@ -26,6 +28,7 @@ public class PromptAssemblyStage implements Stage<MergeResult, PromptBundle> {
     public PromptBundle execute(MergeResult merged, StageContext ctx) {
         List<RetrievedChunk> citations = merged.chunks();
         if (citations.isEmpty()) {
+            log.debug("[retrieval] trace={} PROMPT_ASSEMBLY no context", ctx.traceId());
             return new PromptBundle(null, List.of());
         }
         StringBuilder prompt = new StringBuilder("问题：")
@@ -38,6 +41,8 @@ public class PromptAssemblyStage implements Stage<MergeResult, PromptBundle> {
                     .append("，chunkIndex=").append(chunk.chunkIndex()).append('\n')
                     .append(chunk.text()).append("\n\n");
         }
+        log.debug("[retrieval] trace={} PROMPT_ASSEMBLY citations={} promptChars={}",
+                ctx.traceId(), citations.size(), prompt.length());
         return new PromptBundle(prompt.toString(), List.copyOf(citations));
     }
 }

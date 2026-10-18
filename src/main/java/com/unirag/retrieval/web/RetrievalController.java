@@ -1,5 +1,6 @@
 package com.unirag.retrieval.web;
 
+import com.unirag.retrieval.RetrievalProperties;
 import com.unirag.retrieval.RetrievalService;
 import com.unirag.retrieval.model.RetrievalRequest;
 import com.unirag.upload.support.ApiResponse;
@@ -17,14 +18,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class RetrievalController {
 
     private final RetrievalService retrievalService;
+    private final RetrievalProperties properties;
 
-    public RetrievalController(RetrievalService retrievalService) {
+    public RetrievalController(RetrievalService retrievalService, RetrievalProperties properties) {
         this.retrievalService = retrievalService;
+        this.properties = properties;
     }
 
     @PostMapping("/retrieve")
     public ApiResponse<RetrieveResponse> retrieve(@RequestBody RetrieveRequest request) {
-        RetrievalRequest model = request.toModel();
+        RetrievalRequest model = request.toModel(properties.defaultMinScore());
         return ApiResponse.ok(RetrieveResponse.of(retrievalService.retrieve(model), model));
     }
 }

@@ -11,9 +11,6 @@ public final class RetrievalConstraints {
 
     public static final int MAX_TOP_K = 50;
 
-    /** 分数语义为 {@code (1 + cosine_similarity) / 2}，取值范围 {@code [0,1]}（research.md R6）。 */
-    public static final double DEFAULT_MIN_SCORE = 0.0;
-
     public static final int MAX_TEXT_LENGTH = 2000;
 
     private RetrievalConstraints() {
@@ -37,6 +34,15 @@ public final class RetrievalConstraints {
             throw new ApiException("VALIDATION_FAILED", "topK 需在 1-" + MAX_TOP_K + " 之间");
         }
         return topK;
+    }
+
+    /** 召回数必须不小于最终条数且不超过上限；只在内部构造时使用。 */
+    public static int requireRecallTopK(int topK, int recallTopK) {
+        if (recallTopK < topK || recallTopK > MAX_TOP_K) {
+            throw new ApiException("VALIDATION_FAILED",
+                    "recallTopK 需在 " + topK + "-" + MAX_TOP_K + " 之间");
+        }
+        return recallTopK;
     }
 
     /** {@code minScore} 不是余弦相似度本身：填 0.7 等价于余弦相似度 0.4（research.md R6/R7）。 */
