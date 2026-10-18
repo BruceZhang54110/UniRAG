@@ -41,7 +41,8 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        # SC-004：指标须可被标准监控端点采集（本期只开 health + metrics，不引入 Prometheus 等依赖）
+        include: health,metrics
 embedding-store:
   host: localhost
   port: 5432
@@ -81,3 +82,9 @@ unirag:
       lease: 5m
       poll-interval: 1s
       batch-size: 10
+  # 观测与追踪记录（010，FR-006）：全部持久化到 retrieval_observation 表，不依赖外部日志聚合/OTel。
+  observability:
+    enabled: true                  # 关闭则不注册记录型扩展，主链路行为不变。
+    retention: 30d                 # 记录留存时长，超期由清理任务物理删除（Duration 格式）。
+    cleanup-interval: 1h           # 清理任务执行间隔。
+    max-error-message-length: 500  # 单条错误原因最大留存长度（与 005 ingestion_run 约定一致）。

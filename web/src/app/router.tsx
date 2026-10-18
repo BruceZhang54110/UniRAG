@@ -1,10 +1,10 @@
 /**
- * 路由表（T015 / plan D6，T022/T023 接入真实页面）。
+ * 路由表（T015 / plan D6，T022/T023 接入真实页面，T032 换绑问答页）。
  *
  * | 路径 | 内容 | 本期状态 |
  * |---|---|---|
  * | `/` | 服务首页（提问台） | 实现（`features/home/HomePage`） |
- * | `/chat` | 问答上下文（`?q=`） | 实现（占位语义，`features/chat/ChatPlaceholderPage`） |
+ * | `/chat` | 问答页（`?q=`） | 实现（`features/chat/ChatPage`，调 `POST /api/v1/ask`） |
  * | `/documents` | 文档库 | "即将上线"占位 |
  * | `/jobs` | 任务中心 | "即将上线"占位 |
  * | 未知路径 | → 回落首页 | |
@@ -20,7 +20,7 @@ import Frame from '@/app/Frame';
 import HomePage from '@/features/home/HomePage';
 import { zhCN } from '@/content/zh-CN';
 
-const ChatPlaceholderPage = lazy(() => import('@/features/chat/ChatPlaceholderPage'));
+const ChatPage = lazy(() => import('@/features/chat/ChatPage'));
 const DocumentsPlaceholder = lazy(() => import('@/features/placeholders/DocumentsPlaceholder'));
 const JobsPlaceholder = lazy(() => import('@/features/placeholders/JobsPlaceholder'));
 
@@ -38,7 +38,7 @@ export const router = createBrowserRouter([
         path: 'chat',
         element: (
           <Suspense fallback={<RouteFallback />}>
-            <ChatPlaceholderPage />
+            <ChatPage />
           </Suspense>
         ),
       },

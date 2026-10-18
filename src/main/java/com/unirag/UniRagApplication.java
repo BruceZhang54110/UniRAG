@@ -8,7 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@ConfigurationPropertiesScan({"com.unirag.storage", "com.unirag.upload", "com.unirag.ingestion"})
+@ConfigurationPropertiesScan({"com.unirag.storage", "com.unirag.upload", "com.unirag.ingestion",
+        "com.unirag.retrieval"})
 @MapperScan("com.unirag.infrastructure.mp.mapper")
 public class UniRagApplication {
 

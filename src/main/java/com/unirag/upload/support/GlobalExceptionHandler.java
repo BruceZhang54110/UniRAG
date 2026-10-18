@@ -50,12 +50,14 @@ public class GlobalExceptionHandler {
 
     private HttpStatus statusOf(String code) {
         return switch (code) {
-            case "TENANT_CODE_REQUIRED", "VALIDATION_FAILED", "UNSUPPORTED_FILE_TYPE" -> HttpStatus.BAD_REQUEST;
+            case "TENANT_CODE_REQUIRED", "VALIDATION_FAILED", "UNSUPPORTED_FILE_TYPE",
+                    "GRANULARITY_NOT_FOUND" -> HttpStatus.BAD_REQUEST;
             case "TENANT_NOT_FOUND", "UPLOAD_NOT_FOUND", "DOCUMENT_NOT_FOUND",
                     "DOCUMENT_INGESTION_JOB_NOT_FOUND" -> HttpStatus.NOT_FOUND;
             case "UPLOAD_EXPIRED" -> HttpStatus.GONE;
             case "UPLOAD_INCOMPLETE", "CHECKSUM_MISMATCH", "CONCURRENT_MODIFICATION" -> HttpStatus.CONFLICT;
             case "FILE_TOO_LARGE" -> HttpStatus.PAYLOAD_TOO_LARGE;
+            case "LLM_UNAVAILABLE", "LLM_EMPTY_RESPONSE", "EMBEDDING_MODEL_UNAVAILABLE" -> HttpStatus.BAD_GATEWAY;
             default -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.unirag.infrastructure.mp.mapper.RetrievalObservationMapper">
+
+    <!--
+      统一观测查询（T038 / FR-006，research.md R3）：以 retrieval_observation 为基准联合投影
+      ingestion_run —— 摄取侧代码零改动，历史摄取记录与本期检索/问答记录在同一入口可查。
+
+      要点：
+        * ingestion_run 没有 tenant_id：租户经 ingestion_pipeline.tenant_id 关联取得，保证严格隔离；
+        * 摄取侧无链路标识，投影标识取 'ingest-' || id，使本入口的 traceId 过滤自洽；
+        * 摄取侧无相似度概念，top_score 投影为 NULL；error_message 在读取侧再截断一次（FR-008）。
+    -->
+
+    <sql id="observationFilters">
+        <if test="traceId != null"> AND o.trace_id = #{traceId}</if>
+        <if test="documentId != null"> AND o.document_id = #{documentId}</if>
+        <if test="stage != null"> AND o.stage = #{stage}</if>
+        <if test="status != null"> AND o.status = #{status}</if>
+        <if test="from != null"> AND o.created_at &gt;= #{from}</if>
+        <if test="to != null"> AND o.created_at &lt;= #{to}</if>
+    </sql>
+
+    <sql id="ingestionFilters">
+        <if test="traceId != null"> AND 'ingest-' || r.id = #{traceId}</if>
+        <if test="documentId != null"> AND r.document_id = #{documentId}</if>
+        <if test="stage != null"> AND 'INGEST' = #{stage}</if>
+        <if test="status != null"> AND r.status = #{status}</if>
+        <if test="from != null"> AND r.started_at &gt;= #{from}</if>
+        <if test="to != null"> AND r.started_at &lt;= #{to}</if>
+    </sql>
+
+    <sql id="unifiedProjection">
+        SELECT o.trace_id      AS trace_id,
+               o.stage         AS stage,
+               o.target_key    AS target_key,
+               o.status        AS status,
+               o.duration_ms   AS duration_ms,
+               o.hit_count     AS hit_count,
+               o.top_score     AS top_score,
+               o.error_message AS error_message,
+               o.document_id   AS document_id,
+               o.created_at    AS created_at,
+               o.id            AS row_id
+        FROM retrieval_observation o
+        WHERE o.tenant_id = #{tenantId}
+        <include refid="observationFilters"/>
+        UNION ALL
+        SELECT 'ingest-' || r.id AS trace_id,
+               'INGEST'          AS stage,
+               p.pipeline_key    AS target_key,
+               r.status          AS status,
+               CAST(EXTRACT(EPOCH FROM (r.finished_at - r.started_at)) * 1000 AS INT) AS duration_ms,
+               r.chunk_count     AS hit_count,
+               NULL::double precision AS top_score,
+               LEFT(r.error_message, 500) AS error_message,
+               r.document_id     AS document_id,
+               r.started_at      AS created_at,
+               r.id              AS row_id
+        FROM ingestion_run r
+        JOIN ingestion_pipeline p ON p.id = r.pipeline_id
+        WHERE p.tenant_id = #{tenantId}
+        <include refid="ingestionFilters"/>
+    </sql>
+
+    <select id="findUnified" resultType="map">
+        SELECT * FROM (
+        <include refid="unifiedProjection"/>
+        ) unified
+        ORDER BY created_at DESC, row_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countUnified" resultType="long">
+        SELECT COUNT(*) FROM (
+        <include refid="unifiedProjection"/>
+        ) unified
+    </select>
+</mapper>

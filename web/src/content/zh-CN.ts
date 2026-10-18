@@ -187,10 +187,15 @@ export const zhCN = {
     missingQuestion: '没有收到问题内容',
     missingQuestionHint: '回到首页输入问题即可开始',
     backHome: '返回首页提问',
-    notReadyTitle: '检索问答能力尚未上线',
-    notReadyDescription:
-      '你的问题已经带过来了，但检索与生成回答的后端能力还未就绪，因此这里不会给出任何答案。能力上线后即可在此继续。',
     yourQuestion: '你的问题',
+    answerTitle: '回答',
+    loadingAnswer: '正在检索资料并生成回答…',
+    citationsTitle: '引用片段',
+    /** 引用条目标题模板，`{index}`/`{docName}`/`{chunkIndex}` 由调用方替换 */
+    citationSource: '片段 {index} · 文档 {docName} · 第 {chunkIndex} 段',
+    noContextTitle: '知识库中未找到相关内容',
+    noContextHint: '可以换个说法再问，或先上传相关文档',
+    failedTitle: '回答生成失败',
   },
 
   errors: {

@@ -1,0 +1,24 @@
+package com.unirag.retrieval.pipeline;
+
+/**
+ * 流水线阶段标识（contracts/pipeline-extension.md §1）：检索执行前三段，问答执行全部五段。
+ *
+ * <p>同时作为观测记录的 {@code stage} 取值来源（research.md R3）。
+ */
+public enum StageName {
+
+    /** 查询向量化。 */
+    QUERY_EMBEDDING,
+
+    /** 逐表相似度检索。 */
+    VECTOR_SEARCH,
+
+    /** 跨表确定性归并 + topK。 */
+    MERGE,
+
+    /** 提示词组装。 */
+    PROMPT_ASSEMBLY,
+
+    /** 聊天模型调用。 */
+    CHAT_GENERATION
+}
