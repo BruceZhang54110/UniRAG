@@ -46,6 +46,12 @@ public class ObservationMetrics {
         timer("unirag.rerank.duration", tenantCode).record(duration);
     }
 
+    /** 查询改写调用量与延迟（012，FR-011）；状态只取 SUCCESS/DEGRADED。 */
+    public void recordQueryRewrite(String tenantCode, StageStatus status, Duration duration) {
+        registry.counter("unirag.query.rewrite.requests", TENANT_TAG, tenantCode, STATUS_TAG, status.name()).increment();
+        timer("unirag.query.rewrite.duration", tenantCode).record(duration);
+    }
+
     /** 留存清理量（T040）：全局计数，不带租户标签（清理任务不区分租户）。 */
     public void recordRetentionCleanup(int deleted) {
         if (deleted > 0) {

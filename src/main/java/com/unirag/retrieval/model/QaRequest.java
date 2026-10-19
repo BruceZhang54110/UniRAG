@@ -5,17 +5,25 @@ package com.unirag.retrieval.model;
  *
  * @param sessionId 可选透传标识；本期不持久化对话记忆，仅回填进观测记录便于关联同会话调用
  * @param rerank    是否允许重排；{@code null} 表示按租户默认
+ * @param rewrite   是否允许查询改写；{@code null} 表示按租户默认
  */
 public record QaRequest(String question,
                         String granularity,
                         int topK,
                         double minScore,
                         String sessionId,
-                        Boolean rerank) {
+                        Boolean rerank,
+                        Boolean rewrite) {
 
-    /** 兼容既有调用方：由服务层按租户默认决定是否启用重排。 */
+    /** 兼容既有调用方：由服务层按租户默认决定是否启用重排/改写。 */
     public QaRequest(String question, String granularity, int topK, double minScore, String sessionId) {
-        this(question, granularity, topK, minScore, sessionId, null);
+        this(question, granularity, topK, minScore, sessionId, null, null);
+    }
+
+    /** 兼容 011 调用方：省略改写。 */
+    public QaRequest(String question, String granularity, int topK, double minScore, String sessionId,
+                     Boolean rerank) {
+        this(question, granularity, topK, minScore, sessionId, rerank, null);
     }
 
     public QaRequest {

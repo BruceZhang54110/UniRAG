@@ -43,16 +43,17 @@ public class QueryEmbeddingStage implements Stage<RetrievalRequest, QueryVector>
     @Override
     public QueryVector execute(RetrievalRequest request, StageContext ctx) {
         List<TargetTable> targets = targetResolver.resolve(ctx.tenantId(), request.granularity());
-        log.debug("[retrieval] trace={} QUERY_EMBEDDING query={} granularity={} documentId={} topK={} minScore={}",
-                ctx.traceId(), request.query(), request.granularity(), request.documentId(),
-                request.topK(), request.minScore());
+        log.debug("[retrieval] trace={} QUERY_EMBEDDING query={} retrievalQuery={} granularity={} documentId={} topK={} minScore={}",
+                ctx.traceId(), Redaction.sanitize(request.query(), Redaction.MAX_LENGTH),
+                Redaction.sanitize(request.retrievalQuery(), Redaction.MAX_LENGTH), request.granularity(),
+                request.documentId(), request.topK(), request.minScore());
         if (log.isDebugEnabled()) {
             log.debug("[retrieval] trace={} QUERY_EMBEDDING targets={}", ctx.traceId(),
                     targets.stream().map(t -> t.storeKey() + "/" + t.pipelineKey() + "/" + t.modelKey()).toList());
         }
         Map<String, Embedding> embeddings = new LinkedHashMap<>();
         for (TargetTable target : targets) {
-            embeddings.computeIfAbsent(target.modelKey(), modelKey -> embed(ctx, modelKey, request.query()));
+            embeddings.computeIfAbsent(target.modelKey(), modelKey -> embed(ctx, modelKey, request.retrievalQuery()));
         }
         return new QueryVector(request, targets, embeddings);
     }

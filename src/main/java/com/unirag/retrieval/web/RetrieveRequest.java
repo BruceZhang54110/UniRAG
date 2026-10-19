@@ -8,16 +8,23 @@ import com.unirag.retrieval.model.RetrievalRequest;
  * 取值约束由 {@link RetrievalRequest} 构造时统一校验。
  */
 public record RetrieveRequest(String query, String granularity, Long documentId,
-                              Integer topK, Double minScore, Boolean rerank) {
+                              Integer topK, Double minScore, Boolean rerank, Boolean rewrite) {
 
-    /** 兼容既有调用方：省略 rerank。 */
+    /** 兼容既有调用方：省略 rerank/rewrite。 */
     public RetrieveRequest(String query, String granularity, Long documentId, Integer topK, Double minScore) {
-        this(query, granularity, documentId, topK, minScore, null);
+        this(query, granularity, documentId, topK, minScore, null, null);
+    }
+
+    /** 兼容 011 调用方：省略 rewrite。 */
+    public RetrieveRequest(String query, String granularity, Long documentId, Integer topK, Double minScore,
+                           Boolean rerank) {
+        this(query, granularity, documentId, topK, minScore, rerank, null);
     }
 
     public RetrievalRequest toModel(double defaultMinScore) {
         int resolvedTopK = topK == null ? RetrievalConstraints.DEFAULT_TOP_K : topK;
         return new RetrievalRequest(query, granularity, documentId, resolvedTopK,
-                minScore == null ? defaultMinScore : minScore, resolvedTopK, rerank == null || rerank);
+                minScore == null ? defaultMinScore : minScore, resolvedTopK,
+                rerank == null || rerank, rewrite == null || rewrite);
     }
 }

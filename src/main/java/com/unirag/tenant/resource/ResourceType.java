@@ -11,7 +11,9 @@ public enum ResourceType {
 
     EMBEDDING_STORE("embeddingStore"),
 
-    RERANK_MODEL("rerankModel");
+    RERANK_MODEL("rerankModel"),
+
+    QUERY_REWRITE_MODEL("queryRewriteModel");
 
     private final String beanPrefix;
 

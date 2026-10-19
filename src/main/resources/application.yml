@@ -65,6 +65,14 @@ unirag:
       recall-top-k: ${UNIRAG_RERANK_RECALL_TOP_K:20} # 内部召回数；实际取 max(topK, 该值)
       # 重排阈值：BGE reranker 的 relevance_score 刻度；0.5 为首期保守起点，可按模型/语料校准。
       min-score: ${UNIRAG_RERANK_MIN_SCORE:0.5}
+    # 查询改写（012）：租户配置了 QUERY_REWRITE_MODEL 才启用；资源默认复用主语言模型。
+    query-rewrite:
+      enabled: ${UNIRAG_QUERY_REWRITE_ENABLED:true}       # 全局开关；无租户资源时无效果
+      shadow: ${UNIRAG_QUERY_REWRITE_SHADOW:false}        # 观察模式：计算并记录，不改变检索结果
+      max-output-chars: ${UNIRAG_QUERY_REWRITE_MAX_OUTPUT_CHARS:500}
+      max-output-ratio: ${UNIRAG_QUERY_REWRITE_MAX_OUTPUT_RATIO:2.0}
+      max-input-chars: ${UNIRAG_QUERY_REWRITE_MAX_INPUT_CHARS:2000}
+      preview-chars: ${UNIRAG_QUERY_REWRITE_PREVIEW_CHARS:120}
   ai:
     models:
       default:

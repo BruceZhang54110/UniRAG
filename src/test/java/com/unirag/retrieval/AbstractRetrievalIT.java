@@ -1,16 +1,20 @@
 package com.unirag.retrieval;
 
 import com.unirag.ingestion.AbstractIngestionIT;
+import com.unirag.retrieval.query.LlmQueryTransformer;
 import com.unirag.tenant.resource.ResourceType;
 import com.unirag.tenant.resource.TenantResourceNotFoundException;
 import com.unirag.upload.support.TenantContext;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.scoring.ScoringModel;
+import dev.langchain4j.rag.query.transformer.QueryTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -19,6 +23,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 
@@ -100,6 +106,52 @@ public abstract class AbstractRetrievalIT extends AbstractIngestionIT {
         when(tenantResourceRouter.hasPrimary(tenantCode, ResourceType.RERANK_MODEL)).thenReturn(true);
         when(tenantResourceRouter.getPrimary(eq(tenantCode), eq(ResourceType.RERANK_MODEL),
                 eq(ScoringModel.class))).thenReturn(model);
+        return model;
+    }
+
+    /** 装配真实 {@link LlmQueryTransformer} + 替身 ChatModel，返回固定改写文本；不访问外网。 */
+    protected LlmQueryTransformer stubQueryTransformer(String tenantCode, String modelKey,
+                                                       String rewrittenQuery, String modelSource) {
+        ChatModel rewriteModel = mock(ChatModel.class);
+        when(rewriteModel.chat(org.mockito.ArgumentMatchers.any(ChatRequest.class)))
+                .thenReturn(chatResponse(rewrittenQuery));
+        return stubQueryTransformer(tenantCode, modelKey,
+                new LlmQueryTransformer(() -> rewriteModel, 200, 0.0, modelSource));
+    }
+
+    /** 让改写模型调用失败，断言 fail-open 回退。 */
+    protected LlmQueryTransformer stubQueryTransformerFailure(String tenantCode, String modelKey) {
+        ChatModel rewriteModel = mock(ChatModel.class);
+        when(rewriteModel.chat(org.mockito.ArgumentMatchers.any(ChatRequest.class)))
+                .thenThrow(new IllegalStateException("api-key=sk-secret"));
+        return stubQueryTransformer(tenantCode, modelKey,
+                new LlmQueryTransformer(() -> rewriteModel, 200, 0.0, "primary-llm"));
+    }
+
+    private LlmQueryTransformer stubQueryTransformer(String tenantCode, String modelKey,
+                                                     LlmQueryTransformer transformer) {
+        when(tenantResourceRouter.hasPrimary(tenantCode, ResourceType.QUERY_REWRITE_MODEL)).thenReturn(true);
+        when(tenantResourceRouter.getPrimary(eq(tenantCode), eq(ResourceType.QUERY_REWRITE_MODEL),
+                eq(QueryTransformer.class))).thenReturn(transformer);
+        when(tenantResourceRouter.primaryKey(tenantCode, ResourceType.QUERY_REWRITE_MODEL))
+                .thenReturn(Optional.of(modelKey));
+        return transformer;
+    }
+
+    /** 记录最近一次 embed(String) 入参的嵌入模型包装，用于断言实际送入向量化的文本。 */
+    protected EmbeddingModel recordingEmbeddingModel(EmbeddingModel delegate, AtomicReference<String> lastText) {
+        EmbeddingModel model = mock(EmbeddingModel.class);
+        when(model.embed(anyString())).thenAnswer(invocation -> {
+            String text = invocation.getArgument(0);
+            lastText.set(text);
+            return delegate.embed(text);
+        });
+        when(model.embed(org.mockito.ArgumentMatchers.any(TextSegment.class)))
+                .thenAnswer(invocation -> delegate.embed((TextSegment) invocation.getArgument(0)));
+        when(model.embedAll(anyList()))
+                .thenAnswer(invocation -> delegate.embedAll(invocation.getArgument(0)));
+        when(model.dimension()).thenReturn(delegate.dimension());
+        when(model.modelName()).thenReturn(delegate.modelName());
         return model;
     }
 

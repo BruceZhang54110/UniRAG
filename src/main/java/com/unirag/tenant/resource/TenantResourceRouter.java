@@ -4,6 +4,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 /**
  * 业务侧获取租户资源实例的统一入口（contracts/tenant-resource-router.md）。
  *
@@ -39,6 +41,11 @@ public class TenantResourceRouter {
     /** 只读索引：该租户是否已有可用的 primary 资源（不构建/不解析实例）。 */
     public boolean hasPrimary(String tenantCode, ResourceType type) {
         return indexRegistry.get().primaryKey(tenantCode, type).isPresent();
+    }
+
+    /** 只读索引：该租户该类型的 primary 资源 key；无 primary 时为空。 */
+    public Optional<String> primaryKey(String tenantCode, ResourceType type) {
+        return indexRegistry.get().primaryKey(tenantCode, type).map(TenantResourceKey::resourceKey);
     }
 
     public <T> T getPrimary(String tenantCode, ResourceType type, Class<T> beanType) {

@@ -13,6 +13,9 @@ public final class RetrievalConstraints {
 
     public static final int MAX_TEXT_LENGTH = 2000;
 
+    /** 改写后的检索查询上限；与原始问题不同长度才受此限制。 */
+    public static final int MAX_RETRIEVAL_QUERY_LENGTH = 500;
+
     private RetrievalConstraints() {
     }
 
@@ -51,6 +54,25 @@ public final class RetrievalConstraints {
             throw new ApiException("VALIDATION_FAILED", "minScore 需在 0-1 之间");
         }
         return minScore;
+    }
+
+    /**
+     * 检索查询校验：空值/空白回退原始问题；与原问题不同时长度不得超过
+     * {@link #MAX_RETRIEVAL_QUERY_LENGTH}。原始问题本身可保留其既有长度上限。
+     */
+    public static String requireRetrievalQuery(String retrievalQuery, String originalQuery) {
+        if (retrievalQuery == null || retrievalQuery.isBlank()) {
+            return originalQuery;
+        }
+        String normalized = retrievalQuery.strip();
+        if (normalized.equals(originalQuery)) {
+            return normalized;
+        }
+        if (normalized.length() > MAX_RETRIEVAL_QUERY_LENGTH) {
+            throw new ApiException("VALIDATION_FAILED",
+                    "retrievalQuery 长度上限为 " + MAX_RETRIEVAL_QUERY_LENGTH + " 字符");
+        }
+        return normalized;
     }
 
     /** 省略或空白视同未指定：检索该租户全部已启用管线的向量表（FR-003）。 */

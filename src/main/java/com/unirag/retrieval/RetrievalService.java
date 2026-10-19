@@ -6,6 +6,7 @@ import com.unirag.retrieval.model.RetrievedChunk;
 import com.unirag.retrieval.model.StageResult;
 import com.unirag.retrieval.observation.ObservationMetrics;
 import com.unirag.retrieval.pipeline.DefaultPipeline;
+import com.unirag.retrieval.query.QueryRewriteSupport;
 import com.unirag.retrieval.rerank.RerankProperties;
 import com.unirag.retrieval.rerank.RerankSupport;
 import com.unirag.retrieval.pipeline.Stage;
@@ -33,6 +34,7 @@ public class RetrievalService {
     private final ObservationMetrics metrics;
     private final RerankSupport rerankSupport;
     private final RerankProperties rerankProperties;
+    private final QueryRewriteSupport rewriteSupport;
     private final List<Stage<?, ?>> chain;
 
     public RetrievalService(TenantContext tenantContext,
@@ -40,6 +42,7 @@ public class RetrievalService {
                             ObservationMetrics metrics,
                             RerankSupport rerankSupport,
                             RerankProperties rerankProperties,
+                            QueryRewriteSupport rewriteSupport,
                             QueryEmbeddingStage queryEmbeddingStage,
                             VectorSearchStage vectorSearchStage,
                             MergeStage mergeStage) {
@@ -48,6 +51,7 @@ public class RetrievalService {
         this.metrics = metrics;
         this.rerankSupport = rerankSupport;
         this.rerankProperties = rerankProperties;
+        this.rewriteSupport = rewriteSupport;
         this.chain = List.of(queryEmbeddingStage, vectorSearchStage, mergeStage);
     }
 
@@ -55,10 +59,11 @@ public class RetrievalService {
         String tenantCode = tenantContext.getTenantCode();
         Long tenantId = tenantContext.getTenantId();
         boolean rerank = request.rerank() && rerankSupport.enabledFor(tenantCode);
+        boolean rewrite = request.rewrite() && rewriteSupport.enabledFor(tenantCode);
         int recallTopK = rerank
                 ? Math.max(request.topK(), rerankProperties.recallTopK())
                 : request.topK();
-        RetrievalRequest resolved = request.withRerank(rerank, recallTopK);
+        RetrievalRequest resolved = request.withRerank(rerank, recallTopK).withRewrite(rewrite);
         String traceId = StageContext.newTraceId();
         StageContext ctx = new StageContext(traceId, StageResult.KIND_RETRIEVAL, tenantCode, tenantId,
                 null, resolved.query(), resolved.documentId());

@@ -9,6 +9,7 @@ import com.unirag.retrieval.pipeline.DefaultPipeline;
 import com.unirag.retrieval.pipeline.Stage;
 import com.unirag.retrieval.pipeline.StageContext;
 import com.unirag.retrieval.pipeline.StageStatus;
+import com.unirag.retrieval.query.QueryRewriteSupport;
 import com.unirag.retrieval.rerank.RerankProperties;
 import com.unirag.retrieval.rerank.RerankSupport;
 import com.unirag.retrieval.stage.ChatGenerationStage;
@@ -35,6 +36,7 @@ public class QaService {
     private final ObservationMetrics metrics;
     private final RerankSupport rerankSupport;
     private final RerankProperties rerankProperties;
+    private final QueryRewriteSupport rewriteSupport;
     private final List<Stage<?, ?>> chain;
 
     public QaService(TenantContext tenantContext,
@@ -42,6 +44,7 @@ public class QaService {
                      ObservationMetrics metrics,
                      RerankSupport rerankSupport,
                      RerankProperties rerankProperties,
+                     QueryRewriteSupport rewriteSupport,
                      QueryEmbeddingStage queryEmbeddingStage,
                      VectorSearchStage vectorSearchStage,
                      MergeStage mergeStage,
@@ -52,6 +55,7 @@ public class QaService {
         this.metrics = metrics;
         this.rerankSupport = rerankSupport;
         this.rerankProperties = rerankProperties;
+        this.rewriteSupport = rewriteSupport;
         this.chain = List.of(queryEmbeddingStage, vectorSearchStage, mergeStage,
                 promptAssemblyStage, chatGenerationStage);
     }
@@ -62,14 +66,16 @@ public class QaService {
         String traceId = StageContext.newTraceId();
         StageContext ctx = new StageContext(traceId, StageResult.KIND_QA, tenantCode, tenantId,
                 request.sessionId(), request.question(), null);
-        // 问题即检索查询；问答不接受单文档过滤（contracts §3）
+        // 问题即原问题；检索查询由 QueryRewriteEnhancement 在向量化前决定；问答不接受单文档过滤（contracts §3）
         boolean rerankIntent = request.rerank() == null || request.rerank();
         boolean rerank = rerankIntent && rerankSupport.enabledFor(tenantCode);
+        boolean rewriteIntent = request.rewrite() == null || request.rewrite();
+        boolean rewrite = rewriteIntent && rewriteSupport.enabledFor(tenantCode);
         int recallTopK = rerank
                 ? Math.max(request.topK(), rerankProperties.recallTopK())
                 : request.topK();
         RetrievalRequest retrievalRequest = new RetrievalRequest(request.question(), request.granularity(),
-                null, request.topK(), request.minScore(), recallTopK, rerank);
+                null, request.topK(), request.minScore(), recallTopK, rerank, rewrite);
         long startedAt = System.nanoTime();
         QaAnswer answer;
         try {
