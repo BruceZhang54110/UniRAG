@@ -1,0 +1,2536 @@
+{
+  "reportVersion" : 1,
+  "run" : {
+    "id" : "20261020T132404Z-1cd8b3a",
+    "mode" : "REPLAY",
+    "status" : "SUCCESS",
+    "startedAt" : "2026-10-20T13:24:04.037464Z",
+    "finishedAt" : "2026-10-20T13:24:05.253989Z",
+    "failureReason" : null
+  },
+  "dataset" : {
+    "name" : "baseline",
+    "version" : "cb2b58bf21bededc406397e9c5467928ad2ceb52e97e2e7772e01aa91ff86dd1",
+    "corpusHash" : "63e1ca1794a8c44000ae91e44e266efb1a4c8eccca8877a4a2db77e5e3ba09f9",
+    "queriesHash" : "fe3009e4243ffc830d93940d93d574cd48063bf02d2b7ebfa83295fcf398bd96",
+    "documentCount" : 10,
+    "queryCount" : 30,
+    "answerableCount" : 25,
+    "unanswerableCount" : 5
+  },
+  "config" : {
+    "codeVersion" : "1cd8b3a",
+    "embedding" : {
+      "model" : "BAAI/bge-m3",
+      "dimension" : 1024
+    },
+    "pipelines" : [ {
+      "key" : "fine",
+      "maxSegmentTokens" : 300,
+      "overlapTokens" : 50,
+      "modelKey" : "eval-embedding",
+      "storeKey" : "eval-store"
+    } ],
+    "retrieval" : {
+      "topK" : 5,
+      "recallTopK" : 20,
+      "minScore" : 0.7,
+      "rerank" : false,
+      "rewrite" : false
+    },
+    "metrics" : {
+      "k" : [ 1, 3, 5, 10 ],
+      "diagnosticTopK" : 50
+    },
+    "thresholds" : { }
+  },
+  "overall" : {
+    "documentRecall@1" : 0.9,
+    "chunkRecall@1" : 0.9,
+    "hitRate@1" : 0.92,
+    "mrr@1" : 0.92,
+    "ndcg@1" : 0.92,
+    "documentRecall@3" : 1.0,
+    "chunkRecall@3" : 1.0,
+    "hitRate@3" : 1.0,
+    "mrr@3" : 0.96,
+    "ndcg@3" : 0.9672632118516441,
+    "documentRecall@5" : 1.0,
+    "chunkRecall@5" : 1.0,
+    "hitRate@5" : 1.0,
+    "mrr@5" : 0.96,
+    "ndcg@5" : 0.9672632118516441,
+    "documentRecall@10" : 1.0,
+    "chunkRecall@10" : 1.0,
+    "hitRate@10" : 1.0,
+    "mrr@10" : 0.96,
+    "ndcg@10" : 0.9672632118516441,
+    "unanswerableFalsePositiveRate" : 1.0,
+    "latencyP50Ms" : 15.015792,
+    "latencyP95Ms" : 18.7565
+  },
+  "byTag" : {
+    "colloquial" : {
+      "documentRecall@1" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "hitRate@3" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@5" : 1.0,
+      "ndcg@5" : 1.0,
+      "documentRecall@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "hitRate@10" : 1.0,
+      "mrr@10" : 1.0,
+      "ndcg@10" : 1.0
+    },
+    "cross-doc" : {
+      "documentRecall@1" : 0.5,
+      "chunkRecall@1" : 0.5,
+      "hitRate@1" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "hitRate@3" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@3" : 0.9197207891481876,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@5" : 1.0,
+      "ndcg@5" : 0.9197207891481876,
+      "documentRecall@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "hitRate@10" : 1.0,
+      "mrr@10" : 1.0,
+      "ndcg@10" : 0.9197207891481876
+    },
+    "exact-term" : {
+      "documentRecall@1" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "hitRate@3" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@5" : 1.0,
+      "ndcg@5" : 1.0,
+      "documentRecall@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "hitRate@10" : 1.0,
+      "mrr@10" : 1.0,
+      "ndcg@10" : 1.0
+    },
+    "fact" : {
+      "documentRecall@1" : 0.8571428571428571,
+      "chunkRecall@1" : 0.8571428571428571,
+      "hitRate@1" : 0.8571428571428571,
+      "mrr@1" : 0.8571428571428571,
+      "ndcg@1" : 0.8571428571428571,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "hitRate@3" : 1.0,
+      "mrr@3" : 0.9285714285714286,
+      "ndcg@3" : 0.9472756790816368,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@5" : 0.9285714285714286,
+      "ndcg@5" : 0.9472756790816368,
+      "documentRecall@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "hitRate@10" : 1.0,
+      "mrr@10" : 0.9285714285714286,
+      "ndcg@10" : 0.9472756790816368
+    },
+    "unanswerable" : {
+      "unanswerableFalsePositiveRate" : 1.0
+    }
+  },
+  "queries" : [ {
+    "id" : "q-001",
+    "question" : "UniRAG 的核心流程是什么？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8539521583575862,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "overview.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8539521583575862,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-002",
+    "question" : "不同租户的数据如何隔离？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "tenant-config.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.81180297591651,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 2,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7792001622199192,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 3,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7589397829498139,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7491394282413228,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7459344577984642,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "overview.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7792001622199192,
+        "mergedRank" : 2,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 0.6309297535714575,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 0.0,
+      "hitRate@1" : 0.0,
+      "documentRecall@1" : 0.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 0.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 0.6309297535714575,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 0.0,
+      "ndcg@5" : 0.6309297535714575,
+      "mrr@3" : 0.5,
+      "mrr@5" : 0.5,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 0.5
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-003",
+    "question" : "租户通过哪个请求头定位？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "tenant-config.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8273273999089672,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7676593720025482,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7601481705242142,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7508773428828941,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7503016516835984,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "tenant-config.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8273273999089672,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-004",
+    "question" : "向量存储配置写入哪张表？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "tenant-config.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8414197571354901,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7877498236819362,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7688048090949104,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7555287549917115,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7503822371705396,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "tenant-config.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8414197571354901,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-005",
+    "question" : "向量存储的资源类型是什么？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "tenant-config.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8139145110998482,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7611007716896454,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7571797447556374,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7361871102902251,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7353004147022966,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "tenant-config.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8139145110998482,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-006",
+    "question" : "向量表是按租户创建的吗？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "tenant-config.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8605370868212794,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7791160643100917,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7606509197922247,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7533960628285832,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7471547488275688,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "tenant-config.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8605370868212794,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-007",
+    "question" : "摄取管线默认用什么切分策略？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7974594686241047,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7436469391725515,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7974594686241047,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-008",
+    "question" : "那个管片段长度的参数叫什么？",
+    "tags" : [ "colloquial" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7587231012101578,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7068546620108324,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7065169924631689,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "upload.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7040494723113625,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7039426894597859,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7587231012101578,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-009",
+    "question" : "哪个参数控制相邻片段重叠？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7869587545818875,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7461322626275011,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7422653341409058,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7346679942216849,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.727380698387112,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7869587545818875,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-010",
+    "question" : "怎么识别重复摄取？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8050477671509886,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 2,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8048476682103978,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 3,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7670068740844898,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7540617079377832,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7501886040309595,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8048476682103978,
+        "mergedRank" : 2,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 0.6309297535714575,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 0.0,
+      "hitRate@1" : 0.0,
+      "documentRecall@1" : 0.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 0.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 0.6309297535714575,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 0.0,
+      "ndcg@5" : 0.6309297535714575,
+      "mrr@3" : 0.5,
+      "mrr@5" : 0.5,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 0.5
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-011",
+    "question" : "检索请求包含哪些核心参数？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7953361780841592,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7922561141376024,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7864784082899064,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7342080511550848,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7311993386989099,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "retrieval.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7953361780841592,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-012",
+    "question" : "minScore 是余弦相似度本身吗？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.828223647057705,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7004475173400317,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "retrieval.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.828223647057705,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-013",
+    "question" : "多表检索结果会跨表去重吗？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8159189067813163,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7748752072528002,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7678598122931279,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.754495978891372,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7466105530826944,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "retrieval.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8159189067813163,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-014",
+    "question" : "重排序首期支持哪个模型？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8299691879786053,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.752221159835575,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7397264440172053,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7273985810880126,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7080630871076387,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "rerank.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8299691879786053,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-015",
+    "question" : "重排失败时系统怎么处理？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8466759391603713,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7852917827242891,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7697891773049985,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7631842117552957,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7332579582997176,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "rerank.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8466759391603713,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-016",
+    "question" : "重排和切片参数分别怎么影响候选？",
+    "tags" : [ "cross-doc" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8181687877925159,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7449802546256342,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7447840707979375,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 4,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7325783021981441,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7304356832864427,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "rerank.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8181687877925159,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      }, {
+        "doc" : "ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7447840707979375,
+        "mergedRank" : 3,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 0.9197207891481876,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 0.5,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 0.5,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 0.9197207891481876,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 0.9197207891481876,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-017",
+    "question" : "查询改写会影响提示词中的原始问题吗？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8524196485355474,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7545182022255119,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7454964391010377,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7439175437037469,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7262390419103191,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "query-rewrite.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8524196485355474,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-018",
+    "question" : "改写失败时使用什么继续检索？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.840867883796994,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.789079053562749,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7871543295887518,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7707273265231656,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7550360578427812,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "query-rewrite.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.840867883796994,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-019",
+    "question" : "原文默认存储在哪里？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8330517808261508,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.738784292521457,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "upload.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7361628321921967,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.733374279708187,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7245010751776803,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "storage.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8330517808261508,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-020",
+    "question" : "原文存储后端如何切换？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8543651601625479,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "upload.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7813983987928437,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7736219738529281,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7593554522912371,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7578132278283976,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "storage.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8543651601625479,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-021",
+    "question" : "大文件上传如何支持断点续传？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "upload.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8662819514098966,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8028997029514275,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7744456184577562,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7600084835349088,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7443905532215618,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "upload.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8662819514098966,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-022",
+    "question" : "上传接口支持哪些格式？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "upload.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8487213565756291,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7843216064498014,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7635553638536583,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7506830694734111,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7381744349027703,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "upload.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8487213565756291,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-023",
+    "question" : "异步摄取失败如何重试？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8383259150425801,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7751232057662977,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7639848370547639,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7529471444738474,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7302233522065456,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "async-ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8383259150425801,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-024",
+    "question" : "进行中任务超时由谁回收？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7585151339463096,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7110151658112539,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7106222236328708,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "async-ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7585151339463096,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-025",
+    "question" : "每次检索的链路标识叫什么？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7814274485625485,
+      "rerankScore" : null,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7660472928924071,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7347516040430035,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7298457867642532,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7273442866743558,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "observability.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7814274485625485,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "ndcg@10" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@3" : 1.0,
+      "mrr@5" : 1.0,
+      "hitRate@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "mrr@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-026",
+    "question" : "如何接入 Prometheus 监控面板？",
+    "tags" : [ "unanswerable" ],
+    "answerable" : false,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7124084793303972,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 2,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7017665711919595,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7012292259298036,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ ]
+    },
+    "metrics" : {
+      "unanswerableFalsePositiveRate" : 1.0
+    },
+    "failure" : "UNANSWERABLE_FALSE_POSITIVE",
+    "evidence" : [ "不可回答查询返回了 3 个片段" ]
+  }, {
+    "id" : "q-027",
+    "question" : "支持 LDAP 单点登录吗？",
+    "tags" : [ "unanswerable" ],
+    "answerable" : false,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.753789797199482,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 2,
+      "doc" : "upload.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7520046222182541,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7363242621100162,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7342777113484689,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7279314503996868,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ ]
+    },
+    "metrics" : {
+      "unanswerableFalsePositiveRate" : 1.0
+    },
+    "failure" : "UNANSWERABLE_FALSE_POSITIVE",
+    "evidence" : [ "不可回答查询返回了 5 个片段" ]
+  }, {
+    "id" : "q-028",
+    "question" : "支持哪些语言的 OCR？",
+    "tags" : [ "unanswerable" ],
+    "answerable" : false,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7383037791614879,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 2,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7311094952956825,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7171433783425596,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "upload.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7143562137786484,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7103187700821338,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ ]
+    },
+    "metrics" : {
+      "unanswerableFalsePositiveRate" : 1.0
+    },
+    "failure" : "UNANSWERABLE_FALSE_POSITIVE",
+    "evidence" : [ "不可回答查询返回了 5 个片段" ]
+  }, {
+    "id" : "q-029",
+    "question" : "如何部署 Kubernetes Operator？",
+    "tags" : [ "unanswerable" ],
+    "answerable" : false,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7487063101393168,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 2,
+      "doc" : "tenant-config.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7325108234655795,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.730534297887763,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7167777786918407,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7155498492656582,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ ]
+    },
+    "metrics" : {
+      "unanswerableFalsePositiveRate" : 1.0
+    },
+    "failure" : "UNANSWERABLE_FALSE_POSITIVE",
+    "evidence" : [ "不可回答查询返回了 5 个片段" ]
+  }, {
+    "id" : "q-030",
+    "question" : "是否支持语音输入？",
+    "tags" : [ "unanswerable" ],
+    "answerable" : false,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7840424532586671,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 2,
+      "doc" : "upload.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7658636196310025,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 3,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7566305190648008,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 4,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7480586774139525,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 5,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.744083702211674,
+      "rerankScore" : null,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ ]
+    },
+    "metrics" : {
+      "unanswerableFalsePositiveRate" : 1.0
+    },
+    "failure" : "UNANSWERABLE_FALSE_POSITIVE",
+    "evidence" : [ "不可回答查询返回了 5 个片段" ]
+  } ],
+  "failures" : {
+    "CHUNKING_GAP" : 0,
+    "NOT_RECALLED" : 0,
+    "MERGE_OR_TOPK_DROPPED" : 0,
+    "RERANK_DROPPED" : 0,
+    "THRESHOLD_FILTERED" : 0,
+    "BELOW_TOPK" : 0,
+    "LABEL_INVALID" : 0
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "reportVersion": 1,
+  "run": {"id": "baseline-run", "mode": "replay", "status": "SUCCESS"},
+  "dataset": {"version": "v1"},
+  "config": {
+    "embedding": {"model": "m", "dimension": 8},
+    "pipelines": [{"key": "fine", "maxSegmentTokens": 64, "overlapTokens": 8}],
+    "retrieval": {"topK": 3, "recallTopK": 5, "minScore": 0.0, "rerank": false, "rewrite": false},
+    "metrics": {"k": [1, 3], "diagnosticTopK": 10},
+    "thresholds": {
+      "chunkRecall@3": {"min": 0.7},
+      "unanswerableFalsePositiveRate": {"max": 0.1}
+    }
+  },
+  "overall": {"chunkRecall@3": 0.72, "unanswerableFalsePositiveRate": 0.0},
+  "byTag": {"fact": {"chunkRecall@3": 0.8}},
+  "queries": [],
+  "failures": {}
+}

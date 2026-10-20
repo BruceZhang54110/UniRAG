@@ -1,0 +1,28 @@
+{
+  "name": "sample",
+  "tenant": "eval_sample",
+  "store": {
+    "table": "embeddings_eval_sample",
+    "dimension": 8
+  },
+  "pipelines": [
+    {
+      "key": "fine",
+      "maxSegmentTokens": 64,
+      "overlapTokens": 8,
+      "modelKey": "eval-embedding",
+      "storeKey": "eval-store"
+    }
+  ],
+  "retrieval": {
+    "topK": 3,
+    "recallTopK": 5,
+    "minScore": 0.0,
+    "rerank": false,
+    "rewrite": false
+  },
+  "metrics": {
+    "k": [1, 3, 5],
+    "diagnosticTopK": 10
+  }
+}

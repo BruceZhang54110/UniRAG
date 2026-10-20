@@ -70,6 +70,38 @@ src/
 
 原文通过 Apache OpenDAL 统一存储抽象，默认写入 PostgreSQL `bytea` 键值表；存储后端可通过 `unirag.storage.backend` 切换为文件系统或 S3。租户由 `X-Tenant-Code` 请求头定位，上传限制和会话清理周期见 `application.yml` 中的 `unirag.upload.*` 配置。
 
+## RAG 检索评测（013）
+
+评测是**按需触发**的离线任务，不属于默认质量门。`./mvnw test` 不会执行 `@Tag("eval")` 的类，也不需要任何模型凭据。
+
+数据集、冻结向量与报告位于 `eval/`，格式与维护方式见 [eval/datasets/README.md](eval/datasets/README.md)。
+
+```bash
+# 首次权威基线：复用数据库中已有租户的 EMBEDDING_MODEL
+./mvnw test -Peval -Dtest=RagEvaluationIT \
+  -Deval.dataset=baseline -Deval.mode=record \
+  -Deval.embeddingTenant=demo
+
+# 也可以改用环境变量提供模型（适合没有现成租户资源的场景）
+# EVAL_EMBEDDING_BASE_URL=... EVAL_EMBEDDING_API_KEY=... \
+# EVAL_EMBEDDING_MODEL=bge-m3 EVAL_EMBEDDING_DIMENSION=1024 \
+# ./mvnw test -Peval -Dtest=RagEvaluationIT \
+#   -Deval.dataset=baseline -Deval.mode=record
+
+# 日常回归（无外部凭据）
+./mvnw test -Peval -Dtest=RagEvaluationIT \
+  -Deval.dataset=baseline -Deval.mode=replay
+
+# 报告比较
+./mvnw test -Peval -Dtest=ReportCompareIT \
+  -Deval.baseline=eval/baselines/baseline.json \
+  -Deval.candidate=eval/reports/<runId>.json
+```
+
+报告包含总体指标、分标签指标、逐查询 top-k 明细与失败归因（切片缺失、未召回、归并/截断、重排丢弃、阈值过滤、低于 topK）。运行报告写入 `eval/reports/`，已确认基线放入 `eval/baselines/`。
+
+`record` 会同时生成嵌入向量夹具与重排分数夹具（`eval/fixtures/<dataset>/embeddings.json`、`rerank.json`）；`replay` 只读夹具，不访问外部嵌入或重排服务。
+
 ## 技术基线
 
 - Spring Boot **3.5.16**（父 POM 锁定）

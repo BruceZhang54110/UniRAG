@@ -67,3 +67,11 @@ web/coverage/
 KIMI.md
 .specify
 .kimi-code
+
+# ----- Spec Kit artifacts (global ignore may exclude specs) -----
+!specs/
+!specs/**
+
+# ----- RAG evaluation artifacts -----
+eval/reports/*
+!eval/reports/.gitkeep

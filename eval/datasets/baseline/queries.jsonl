@@ -1,0 +1,30 @@
+{"id":"q-001","question":"UniRAG 的核心流程是什么？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"overview.md","span":"文档上传 → 摄取管线切片 → 嵌入模型向量化"}]}
+{"id":"q-002","question":"不同租户的数据如何隔离？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"overview.md","span":"按租户隔离数据"}]}
+{"id":"q-003","question":"租户通过哪个请求头定位？","tags":["exact-term"],"split":"dev","answerable":true,"relevant":[{"doc":"tenant-config.md","span":"X-Tenant-Code"}]}
+{"id":"q-004","question":"向量存储配置写入哪张表？","tags":["exact-term"],"split":"dev","answerable":true,"relevant":[{"doc":"tenant-config.md","span":"tenant_resource_config"}]}
+{"id":"q-005","question":"向量存储的资源类型是什么？","tags":["exact-term"],"split":"dev","answerable":true,"relevant":[{"doc":"tenant-config.md","span":"EMBEDDING_STORE"}]}
+{"id":"q-006","question":"向量表是按租户创建的吗？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"tenant-config.md","span":"为每个租户创建独立的向量表"}]}
+{"id":"q-007","question":"摄取管线默认用什么切分策略？","tags":["exact-term"],"split":"dev","answerable":true,"relevant":[{"doc":"ingestion.md","span":"RECURSIVE"}]}
+{"id":"q-008","question":"那个管片段长度的参数叫什么？","tags":["colloquial"],"split":"dev","answerable":true,"relevant":[{"doc":"ingestion.md","span":"max_segment_tokens"}]}
+{"id":"q-009","question":"哪个参数控制相邻片段重叠？","tags":["exact-term"],"split":"dev","answerable":true,"relevant":[{"doc":"ingestion.md","span":"overlap_tokens"}]}
+{"id":"q-010","question":"怎么识别重复摄取？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"ingestion.md","span":"content_fingerprint"}]}
+{"id":"q-011","question":"检索请求包含哪些核心参数？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"retrieval.md","span":"query、topK、minScore 和 recallTopK"}]}
+{"id":"q-012","question":"minScore 是余弦相似度本身吗？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"retrieval.md","span":"minScore 不是余弦相似度本身"}]}
+{"id":"q-013","question":"多表检索结果会跨表去重吗？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"retrieval.md","span":"不跨表去重"}]}
+{"id":"q-014","question":"重排序首期支持哪个模型？","tags":["exact-term"],"split":"dev","answerable":true,"relevant":[{"doc":"rerank.md","span":"BAAI/bge-reranker-v2-m3"}]}
+{"id":"q-015","question":"重排失败时系统怎么处理？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"rerank.md","span":"fail-open"}]}
+{"id":"q-016","question":"重排和切片参数分别怎么影响候选？","tags":["cross-doc"],"split":"test","answerable":true,"relevant":[{"doc":"rerank.md","span":"先扩大召回，再对候选重新打分"},{"doc":"ingestion.md","span":"max_segment_tokens"}]}
+{"id":"q-017","question":"查询改写会影响提示词中的原始问题吗？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"query-rewrite.md","span":"原始问题继续用于提示词和引用"}]}
+{"id":"q-018","question":"改写失败时使用什么继续检索？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"query-rewrite.md","span":"回退原始问题"}]}
+{"id":"q-019","question":"原文默认存储在哪里？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"storage.md","span":"PostgreSQL bytea 键值表 document_blob"}]}
+{"id":"q-020","question":"原文存储后端如何切换？","tags":["exact-term"],"split":"dev","answerable":true,"relevant":[{"doc":"storage.md","span":"unirag.storage.backend"}]}
+{"id":"q-021","question":"大文件上传如何支持断点续传？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"upload.md","span":"固定分块协议断点续传"}]}
+{"id":"q-022","question":"上传接口支持哪些格式？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"upload.md","span":"纯文本和 Markdown"}]}
+{"id":"q-023","question":"异步摄取失败如何重试？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"async-ingestion.md","span":"指数退避重试"}]}
+{"id":"q-024","question":"进行中任务超时由谁回收？","tags":["exact-term"],"split":"dev","answerable":true,"relevant":[{"doc":"async-ingestion.md","span":"stale recovery"}]}
+{"id":"q-025","question":"每次检索的链路标识叫什么？","tags":["exact-term"],"split":"dev","answerable":true,"relevant":[{"doc":"observability.md","span":"traceId"}]}
+{"id":"q-026","question":"如何接入 Prometheus 监控面板？","tags":["unanswerable"],"split":"test","answerable":false,"relevant":[]}
+{"id":"q-027","question":"支持 LDAP 单点登录吗？","tags":["unanswerable"],"split":"test","answerable":false,"relevant":[]}
+{"id":"q-028","question":"支持哪些语言的 OCR？","tags":["unanswerable"],"split":"test","answerable":false,"relevant":[]}
+{"id":"q-029","question":"如何部署 Kubernetes Operator？","tags":["unanswerable"],"split":"test","answerable":false,"relevant":[]}
+{"id":"q-030","question":"是否支持语音输入？","tags":["unanswerable"],"split":"test","answerable":false,"relevant":[]}

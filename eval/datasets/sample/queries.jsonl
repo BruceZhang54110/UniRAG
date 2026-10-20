@@ -1,0 +1,5 @@
+{"id":"s-001","question":"UniRAG 支持多租户吗？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"intro.md","span":"每个租户使用独立的向量表"}]}
+{"id":"s-002","question":"向量表配置写在哪里？","tags":["exact-term"],"split":"dev","answerable":true,"relevant":[{"doc":"config.md","span":"tenant_resource_config"}]}
+{"id":"s-003","question":"上传支持 Markdown 吗？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"upload.md","span":"纯文本和 Markdown"}]}
+{"id":"s-004","question":"支持 LDAP 吗？","tags":["unanswerable"],"split":"test","answerable":false,"relevant":[]}
+{"id":"s-005","question":"支持语音输入吗？","tags":["unanswerable"],"split":"test","answerable":false,"relevant":[]}

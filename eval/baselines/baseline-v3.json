@@ -1,0 +1,1555 @@
+{
+  "reportVersion" : 1,
+  "run" : {
+    "id" : "20261020T133118Z-1cd8b3a",
+    "mode" : "RECORD",
+    "status" : "SUCCESS",
+    "startedAt" : "2026-10-20T13:31:18.697783Z",
+    "finishedAt" : "2026-10-20T13:31:44.811094Z",
+    "failureReason" : null
+  },
+  "dataset" : {
+    "name" : "baseline",
+    "version" : "463d43bf95c5872f208a5d463f3779a4f8708c13874a3d95d2c489860e9c722a",
+    "corpusHash" : "cbc844f1b896ad03f5d804201603f4cda0fdb233ac47b148894deb01cab86181",
+    "queriesHash" : "fe3009e4243ffc830d93940d93d574cd48063bf02d2b7ebfa83295fcf398bd96",
+    "documentCount" : 15,
+    "queryCount" : 30,
+    "answerableCount" : 25,
+    "unanswerableCount" : 5
+  },
+  "config" : {
+    "codeVersion" : "1cd8b3a",
+    "embedding" : {
+      "model" : "BAAI/bge-m3",
+      "dimension" : 1024
+    },
+    "pipelines" : [ {
+      "key" : "fine",
+      "maxSegmentTokens" : 300,
+      "overlapTokens" : 50,
+      "modelKey" : "eval-embedding",
+      "storeKey" : "eval-store"
+    } ],
+    "retrieval" : {
+      "topK" : 5,
+      "recallTopK" : 20,
+      "minScore" : 0.7,
+      "rerank" : true,
+      "rewrite" : false
+    },
+    "metrics" : {
+      "k" : [ 1, 3, 5, 10 ],
+      "diagnosticTopK" : 50
+    },
+    "thresholds" : { }
+  },
+  "overall" : {
+    "documentRecall@1" : 0.9,
+    "chunkRecall@1" : 0.9,
+    "hitRate@1" : 0.92,
+    "mrr@1" : 0.92,
+    "ndcg@1" : 0.92,
+    "documentRecall@3" : 0.94,
+    "chunkRecall@3" : 0.94,
+    "hitRate@3" : 0.96,
+    "mrr@3" : 0.94,
+    "ndcg@3" : 0.9297630778534766,
+    "documentRecall@5" : 0.94,
+    "chunkRecall@5" : 0.94,
+    "hitRate@5" : 0.96,
+    "mrr@5" : 0.94,
+    "ndcg@5" : 0.9297630778534766,
+    "documentRecall@10" : 0.94,
+    "chunkRecall@10" : 0.94,
+    "hitRate@10" : 0.96,
+    "mrr@10" : 0.94,
+    "ndcg@10" : 0.9297630778534766,
+    "unanswerableFalsePositiveRate" : 0.0,
+    "latencyP50Ms" : 485.533042,
+    "latencyP95Ms" : 572.71225
+  },
+  "byTag" : {
+    "colloquial" : {
+      "documentRecall@1" : 0.0,
+      "chunkRecall@1" : 0.0,
+      "hitRate@1" : 0.0,
+      "mrr@1" : 0.0,
+      "ndcg@1" : 0.0,
+      "documentRecall@3" : 0.0,
+      "chunkRecall@3" : 0.0,
+      "hitRate@3" : 0.0,
+      "mrr@3" : 0.0,
+      "ndcg@3" : 0.0,
+      "documentRecall@5" : 0.0,
+      "chunkRecall@5" : 0.0,
+      "hitRate@5" : 0.0,
+      "mrr@5" : 0.0,
+      "ndcg@5" : 0.0,
+      "documentRecall@10" : 0.0,
+      "chunkRecall@10" : 0.0,
+      "hitRate@10" : 0.0,
+      "mrr@10" : 0.0,
+      "ndcg@10" : 0.0
+    },
+    "cross-doc" : {
+      "documentRecall@1" : 0.5,
+      "chunkRecall@1" : 0.5,
+      "hitRate@1" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@3" : 0.5,
+      "chunkRecall@3" : 0.5,
+      "hitRate@3" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@3" : 0.6131471927654584,
+      "documentRecall@5" : 0.5,
+      "chunkRecall@5" : 0.5,
+      "hitRate@5" : 1.0,
+      "mrr@5" : 1.0,
+      "ndcg@5" : 0.6131471927654584,
+      "documentRecall@10" : 0.5,
+      "chunkRecall@10" : 0.5,
+      "hitRate@10" : 1.0,
+      "mrr@10" : 1.0,
+      "ndcg@10" : 0.6131471927654584
+    },
+    "exact-term" : {
+      "documentRecall@1" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "mrr@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "hitRate@3" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@3" : 1.0,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@5" : 1.0,
+      "ndcg@5" : 1.0,
+      "documentRecall@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "hitRate@10" : 1.0,
+      "mrr@10" : 1.0,
+      "ndcg@10" : 1.0
+    },
+    "fact" : {
+      "documentRecall@1" : 0.9285714285714286,
+      "chunkRecall@1" : 0.9285714285714286,
+      "hitRate@1" : 0.9285714285714286,
+      "mrr@1" : 0.9285714285714286,
+      "ndcg@1" : 0.9285714285714286,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "hitRate@3" : 1.0,
+      "mrr@3" : 0.9642857142857143,
+      "ndcg@3" : 0.9736378395408184,
+      "documentRecall@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "hitRate@5" : 1.0,
+      "mrr@5" : 0.9642857142857143,
+      "ndcg@5" : 0.9736378395408184,
+      "documentRecall@10" : 1.0,
+      "chunkRecall@10" : 1.0,
+      "hitRate@10" : 1.0,
+      "mrr@10" : 0.9642857142857143,
+      "ndcg@10" : 0.9736378395408184
+    },
+    "unanswerable" : {
+      "unanswerableFalsePositiveRate" : 0.0
+    }
+  },
+  "queries" : [ {
+    "id" : "q-001",
+    "question" : "UniRAG 的核心流程是什么？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8539521583575862,
+      "rerankScore" : 0.9994476437568665,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "overview.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8539521583575862,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-002",
+    "question" : "不同租户的数据如何隔离？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "overview.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7792001622199192,
+      "rerankScore" : 0.6489477753639221,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "overview.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7792001622199192,
+        "mergedRank" : 3,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-003",
+    "question" : "租户通过哪个请求头定位？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "tenant-config.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8273559218028972,
+      "rerankScore" : 0.9897770285606384,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "auth-api-key.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7995290366128818,
+      "rerankScore" : 0.8544697165489197,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "tenant-config.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8277404656346921,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-004",
+    "question" : "向量存储配置写入哪张表？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "tenant-config.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8421454915827025,
+      "rerankScore" : 0.9962540864944458,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    }, {
+      "rank" : 2,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7559474248980234,
+      "rerankScore" : 0.5420313477516174,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "tenant-config.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.842310006571414,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-005",
+    "question" : "向量存储的资源类型是什么？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "tenant-config.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8140912422807542,
+      "rerankScore" : 0.8802816867828369,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "tenant-config.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8140912422807542,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-006",
+    "question" : "向量表是按租户创建的吗？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "tenant-config.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8606540262699358,
+      "rerankScore" : 0.9823894500732422,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "tenant-config.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8605793152858485,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-007",
+    "question" : "摄取管线默认用什么切分策略？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7975536826189281,
+      "rerankScore" : 0.9917678833007812,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7975536826189281,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-008",
+    "question" : "那个管片段长度的参数叫什么？",
+    "tags" : [ "colloquial" ],
+    "answerable" : true,
+    "retrieved" : [ ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7585080553879966,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 0.0,
+      "mrr@5" : 0.0,
+      "mrr@3" : 0.0,
+      "ndcg@5" : 0.0,
+      "mrr@1" : 0.0,
+      "hitRate@5" : 0.0,
+      "chunkRecall@5" : 0.0,
+      "documentRecall@5" : 0.0,
+      "ndcg@3" : 0.0,
+      "chunkRecall@3" : 0.0,
+      "documentRecall@3" : 0.0,
+      "chunkRecall@1" : 0.0,
+      "hitRate@3" : 0.0,
+      "documentRecall@1" : 0.0,
+      "hitRate@1" : 0.0,
+      "ndcg@1" : 0.0,
+      "documentRecall@10" : 0.0,
+      "ndcg@10" : 0.0,
+      "mrr@10" : 0.0,
+      "chunkRecall@10" : 0.0
+    },
+    "failure" : "RERANK_DROPPED",
+    "evidence" : [ "片段已存在于 document_chunk: ingestion.md / \"max_segment_tokens\"", "逐表诊断已召回该片段", "诊断遍归并排名=1, score=0.7585, minScore=0.7, topK=5", "重排启用，候选在重排后未保留" ]
+  }, {
+    "id" : "q-009",
+    "question" : "哪个参数控制相邻片段重叠？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7865332155823193,
+      "rerankScore" : 0.9806392788887024,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7865332155823193,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-010",
+    "question" : "怎么识别重复摄取？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8047704892529807,
+      "rerankScore" : 0.9650327563285828,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8047704892529807,
+        "mergedRank" : 2,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-011",
+    "question" : "检索请求包含哪些核心参数？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7953361780841592,
+      "rerankScore" : 0.8674206137657166,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "retrieval.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7953361780841592,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-012",
+    "question" : "minScore 是余弦相似度本身吗？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8280609152299221,
+      "rerankScore" : 0.9989787340164185,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "retrieval.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.828223647057705,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-013",
+    "question" : "多表检索结果会跨表去重吗？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "retrieval.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8159189067813163,
+      "rerankScore" : 0.9714445471763611,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "retrieval.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8159189067813163,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-014",
+    "question" : "重排序首期支持哪个模型？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8299691879786053,
+      "rerankScore" : 0.9961491823196411,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "rerank.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8299691879786053,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-015",
+    "question" : "重排失败时系统怎么处理？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8466759391603713,
+      "rerankScore" : 0.8689013123512268,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "rerank.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8466759391603713,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-016",
+    "question" : "重排和切片参数分别怎么影响候选？",
+    "tags" : [ "cross-doc" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "rerank.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8181687877925159,
+      "rerankScore" : 0.7129147052764893,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "rerank.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8181687877925159,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      }, {
+        "doc" : "ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7446056515410809,
+        "mergedRank" : 3,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 0.6131471927654584,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 0.5,
+      "documentRecall@5" : 0.5,
+      "ndcg@3" : 0.6131471927654584,
+      "chunkRecall@3" : 0.5,
+      "documentRecall@3" : 0.5,
+      "chunkRecall@1" : 0.5,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 0.5,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 0.5,
+      "ndcg@10" : 0.6131471927654584,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 0.5
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-017",
+    "question" : "查询改写会影响提示词中的原始问题吗？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8524196485355474,
+      "rerankScore" : 0.9983093738555908,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "query-rewrite.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8524196485355474,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-018",
+    "question" : "改写失败时使用什么继续检索？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "query-rewrite.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.840867883796994,
+      "rerankScore" : 0.9806551933288574,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "query-rewrite.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.840867883796994,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-019",
+    "question" : "原文默认存储在哪里？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8330517808261508,
+      "rerankScore" : 0.9703395962715149,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "storage.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8330517808261508,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-020",
+    "question" : "原文存储后端如何切换？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "storage.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8543651601625479,
+      "rerankScore" : 0.9826995134353638,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "storage.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8543651601625479,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-021",
+    "question" : "大文件上传如何支持断点续传？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "upload.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8662819514098966,
+      "rerankScore" : 0.9902564287185669,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "upload.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8662819514098966,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-022",
+    "question" : "上传接口支持哪些格式？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "file-formats.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8754137419780839,
+      "rerankScore" : 0.9973233342170715,
+      "documentRelevant" : false,
+      "chunkRelevant" : false
+    }, {
+      "rank" : 2,
+      "doc" : "upload.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8487213565756291,
+      "rerankScore" : 0.9809846878051758,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "upload.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8487213565756291,
+        "mergedRank" : 2,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 0.5,
+      "mrr@3" : 0.5,
+      "ndcg@5" : 0.6309297535714575,
+      "mrr@1" : 0.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 0.6309297535714575,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 0.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 0.0,
+      "hitRate@1" : 0.0,
+      "ndcg@1" : 0.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 0.6309297535714575,
+      "mrr@10" : 0.5,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-023",
+    "question" : "异步摄取失败如何重试？",
+    "tags" : [ "fact" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.8383259150425801,
+      "rerankScore" : 0.9641749858856201,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "async-ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.8383259150425801,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-024",
+    "question" : "进行中任务超时由谁回收？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "async-ingestion.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7585151339463096,
+      "rerankScore" : 0.9135055541992188,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "async-ingestion.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7585151339463096,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-025",
+    "question" : "每次检索的链路标识叫什么？",
+    "tags" : [ "exact-term" ],
+    "answerable" : true,
+    "retrieved" : [ {
+      "rank" : 1,
+      "doc" : "observability.md",
+      "chunkIndex" : 0,
+      "pipeline" : "fine",
+      "score" : 0.7820369150462556,
+      "rerankScore" : 0.5762424468994141,
+      "documentRelevant" : true,
+      "chunkRelevant" : true
+    } ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ {
+        "doc" : "observability.md",
+        "pipeline" : "fine",
+        "chunkIndex" : 0,
+        "score" : 0.7821966753426398,
+        "mergedRank" : 1,
+        "belowMinScore" : false
+      } ]
+    },
+    "metrics" : {
+      "hitRate@10" : 1.0,
+      "mrr@5" : 1.0,
+      "mrr@3" : 1.0,
+      "ndcg@5" : 1.0,
+      "mrr@1" : 1.0,
+      "hitRate@5" : 1.0,
+      "chunkRecall@5" : 1.0,
+      "documentRecall@5" : 1.0,
+      "ndcg@3" : 1.0,
+      "chunkRecall@3" : 1.0,
+      "documentRecall@3" : 1.0,
+      "chunkRecall@1" : 1.0,
+      "hitRate@3" : 1.0,
+      "documentRecall@1" : 1.0,
+      "hitRate@1" : 1.0,
+      "ndcg@1" : 1.0,
+      "documentRecall@10" : 1.0,
+      "ndcg@10" : 1.0,
+      "mrr@10" : 1.0,
+      "chunkRecall@10" : 1.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-026",
+    "question" : "如何接入 Prometheus 监控面板？",
+    "tags" : [ "unanswerable" ],
+    "answerable" : false,
+    "retrieved" : [ ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ ]
+    },
+    "metrics" : {
+      "unanswerableFalsePositiveRate" : 0.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-027",
+    "question" : "支持 LDAP 单点登录吗？",
+    "tags" : [ "unanswerable" ],
+    "answerable" : false,
+    "retrieved" : [ ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ ]
+    },
+    "metrics" : {
+      "unanswerableFalsePositiveRate" : 0.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-028",
+    "question" : "支持哪些语言的 OCR？",
+    "tags" : [ "unanswerable" ],
+    "answerable" : false,
+    "retrieved" : [ ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ ]
+    },
+    "metrics" : {
+      "unanswerableFalsePositiveRate" : 0.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-029",
+    "question" : "如何部署 Kubernetes Operator？",
+    "tags" : [ "unanswerable" ],
+    "answerable" : false,
+    "retrieved" : [ ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ ]
+    },
+    "metrics" : {
+      "unanswerableFalsePositiveRate" : 0.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  }, {
+    "id" : "q-030",
+    "question" : "是否支持语音输入？",
+    "tags" : [ "unanswerable" ],
+    "answerable" : false,
+    "retrieved" : [ ],
+    "diagnostic" : {
+      "searchedTables" : 1,
+      "failedTables" : [ ],
+      "goldCandidates" : [ ]
+    },
+    "metrics" : {
+      "unanswerableFalsePositiveRate" : 0.0
+    },
+    "failure" : null,
+    "evidence" : [ ]
+  } ],
+  "failures" : {
+    "CHUNKING_GAP" : 0,
+    "NOT_RECALLED" : 0,
+    "MERGE_OR_TOPK_DROPPED" : 0,
+    "RERANK_DROPPED" : 1,
+    "THRESHOLD_FILTERED" : 0,
+    "BELOW_TOPK" : 0,
+    "LABEL_INVALID" : 0
+  }
+}
