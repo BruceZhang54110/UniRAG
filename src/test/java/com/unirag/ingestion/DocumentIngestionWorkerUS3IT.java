@@ -1,7 +1,7 @@
 package com.unirag.ingestion;
 
-import com.unirag.infrastructure.mp.entity.DocumentIngestionJob;
-import com.unirag.infrastructure.mp.service.DocumentIngestionJobService;
+import com.unirag.infrastructure.persistence.entity.DocumentIngestionJob;
+import com.unirag.infrastructure.persistence.service.DocumentIngestionJobService;
 import org.apache.opendal.Operator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

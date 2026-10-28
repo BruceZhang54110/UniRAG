@@ -18,7 +18,7 @@ import com.unirag.retrieval.stage.QueryEmbeddingStage;
 import com.unirag.retrieval.stage.VectorSearchStage;
 import com.unirag.tenant.resource.TenantResourceIndexRegistry;
 import com.unirag.tenant.resource.TenantResourceRegistrar;
-import com.unirag.upload.support.TenantContext;
+import com.unirag.common.tenant.TenantContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;

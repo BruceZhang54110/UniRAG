@@ -3,6 +3,7 @@ package com.unirag.retrieval;
 import com.unirag.ingestion.DeterministicEmbeddingModel;
 import com.unirag.ingestion.IngestRequest;
 import com.unirag.ingestion.IngestionTestDocuments;
+import com.unirag.rag.QaService;
 import com.unirag.retrieval.model.QaRequest;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.request.ChatRequest;

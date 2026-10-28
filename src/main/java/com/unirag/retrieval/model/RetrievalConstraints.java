@@ -1,6 +1,6 @@
 package com.unirag.retrieval.model;
 
-import com.unirag.upload.support.ApiException;
+import com.unirag.common.web.ApiException;
 
 /**
  * 检索请求要素的取值约束（contracts/retrieval-api.md §2/§3）：检索与问答两处请求共用，避免两份校验。

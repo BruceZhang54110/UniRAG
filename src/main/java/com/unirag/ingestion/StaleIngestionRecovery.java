@@ -1,9 +1,9 @@
 package com.unirag.ingestion;
 
-import com.unirag.infrastructure.mp.entity.Document;
-import com.unirag.infrastructure.mp.entity.IngestionRun;
-import com.unirag.infrastructure.mp.service.DocumentService;
-import com.unirag.infrastructure.mp.service.IngestionRunService;
+import com.unirag.infrastructure.persistence.entity.Document;
+import com.unirag.infrastructure.persistence.entity.IngestionRun;
+import com.unirag.infrastructure.persistence.service.DocumentService;
+import com.unirag.infrastructure.persistence.service.IngestionRunService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

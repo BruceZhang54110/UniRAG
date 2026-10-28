@@ -6,7 +6,7 @@ import lombok.Value;
 /**
  * 租户资源配置（领域对象）。
  *
- * <p>与持久化实体 {@code com.unirag.infrastructure.mp.entity.TenantResourceConfig} 分离（research.md R9），
+ * <p>与持久化实体 {@code com.unirag.infrastructure.persistence.entity.TenantResourceConfig} 分离（research.md R9），
  * Registrar/Router/Provider 只依赖本对象；config 为 JSONB 配置体，由各 Provider 按
  * contracts/resource-config-schemas.md 自行解析。
  */

@@ -1,11 +1,11 @@
 package com.unirag.upload;
 
-import com.unirag.infrastructure.mp.entity.UploadSession;
+import com.unirag.infrastructure.persistence.entity.UploadSession;
 import com.unirag.ingestion.AsyncIngestionProperties;
 import com.unirag.upload.dto.AsyncDocumentUploadResponse;
 import com.unirag.upload.dto.DocumentUploadResponse;
-import com.unirag.upload.support.ApiResponse;
-import com.unirag.upload.support.TenantContext;
+import com.unirag.common.web.ApiResponse;
+import com.unirag.common.tenant.TenantContext;
 import com.unirag.upload.support.UploadAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

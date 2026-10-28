@@ -1,0 +1,491 @@
+{
+  "schemaVersion": 1,
+  "ruleVersion": "rules-v1",
+  "description": "查询分类验收集（SC-001）：人工标注，冻结于 014 期。仅用于验证分类，不替代 013 检索与回答质量评测。boundary=true 的样本单独报告，不通过删除难例达标。",
+  "intents": ["SIMPLE_FACT", "MULTI_HOP_RELATION", "COMPLEX_REASONING"],
+  "examples": [
+    {
+      "id": "SF-001",
+      "question": "什么是向量数据库？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单一概念定义类问题，命中 SF_DIRECT_FACT，可由少量直接相关片段回答。",
+      "boundary": false
+    },
+    {
+      "id": "SF-002",
+      "question": "pgvector 支持的最大向量维度是多少？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单一事实数值查询，命中 SF_DIRECT_FACT（多少）。",
+      "boundary": false
+    },
+    {
+      "id": "SF-003",
+      "question": "文档上传接口的返回字段有哪些？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "短问题（规范化 ≤30 字符）且无任何其他意图证据，仅命中 SF_SHORT_LOOKUP，置信度低于阈值，属弱证据边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-004",
+      "question": "什么是 BM25 算法？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单一概念定义，命中 SF_DIRECT_FACT。",
+      "boundary": false
+    },
+    {
+      "id": "SF-005",
+      "question": "如何配置异步摄取的轮询间隔？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单目标操作指引，命中 SF_SINGLE_TARGET_HOW_TO，权重 0.45 低于阈值，低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-006",
+      "question": "Embedding 模型 bge-m3 的向量维度是多少？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单一事实查询，命中 SF_DIRECT_FACT（多少）。",
+      "boundary": false
+    },
+    {
+      "id": "SF-007",
+      "question": "unirag 支持哪些文档格式？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "短查询且无其他意图证据，仅 SF_SHORT_LOOKUP，低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-008",
+      "question": "数据保留期是多久？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "极短查询，仅 SF_SHORT_LOOKUP 弱证据，低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-009",
+      "question": "默认的重排模型是什么？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单一直接事实，命中 SF_DIRECT_FACT（是什么）。",
+      "boundary": false
+    },
+    {
+      "id": "SF-010",
+      "question": "What is the default minScore for retrieval?",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "英文单一直接事实，命中 SF_DIRECT_FACT（what is）。",
+      "boundary": false
+    },
+    {
+      "id": "SF-011",
+      "question": "How do I enable the rerank feature?",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "英文单目标操作指引，命中 SF_SINGLE_TARGET_HOW_TO（how do i），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-012",
+      "question": "租户的资源配置存储在哪张表？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单目标定位，命中 SF_SINGLE_TARGET_HOW_TO（在哪里），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-013",
+      "question": "什么是检索观测中的 trace_id？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单一直接事实，命中 SF_DIRECT_FACT（什么是）。",
+      "boundary": false
+    },
+    {
+      "id": "SF-014",
+      "question": "Flyway 迁移脚本放在哪个目录？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "短查询且没有其他意图证据，仅 SF_SHORT_LOOKUP，低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-015",
+      "question": "问答接口的默认 topK 取值是多少？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单一事实数值，命中 SF_DIRECT_FACT（多少）。",
+      "boundary": false
+    },
+    {
+      "id": "SF-016",
+      "question": "同步摄取和异步摄取分别是什么？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "主要问两个概念各自的定义，SF_DIRECT_FACT（是什么）0.55 高于 MH_MULTI_ENTITY（分别）0.35，混合意图边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-017",
+      "question": "定义一下什么是文档分块策略。",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "定义类问题，命中 SF_DIRECT_FACT（定义/什么是）。",
+      "boundary": false
+    },
+    {
+      "id": "SF-018",
+      "question": "查询改写功能何时启用？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单一事实查询，命中 SF_DIRECT_FACT（何时）。",
+      "boundary": false
+    },
+    {
+      "id": "SF-019",
+      "question": "如何启用观测记录的留存清理？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单目标操作指引，命中 SF_SINGLE_TARGET_HOW_TO（如何启用），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-020",
+      "question": "重排阈值的默认值是多少？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "单一事实数值，命中 SF_DIRECT_FACT（多少）。",
+      "boundary": false
+    },
+    {
+      "id": "SF-021",
+      "question": "文档下载接口支持断点续传吗？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "短查询且无其他意图证据，仅 SF_SHORT_LOOKUP，低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-022",
+      "question": "Which version of Spring Boot does the project use?",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "英文单一直接事实，命中 SF_DIRECT_FACT（which version）。",
+      "boundary": false
+    },
+    {
+      "id": "SF-023",
+      "question": "asdkfj qwptne zxcvbnm plokijh uytrewq asdfghjk lkjhgfds",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "无法识别语言且规范化后超过 30 字符，无任何命中证据，落入 INSUFFICIENT_EVIDENCE 弱证据回退，低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-024",
+      "question": "QZX-2991 与 RTK-77 在链路交互时 ZW 字段的语义？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "只有内部代号、无规则证据且长度超过 30 字符，落入 INSUFFICIENT_EVIDENCE 弱证据回退，低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "SF-025",
+      "question": "ZY-77 协议是啥？",
+      "expectedIntent": "SIMPLE_FACT",
+      "labelReason": "极短代号问题，无其他意图证据，仅 SF_SHORT_LOOKUP 弱证据，低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "MH-001",
+      "question": "用户表和文档表之间是什么关系？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "需要连接两个实体，命中 MH_RELATION（之间/关系）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-002",
+      "question": "分块策略与召回率有什么关联？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "需要连接配置与指标两个实体，命中 MH_RELATION（关联）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-003",
+      "question": "租户配置中的嵌入模型和实际使用的模型有什么区别？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "需要跨配置与运行时两层比对，命中 MH_RELATION（区别）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-004",
+      "question": "文档状态和摄取任务状态是如何对应的？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "需要连接文档与任务两个状态机，命中 MH_RELATION（对应）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-005",
+      "question": "上传会话和存储路径的映射规则是什么？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "需要连接上传会话与存储对象，命中 MH_RELATION（映射）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-006",
+      "question": "检索分数和引用排序之间有什么依赖关系？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "需要连接分数与排序两个环节，命中 MH_RELATION（依赖/关系）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-007",
+      "question": "先查询文档元数据，再按租户过滤对应的分块，两者的处理顺序是什么？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "先…再链式两步且命中 MH_CHAIN 与 MH_RELATION（对应），需要连接元数据与分块。",
+      "boundary": false
+    },
+    {
+      "id": "MH-008",
+      "question": "基于会话记录定位上传文件，再进一步找到其摄取版本。",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "基于…进一步的链式定位，仅命中 MH_CHAIN，权重 0.45 低于阈值，低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "MH-009",
+      "question": "两个以上租户的文档分别存储在哪些表中？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "多实体分别查询，仅命中 MH_MULTI_ENTITY（两个/分别），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "MH-010",
+      "question": "跨文档检索时，如何关联不同文档中的相同实体？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "跨文档多实体连接，命中 MH_RELATION（关联）与 MH_MULTI_ENTITY（跨文档）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-011",
+      "question": "多份文档里提到的同一配置项，其值为什么不一致？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "需要跨多份文档对齐同一配置项，仅命中 MH_MULTI_ENTITY（多份文档），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "MH-012",
+      "question": "该租户对应的应用密钥属于哪个资源组？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "该…对应…所属嵌套引用，命中 MH_NESTED_REFERENCE 与 MH_RELATION（对应），需要跨租户、密钥、资源组三层。",
+      "boundary": false
+    },
+    {
+      "id": "MH-013",
+      "question": "文档的每个分块与其来源段落之间的偏移量如何对应？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "分块与来源段落两实体连接，命中 MH_RELATION（之间/对应）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-014",
+      "question": "父子文档的删除会级联到哪些关联记录？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "需要沿父子关系找到级联记录，命中 MH_RELATION（关联）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-015",
+      "question": "同步摄取接口和异步摄取任务的状态机有什么区别和对应关系？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "需要连接接口与任务两个状态机，命中 MH_RELATION（区别/对应/关系）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-016",
+      "question": "先找到目标文档，再定位它的原始文件记录，两步之间靠什么字段连接？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "先…再链式两步，命中 MH_CHAIN 与 MH_RELATION（之间），需经中间字段连接。",
+      "boundary": false
+    },
+    {
+      "id": "MH-017",
+      "question": "What is the relationship between tenant configuration and the embedding model used at query time?",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "英文混合直接事实与关系询问，SF_DIRECT_FACT 与 MH_RELATION 同为 0.55，按同分优先规则多跳胜出，低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "MH-018",
+      "question": "向量检索结果和重排结果之间是什么关系？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "需要连接检索与重排两个环节，命中 MH_RELATION（之间/关系）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-019",
+      "question": "多个文档版本各自的分块是否可以复用？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "多实体各自判定，仅命中 MH_MULTI_ENTITY（多个/各自），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "MH-020",
+      "question": "The mapping between upload sessions and document records depends on which fields?",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "英文跨实体关系，命中 MH_RELATION（depends on）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-021",
+      "question": "chunk 表中的 document_id 与文档主键是如何关联的？",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "需要连接分块表与文档表主键，命中 MH_RELATION（关联）。",
+      "boundary": false
+    },
+    {
+      "id": "MH-022",
+      "question": "分析会话表、分块表和观测表三者的外键依赖关系。",
+      "expectedIntent": "MULTI_HOP_RELATION",
+      "labelReason": "多表外键依赖连接，命中 MH_RELATION（依赖/关系）。",
+      "boundary": false
+    },
+    {
+      "id": "CR-001",
+      "question": "如何逐步排查同步摄取失败的问题？",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "多步排查流程，命中 CR_MULTISTEP（逐步）。",
+      "boundary": false
+    },
+    {
+      "id": "CR-002",
+      "question": "请推理一下异步任务一直重试的可能原因。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "需要迭代推理，命中 CR_MULTISTEP（推理）。",
+      "boundary": false
+    },
+    {
+      "id": "CR-003",
+      "question": "针对大文件上传超时，给出多步诊断方案。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "多步方案设计，命中 CR_MULTISTEP（多步/方案）。",
+      "boundary": false
+    },
+    {
+      "id": "CR-004",
+      "question": "综合检索命中率和引用质量给出改进规划。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "综合多项指标做规划，命中 CR_MULTISTEP（综合…给出/规划）。",
+      "boundary": false
+    },
+    {
+      "id": "CR-005",
+      "question": "帮我规划一次从 v1 到 v2 的数据迁移步骤。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "规划多阶段迁移，命中 CR_MULTISTEP（规划）。",
+      "boundary": false
+    },
+    {
+      "id": "CR-006",
+      "question": "对比同步摄取和异步摄取两种模式，并给出选择建议。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "对比后决策，仅命中 CR_COMPARE_DECIDE，置信度恰为 0.70 阈值边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-007",
+      "question": "比较 bge-m3 和 e5 在两个语料上的效果并给出结论。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "比较后给结论，CR_COMPARE_DECIDE（比较…给出）0.50 高于 MH_MULTI_ENTITY（两个）0.35，混合意图低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-008",
+      "question": "计算当前知识库的引用覆盖率，并对比改写前后的检索质量。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "计算加对比的多步分析，命中 CR_COMPARE_DECIDE，置信度恰为 0.70 阈值边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-009",
+      "question": "评估是否启用查询改写，并给出启用条件和选择建议。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "评估后决策，命中 CR_COMPARE_DECIDE（评估…选择），置信度 0.70 阈值边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-010",
+      "question": "能不能联网搜索一下最新的 pgvector 版本，再和文档里的要求对比？",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "联网加本地对比的组合能力，仅命中 CR_TOOL_COMBINATION（联网），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-011",
+      "question": "先用向量检索搜索候选片段，再调用重排模型打分，最后汇总给出推荐。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "向量…再…搜索的组合流程，CR_TOOL_COMBINATION 与 MH_CHAIN 同为 0.45，按同分优先规则复杂推理胜出，低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-012",
+      "question": "如果观测功能关闭，那么问答链路的行为会有什么变化？",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "条件假设分析，仅命中 CR_CONDITIONAL（如果…那么），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-013",
+      "question": "在低置信度阈值调到 0.8 的条件下，哪些问题会被降级？",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "条件场景分析，仅命中 CR_CONDITIONAL（在…条件下），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-014",
+      "question": "满足所有租户都缺少重排模型的环境，如何设计降级策略？",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "约束满足下的方案设计，仅命中 CR_CONDITIONAL（满足…所有），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-015",
+      "question": "请用 step by step 的方式分析观测表为何没有写入记录。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "英文显式多步分析，命中 CR_MULTISTEP（step by step）。",
+      "boundary": false
+    },
+    {
+      "id": "CR-016",
+      "question": "帮我规划多阶段索引重建方案，并评估每阶段的风险。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "多阶段方案规划，命中 CR_MULTISTEP（规划/方案）。",
+      "boundary": false
+    },
+    {
+      "id": "CR-017",
+      "question": "先检索相关分块，再计算每个文档的命中率。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "检索…再…计算的组合流程，命中 CR_TOOL_COMBINATION 与 CR_COMPARE_DECIDE（计算），组合得分高于 MH_CHAIN。",
+      "boundary": false
+    },
+    {
+      "id": "CR-018",
+      "question": "结合知识图谱和向量检索，分析文档间的引用网络。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "需要组合多种检索能力，仅命中 CR_TOOL_COMBINATION（知识图谱），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-019",
+      "question": "使用 web_search 查一下 UniRAG 的最新版本，再总结升级注意事项。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "显式外部工具组合，仅命中 CR_TOOL_COMBINATION（web_search），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-020",
+      "question": "if the embedding model is unavailable, then what should the QA pipeline do?",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "英文条件假设，仅命中 CR_CONDITIONAL（if…then），低置信度边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-021",
+      "question": "对比 three retrieval modes and recommend one for log analysis.",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "中英混合对比决策，命中 CR_COMPARE_DECIDE（对比…recommend），置信度 0.70 阈值边界样本。",
+      "boundary": true
+    },
+    {
+      "id": "CR-022",
+      "question": "综合命中率、时延和成本三方面，给出是否开启重排的决策建议。",
+      "expectedIntent": "COMPLEX_REASONING",
+      "labelReason": "综合多项因素做决策，命中 CR_MULTISTEP（综合…给出）。",
+      "boundary": false
+    }
+  ]
+}

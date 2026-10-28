@@ -1,6 +1,6 @@
 package com.unirag.ingestion;
 
-import com.unirag.infrastructure.mp.entity.IngestionPipeline;
+import com.unirag.infrastructure.persistence.entity.IngestionPipeline;
 
 /**
  * 单条管线的执行结果（contracts §1 IngestOutcome.runs 元素）。

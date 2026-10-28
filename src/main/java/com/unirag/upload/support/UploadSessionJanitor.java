@@ -1,6 +1,6 @@
 package com.unirag.upload.support;
 
-import com.unirag.infrastructure.mp.entity.UploadSession;
+import com.unirag.infrastructure.persistence.entity.UploadSession;
 import com.unirag.upload.UploadSessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

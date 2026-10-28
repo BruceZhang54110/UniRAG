@@ -1,7 +1,7 @@
 package com.unirag.retrieval.observation;
 
-import com.unirag.infrastructure.mp.entity.RetrievalObservation;
-import com.unirag.infrastructure.mp.service.RetrievalObservationService;
+import com.unirag.infrastructure.persistence.entity.RetrievalObservation;
+import com.unirag.infrastructure.persistence.service.RetrievalObservationService;
 import com.unirag.retrieval.Redaction;
 import com.unirag.retrieval.model.StageResult;
 import com.unirag.retrieval.pipeline.StageContext;

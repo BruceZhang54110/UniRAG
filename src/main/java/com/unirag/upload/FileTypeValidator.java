@@ -1,6 +1,6 @@
 package com.unirag.upload;
 
-import com.unirag.upload.support.ApiException;
+import com.unirag.common.web.ApiException;
 import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;

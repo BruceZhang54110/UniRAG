@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.unirag.infrastructure.mp.mapper.RetrievalObservationMapper">
+<mapper namespace="com.unirag.infrastructure.persistence.mapper.RetrievalObservationMapper">
 
     <!--
       统一观测查询（T038 / FR-006，research.md R3）：以 retrieval_observation 为基准联合投影
@@ -41,6 +41,7 @@
                o.hit_count     AS hit_count,
                o.top_score     AS top_score,
                o.error_message AS error_message,
+               o.detail        AS detail,
                o.document_id   AS document_id,
                o.created_at    AS created_at,
                o.id            AS row_id
@@ -56,6 +57,7 @@
                r.chunk_count     AS hit_count,
                NULL::double precision AS top_score,
                LEFT(r.error_message, 500) AS error_message,
+               NULL              AS detail,
                r.document_id     AS document_id,
                r.started_at      AS created_at,
                r.id              AS row_id

@@ -1,6 +1,6 @@
 package com.unirag.eval.retrieval;
 
-import com.unirag.upload.support.TenantContext;
+import com.unirag.common.tenant.TenantContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;

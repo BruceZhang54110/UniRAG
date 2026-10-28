@@ -1,6 +1,6 @@
 package com.unirag.retrieval;
 
-import com.unirag.infrastructure.mp.service.RetrievalObservationService;
+import com.unirag.infrastructure.persistence.service.RetrievalObservationService;
 import com.unirag.retrieval.observation.ObservationMetrics;
 import com.unirag.retrieval.observation.ObservationProperties;
 import com.unirag.retrieval.observation.ObservationRetentionJob;

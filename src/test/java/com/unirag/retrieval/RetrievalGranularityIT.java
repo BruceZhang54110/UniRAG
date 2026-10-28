@@ -4,7 +4,7 @@ import com.unirag.ingestion.DeterministicEmbeddingModel;
 import com.unirag.ingestion.IngestRequest;
 import com.unirag.ingestion.IngestionTestDocuments;
 import com.unirag.retrieval.model.RetrievalRequest;
-import com.unirag.upload.support.ApiException;
+import com.unirag.common.web.ApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

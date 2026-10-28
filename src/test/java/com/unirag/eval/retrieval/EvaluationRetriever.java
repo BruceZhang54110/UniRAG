@@ -13,7 +13,7 @@ import com.unirag.retrieval.stage.QueryEmbeddingStage;
 import com.unirag.retrieval.stage.QueryVector;
 import com.unirag.retrieval.stage.VectorSearchResult;
 import com.unirag.retrieval.stage.VectorSearchStage;
-import com.unirag.upload.support.TenantContext;
+import com.unirag.common.tenant.TenantContext;
 
 import java.util.List;
 

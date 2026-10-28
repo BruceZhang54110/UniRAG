@@ -1,7 +1,7 @@
 package com.unirag.ingestion;
 
 import com.unirag.AbstractPostgresIntegrationTest;
-import com.unirag.infrastructure.mp.entity.DocumentIngestionJob;
+import com.unirag.infrastructure.persistence.entity.DocumentIngestionJob;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

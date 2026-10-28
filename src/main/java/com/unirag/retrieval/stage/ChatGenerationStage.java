@@ -8,7 +8,7 @@ import com.unirag.retrieval.pipeline.StageContext;
 import com.unirag.retrieval.pipeline.StageName;
 import com.unirag.tenant.resource.ResourceType;
 import com.unirag.tenant.resource.TenantResourceRouter;
-import com.unirag.upload.support.ApiException;
+import com.unirag.common.web.ApiException;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.request.ChatRequest;

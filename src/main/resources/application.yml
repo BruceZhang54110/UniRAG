@@ -29,13 +29,13 @@ mybatis-plus:
   # Mapper XML 文件位置
   mapper-locations: classpath*:/mapper/**/*.xml
   # 实体类别名扫描包
-  type-aliases-package: com.unirag.infrastructure.mp.entity
+  type-aliases-package: com.unirag.infrastructure.persistence.entity
   configuration:
     # 开启驼峰命名自动映射
     map-underscore-to-camel-case: true
     # SQL 日志走 SLF4J（默认 INFO 不输出）。禁止用 StdOutImpl：findAllEnabled 会打印
     # 含密码的 config JSONB 原文到控制台，违反 FR-008。排查 SQL 时按需打开：
-    # logging.level.com.unirag.infrastructure.mp.mapper: debug
+    # logging.level.com.unirag.infrastructure.persistence.mapper: debug
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 management:
   endpoints:
@@ -73,6 +73,13 @@ unirag:
       max-output-ratio: ${UNIRAG_QUERY_REWRITE_MAX_OUTPUT_RATIO:2.0}
       max-input-chars: ${UNIRAG_QUERY_REWRITE_MAX_INPUT_CHARS:2000}
       preview-chars: ${UNIRAG_QUERY_REWRITE_PREVIEW_CHARS:120}
+  # 查询分类与路由默认值（014）：仅部署级配置，调用方不可按请求传入。
+  # 置信度等于阈值按正常分类路由，严格低于阈值进入低置信度安全降级；
+  # 单次分类耗时超过 classification-timeout 的结果一律按分类失败降级。
+  rag:
+    routing:
+      low-confidence-threshold: ${UNIRAG_RAG_LOW_CONFIDENCE_THRESHOLD:0.70}
+      classification-timeout: ${UNIRAG_RAG_CLASSIFICATION_TIMEOUT:200ms}
   ai:
     models:
       default:

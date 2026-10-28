@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.unirag.infrastructure.mp.mapper.IngestionPipelineMapper">
+<mapper namespace="com.unirag.infrastructure.persistence.mapper.IngestionPipelineMapper">
 
-    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.IngestionPipeline">
+    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.persistence.entity.IngestionPipeline">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="tenantId" column="tenant_id" jdbcType="BIGINT"/>
             <result property="pipelineKey" column="pipeline_key" jdbcType="VARCHAR"/>

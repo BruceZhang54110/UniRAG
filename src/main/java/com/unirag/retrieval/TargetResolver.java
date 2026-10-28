@@ -1,9 +1,9 @@
 package com.unirag.retrieval;
 
-import com.unirag.infrastructure.mp.entity.IngestionPipeline;
-import com.unirag.infrastructure.mp.service.IngestionPipelineService;
+import com.unirag.infrastructure.persistence.entity.IngestionPipeline;
+import com.unirag.infrastructure.persistence.service.IngestionPipelineService;
 import com.unirag.retrieval.model.TargetTable;
-import com.unirag.upload.support.ApiException;
+import com.unirag.common.web.ApiException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

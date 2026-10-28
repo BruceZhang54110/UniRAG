@@ -54,6 +54,24 @@ src/
         └── HealthEndpointTest.java         # /actuator/health 契约测试
 ```
 
+后端包边界：
+
+```text
+com.unirag
+├── common/                 # 跨模块共享：租户上下文、统一 Web 响应/异常、调度配置
+├── infrastructure/
+│   ├── persistence/        # MyBatis Plus 实体 / Mapper / Service
+│   ├── storage/            # OpenDAL 原文存储抽象
+│   └── embedding/          # pgvector EmbeddingStore 装配
+├── tenant/                 # 租户资源注册、路由与健康检查
+├── ingestion/              # 文档摄取与异步 worker
+├── upload/                 # 上传 / 文档管理 HTTP 与编排
+├── retrieval/              # 传统 RAG：检索流水线、重排/改写、观测查询
+└── rag/                    # 问答编排：统一入口、查询分类、范式路由、/ask Web 适配
+```
+
+依赖方向保持 `rag → retrieval → infrastructure/common`；Graph RAG 与 Agentic RAG 目前只保留路由契约，未在本仓库实现。
+
 ## 多租户向量存储（004）
 
 应用在启动时自动完成向量环境准备（Flyway V3 幂等启用 pgvector 扩展），并按租户资源配置为每个租户创建独立的向量表与 `EmbeddingStore` Bean：

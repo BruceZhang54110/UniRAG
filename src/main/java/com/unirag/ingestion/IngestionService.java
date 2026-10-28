@@ -1,13 +1,13 @@
 package com.unirag.ingestion;
 
-import com.unirag.infrastructure.mp.entity.Document;
-import com.unirag.infrastructure.mp.entity.IngestionPipeline;
-import com.unirag.infrastructure.mp.entity.IngestionRun;
-import com.unirag.infrastructure.mp.entity.Tenant;
-import com.unirag.infrastructure.mp.service.DocumentService;
-import com.unirag.infrastructure.mp.service.IngestionPipelineService;
-import com.unirag.infrastructure.mp.service.IngestionRunService;
-import com.unirag.infrastructure.mp.service.TenantService;
+import com.unirag.infrastructure.persistence.entity.Document;
+import com.unirag.infrastructure.persistence.entity.IngestionPipeline;
+import com.unirag.infrastructure.persistence.entity.IngestionRun;
+import com.unirag.infrastructure.persistence.entity.Tenant;
+import com.unirag.infrastructure.persistence.service.DocumentService;
+import com.unirag.infrastructure.persistence.service.IngestionPipelineService;
+import com.unirag.infrastructure.persistence.service.IngestionRunService;
+import com.unirag.infrastructure.persistence.service.TenantService;
 import com.unirag.ingestion.support.DocumentFingerprint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

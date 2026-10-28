@@ -5,14 +5,14 @@ import com.unirag.ingestion.IngestOutcome;
 import com.unirag.ingestion.IngestRequest;
 import com.unirag.ingestion.IngestionService;
 import com.unirag.ingestion.support.DocumentFingerprint;
-import com.unirag.infrastructure.mp.entity.Document;
-import com.unirag.infrastructure.mp.entity.DocumentIngestionJob;
-import com.unirag.infrastructure.mp.service.DocumentIngestionJobService;
-import com.unirag.infrastructure.mp.service.DocumentService;
+import com.unirag.infrastructure.persistence.entity.Document;
+import com.unirag.infrastructure.persistence.entity.DocumentIngestionJob;
+import com.unirag.infrastructure.persistence.service.DocumentIngestionJobService;
+import com.unirag.infrastructure.persistence.service.DocumentService;
 import com.unirag.upload.dto.AsyncDocumentUploadResponse;
 import com.unirag.upload.dto.DocumentUploadResponse;
-import com.unirag.upload.support.ApiException;
-import com.unirag.upload.support.TenantContext;
+import com.unirag.common.web.ApiException;
+import com.unirag.common.tenant.TenantContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.opendal.Operator;
 import org.springframework.stereotype.Service;
@@ -106,7 +106,7 @@ public class UploadService {
             return toAsyncResponse(document, existing);
         }
 
-        com.unirag.infrastructure.mp.entity.DocumentFile existingFile =
+        com.unirag.infrastructure.persistence.entity.DocumentFile existingFile =
                 documentFileService.findByDocumentId(document.getId());
         int proposedVersion = document.getVersion() + (fingerprint.equals(document.getContentFingerprint()) ? 0 : 1);
         String storagePath = existingFile != null && fingerprint.equals(document.getContentFingerprint())

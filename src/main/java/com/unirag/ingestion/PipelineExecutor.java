@@ -1,11 +1,11 @@
 package com.unirag.ingestion;
 
-import com.unirag.infrastructure.mp.entity.Document;
-import com.unirag.infrastructure.mp.entity.DocumentChunk;
-import com.unirag.infrastructure.mp.entity.IngestionPipeline;
-import com.unirag.infrastructure.mp.entity.IngestionRun;
-import com.unirag.infrastructure.mp.service.DocumentChunkService;
-import com.unirag.infrastructure.mp.service.IngestionRunService;
+import com.unirag.infrastructure.persistence.entity.Document;
+import com.unirag.infrastructure.persistence.entity.DocumentChunk;
+import com.unirag.infrastructure.persistence.entity.IngestionPipeline;
+import com.unirag.infrastructure.persistence.entity.IngestionRun;
+import com.unirag.infrastructure.persistence.service.DocumentChunkService;
+import com.unirag.infrastructure.persistence.service.IngestionRunService;
 import com.unirag.tenant.resource.ResourceType;
 import com.unirag.tenant.resource.TenantResourceRouter;
 import dev.langchain4j.data.document.DocumentSplitter;

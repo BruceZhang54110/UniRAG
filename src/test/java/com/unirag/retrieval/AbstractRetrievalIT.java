@@ -4,7 +4,7 @@ import com.unirag.ingestion.AbstractIngestionIT;
 import com.unirag.retrieval.query.LlmQueryTransformer;
 import com.unirag.tenant.resource.ResourceType;
 import com.unirag.tenant.resource.TenantResourceNotFoundException;
-import com.unirag.upload.support.TenantContext;
+import com.unirag.common.tenant.TenantContext;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.chat.ChatModel;

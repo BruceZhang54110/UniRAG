@@ -1,6 +1,6 @@
 package com.unirag.retrieval.observation;
 
-import com.unirag.infrastructure.mp.service.RetrievalObservationService;
+import com.unirag.infrastructure.persistence.service.RetrievalObservationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

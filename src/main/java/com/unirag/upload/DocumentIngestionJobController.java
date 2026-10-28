@@ -1,8 +1,8 @@
 package com.unirag.upload;
 
 import com.unirag.upload.dto.DocumentIngestionJobStatusResponse;
-import com.unirag.upload.support.ApiResponse;
-import com.unirag.upload.support.TenantContext;
+import com.unirag.common.web.ApiResponse;
+import com.unirag.common.tenant.TenantContext;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

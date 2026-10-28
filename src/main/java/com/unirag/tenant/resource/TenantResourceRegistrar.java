@@ -1,6 +1,6 @@
 package com.unirag.tenant.resource;
 
-import com.unirag.infrastructure.mp.service.TenantResourceConfigService;
+import com.unirag.infrastructure.persistence.service.TenantResourceConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -47,7 +47,9 @@ public class TenantResourceRegistrar implements ApplicationRunner {
      * 加载并注册
      */
     public void loadAndRegister() {
-        List<TenantResourceConfig> configs = tenantResourceConfigService.findAllEnabled();
+        List<TenantResourceConfig> configs = tenantResourceConfigService.findAllEnabled().stream()
+                .map(this::toDomain)
+                .toList();
         log.info("Loading tenant resources, {} enabled config(s) found", configs.size());
         TenantResourceIndex.Builder index = TenantResourceIndex.builder();
         // 本次加载的已见冲突键：冲突键相同的配置仅先加载者可构建（research.md R4，先加载者胜）
@@ -100,6 +102,17 @@ public class TenantResourceRegistrar implements ApplicationRunner {
         indexRegistry.publish(index.build());
         log.info("Tenant resource loading finished: {} loaded, {} failed",
                 indexRegistry.get().loadedCount(), indexRegistry.get().failedCount());
+    }
+
+    private TenantResourceConfig toDomain(com.unirag.infrastructure.persistence.entity.TenantResourceConfig entity) {
+        return new TenantResourceConfig(
+                entity.getId(),
+                entity.getTenantCode(),
+                ResourceType.valueOf(entity.getResourceType()),
+                entity.getResourceKey(),
+                Boolean.TRUE.equals(entity.getPrimary()),
+                entity.getConfig(),
+                Boolean.TRUE.equals(entity.getEnabled()));
     }
 
     private TenantResourceProvider<?> findProvider(ResourceType type) {

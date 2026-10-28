@@ -1,5 +1,6 @@
 package com.unirag.retrieval.web;
 
+import com.unirag.rag.web.AskRequest;
 import com.unirag.retrieval.RetrievalProperties;
 import com.unirag.retrieval.model.RetrievalConstraints;
 import com.unirag.retrieval.model.RetrievalRequest;

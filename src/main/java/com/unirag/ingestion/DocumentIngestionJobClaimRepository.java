@@ -1,7 +1,7 @@
 package com.unirag.ingestion;
 
-import com.unirag.infrastructure.mp.entity.DocumentIngestionJob;
-import com.unirag.infrastructure.mp.mapper.DocumentIngestionJobMapper;
+import com.unirag.infrastructure.persistence.entity.DocumentIngestionJob;
+import com.unirag.infrastructure.persistence.mapper.DocumentIngestionJobMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -16,7 +16,7 @@ import com.unirag.retrieval.stage.MergeResult;
 import com.unirag.retrieval.stage.MergeStage;
 import com.unirag.retrieval.stage.QueryEmbeddingStage;
 import com.unirag.retrieval.stage.VectorSearchStage;
-import com.unirag.upload.support.TenantContext;
+import com.unirag.common.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;

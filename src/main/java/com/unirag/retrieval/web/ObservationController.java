@@ -1,7 +1,7 @@
 package com.unirag.retrieval.web;
 
 import com.unirag.retrieval.ObservationQueryService;
-import com.unirag.upload.support.ApiResponse;
+import com.unirag.common.web.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

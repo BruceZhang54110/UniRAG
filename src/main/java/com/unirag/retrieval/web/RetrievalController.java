@@ -3,7 +3,7 @@ package com.unirag.retrieval.web;
 import com.unirag.retrieval.RetrievalProperties;
 import com.unirag.retrieval.RetrievalService;
 import com.unirag.retrieval.model.RetrievalRequest;
-import com.unirag.upload.support.ApiResponse;
+import com.unirag.common.web.ApiResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

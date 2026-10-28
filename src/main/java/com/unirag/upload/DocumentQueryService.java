@@ -2,14 +2,14 @@ package com.unirag.upload;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.unirag.infrastructure.mp.entity.Document;
-import com.unirag.infrastructure.mp.mapper.DocumentMapper;
-import com.unirag.infrastructure.mp.service.DocumentService;
+import com.unirag.infrastructure.persistence.entity.Document;
+import com.unirag.infrastructure.persistence.mapper.DocumentMapper;
+import com.unirag.infrastructure.persistence.service.DocumentService;
 import com.unirag.upload.dto.DocumentDetail;
 import com.unirag.upload.dto.DocumentInfoItem;
 import com.unirag.upload.dto.DocumentPage;
-import com.unirag.upload.support.ApiException;
-import com.unirag.upload.support.TenantContext;
+import com.unirag.common.web.ApiException;
+import com.unirag.common.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

@@ -1,10 +1,10 @@
 package com.unirag.retrieval;
 
-import com.unirag.infrastructure.mp.mapper.RetrievalObservationMapper;
+import com.unirag.infrastructure.persistence.mapper.RetrievalObservationMapper;
 import com.unirag.retrieval.web.ObservationItem;
 import com.unirag.retrieval.web.ObservationPage;
-import com.unirag.upload.support.ApiException;
-import com.unirag.upload.support.TenantContext;
+import com.unirag.common.web.ApiException;
+import com.unirag.common.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -62,7 +62,8 @@ public class ObservationQueryService {
                 intOf(row.get("hit_count")),
                 doubleOf(row.get("top_score")),
                 (String) row.get("error_message"),
-                instantOf(row.get("created_at")));
+                instantOf(row.get("created_at")),
+                (String) row.get("detail"));
     }
 
     private static Timestamp parseTime(String value, String field) {

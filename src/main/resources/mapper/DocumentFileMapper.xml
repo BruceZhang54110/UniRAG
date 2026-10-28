@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.unirag.infrastructure.mp.mapper.DocumentFileMapper">
+<mapper namespace="com.unirag.infrastructure.persistence.mapper.DocumentFileMapper">
 
-    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.DocumentFile">
+    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.persistence.entity.DocumentFile">
             <id property="documentId" column="document_id" jdbcType="BIGINT"/>
             <result property="storagePath" column="storage_path" jdbcType="VARCHAR"/>
             <result property="fileName" column="file_name" jdbcType="VARCHAR"/>

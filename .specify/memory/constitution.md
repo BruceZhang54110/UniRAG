@@ -1,37 +1,35 @@
 <!--
 Sync Impact Report
 ==================
-版本变更: 模板（未批准） → 1.0.0
-变更类型: 首次批准（初始采用，确立 MAJOR 基线）
-说明: 原文件与 .specify/templates/constitution-template.md 字节完全相同，即宪法从未被填写；
-      本次为初始采用，而非对既有宪法的修订。
+版本变更: 1.0.0 → 1.1.0
+变更类型: MINOR（新增原则 VI 与"目标架构与包结构"章节，对既有指导做实质性扩展）
+历史: 1.0.0 首次批准（2026-10-14，初始采用）
 
 新增原则:
-  I.   架构优先，拒绝冗余堆砌（来自用户指令）
-  II.  规格驱动交付
-  III. 真实链路集成验证
-  IV.  多租户隔离不可妥协
-  V.   敏感信息零泄漏
+  VI. 三范式融合与查询路由
+
+修改原则: 无（原则 I–V 原文保留）
 
 新增章节:
-  - 技术栈与工程约束（原 [SECTION_2_NAME]）
-  - 开发工作流与质量门（原 [SECTION_3_NAME]）
+  - 目标架构与包结构
 
-移除章节: 无（原文件仅含模板占位符与示例注释）
+移除章节: 无
 
 依赖产物一致性核查:
   ✅ .specify/templates/plan-template.md — Constitution Check 为通用占位
      ("[Gates determined based on constitution file]")，并已含 Complexity Tracking 表，
-     天然对齐原则 I 的"复杂度必须说明理由"，无需修改
+     满足原则 I / VI 的"复杂度与图存储选型必须论证"要求，无需修改
   ✅ .specify/templates/spec-template.md — 已含 Functional Requirements / Success Criteria /
-     Assumptions 章节，满足原则 II，无需修改
+     Assumptions 章节，满足原则 II、VI 的可验证性要求，无需修改
   ✅ .specify/templates/tasks-template.md — 已含 Phase 划分与测试门，满足原则 II / III，无需修改
   ✅ .specify/templates/checklist-template.md — 无原则相关硬编码，无需修改
-  ✅ .kimi-code/skills/speckit-*/SKILL.md（15 个命令文件） — 未发现过时的 agent 专有引用；
-     唯一 "claude" 出现在指令内的示例路径列表中，属通用说明而非过时引用，无需修改
-  ✅ README.md / AGENTS.md — 均未引用任何宪法原则，无需同步
+  ✅ .kimi-code/skills/speckit-*/SKILL.md — 未发现过时的 agent 专有引用，
+     也未硬编码任何宪法条款编号，无需修改
+  ✅ README.md / AGENTS.md — 均未引用具体宪法原则，无需同步
+  ⚠ 代码包结构 — 本宪法仅定义目标结构与迁移规则；实际迁移 MUST 由独立 feature 的
+     plan / tasks 驱动，本次不改动任何源码
 
-延期项: 无（无 TODO 占位符遗留）
+延期项: 无 TODO 占位符；包结构迁移按"目标架构与包结构"的渐进规则随 feature 落地
 -->
 
 # UniRAG Constitution
@@ -84,6 +82,32 @@ Sync Impact Report
 
 理由：本项目资源凭据按租户落库，最易从"顺手把配置打进日志"这条路径泄漏。
 
+### VI. 三范式融合与查询路由
+
+**统一入口，按问题形态选范式。** 任何问答请求 MUST 从唯一的 RAG 入口进入，由查询分类器在
+传统 RAG（向量检索）、Graph RAG（多跳关系）、Agentic RAG（工具化推理）之间路由；
+调用方 MUST NOT 直接绑定某一范式实现。
+
+- **分类器**：MUST 输出可判定的意图（简单事实型 / 多跳关系型 / 复杂推理型）、置信度与判定依据，
+  并 MUST 记录到检索观测中。分类 MUST 有明确预算（超时 + 降级），MUST NOT 因分类失败阻断问答。
+  低置信度 MUST 回退到 Agentic RAG（能力最全），MUST NOT 静默选择某一范式。
+- **统一契约**：三种范式 MUST 共享同一套请求 / 结果 / 引用契约（如 `RagRequest`、`RagResult`、
+  引用与轨迹模型），MUST NOT 各自定义一套返回结构。
+- **共享约束不可绕开**：租户隔离（原则 IV）、观测记录、评测口径对三条路径同等生效；
+  任何范式 MUST NOT 自带权限旁路或日志旁路。
+- **Graph RAG**：MUST 维护按租户隔离的实体—关系图，支持从命中 chunk 出发的多跳扩展；
+  图存储 MUST 优先复用 PostgreSQL，引入独立图数据库 MUST 在 plan 的 Complexity Tracking 中论证。
+- **Agentic RAG**：工具 MUST 以统一 `Tool` 契约暴露，至少覆盖 `vector_search`、`kg_query`、
+  `web_search`；执行 MUST 有硬预算（最大步数、总超时、单工具调用上限）且每一步可审计；
+  工具失败 MUST 触发降级，MUST NOT 中断整轮问答。
+- **`web_search` 默认关闭**：仅当租户显式启用且问题确实需要外部信息时才可调用；
+  MUST NOT 将租户私有内容作为查询发往外部检索。
+- **渐进落地**：三范式 MUST 逐个以独立 feature 交付，MUST NOT 一次性引入图数据库、Agent 框架
+  或替换现有向量存储；某范式未就绪时，MUST 由已就绪范式提供等价降级路径。
+
+理由：企业级 RAG 的答案质量取决于检索策略与问题形态的匹配——单用向量检索答不了多跳关系，
+单用 Agent 又会让简单事实题付出数倍延迟与成本。路由让系统在正确的问题上花正确的代价。
+
 ## 技术栈与工程约束
 
 - **语言与框架**：Java 21 + Spring Boot 3.5.16（父 POM 锁定版本），构建走 Maven Wrapper（`./mvnw`），MUST NOT 依赖系统安装的 Maven。
@@ -91,6 +115,68 @@ Sync Impact Report
 - **原文存储**：MUST 经 Apache OpenDAL 统一抽象读写，后端由配置切换，业务代码 MUST NOT 感知后端差异。
 - **租户资源**：嵌入模型、向量存储、LLM MUST 经 `tenant_resource_config` + Router 解析；MUST NOT 在代码中硬编码地址、模型名或凭据。
 - **依赖最小集**：新增依赖 MUST 在 plan 中说明必要性；能用既有依赖实现的 MUST NOT 新增。
+
+## 目标架构与包结构
+
+**分层与依赖方向**：`common`（跨模块共享，无业务状态）← `infrastructure`（技术实现）
+← 业务能力包（`tenant` / `ingestion` / `upload` / `retrieval` / `graph` / `agent`）
+← `rag`（范式编排门面）。依赖 MUST 单向；`common` 与 `infrastructure` MUST NOT 反向依赖业务能力包。
+
+```text
+com.unirag
+├── UniRagApplication.java
+├── common/                       跨模块共享，不依赖业务包
+│   ├── tenant/                   TenantContext、TenantContextInterceptor、WebConfig
+│   ├── web/                      ApiResponse、ApiException、GlobalExceptionHandler
+│   └── scheduling/               SchedulingConfig
+├── infrastructure/               技术实现，不依赖业务包
+│   ├── persistence/              现 infrastructure/mp：entity / mapper / service
+│   ├── storage/                  现 com.unirag.storage：OpenDAL 抽象
+│   └── embedding/                现 com.unirag.embedding：EmbeddingStore 装配
+├── tenant/                       租户资源注册、路由、健康
+├── ingestion/                    摄取管线与异步 worker
+├── upload/                       上传 / 文档管理 HTTP 与编排
+├── retrieval/                    范式一：传统 RAG（向量检索 + 共享 Stage 内核）
+│   ├── pipeline/ stage/ model/ query/ rerank/ observation/ web/
+├── graph/                        范式二：Graph RAG（多跳关系）              ← 新增
+│   ├── model/                    实体、关系、子图、路径
+│   ├── extraction/               实体 / 关系抽取
+│   ├── store/                    图存储（PostgreSQL 落地）
+│   └── retrieval/                kg_query、多跳扩展
+├── agent/                        范式三：Agentic RAG（工具化推理）          ← 新增
+│   ├── tool/                     Tool 契约 + vector_search / kg_query / web_search
+│   ├── plan/                     规划与预算（步数、超时、调用上限）
+│   └── loop/                     执行循环与审计
+└── rag/                          范式编排（唯一问答入口）                    ← 新增
+    ├── classify/                 QueryIntent、QueryClassifier
+    ├── route/                    RagRouter、降级链
+    └── model/                    跨范式契约：请求 / 结果 / 引用 / 轨迹
+```
+
+**迁移对照**（MUST 是纯移动：仅改 package 与 import，不改行为）：
+
+| 现路径 | 目标路径 | 时机 |
+|--------|----------|------|
+| `upload/support/TenantContext*`、`WebConfig` | `common/tenant` | 随 `rag` 门面首个 feature |
+| `upload/support/ApiResponse`、`ApiException`、`GlobalExceptionHandler` | `common/web` | 随 `rag` 门面首个 feature |
+| `upload/support/SchedulingConfig` | `common/scheduling` | 随 `rag` 门面首个 feature |
+| `infrastructure/mp` | `infrastructure/persistence` | 随首个需要图存储的 feature |
+| `com.unirag.storage` | `infrastructure/storage` | 随首个需要图存储的 feature |
+| `com.unirag.embedding` | `infrastructure/embedding` | 随首个需要图存储的 feature |
+| `retrieval/*` | 原地不动 | 作为传统 RAG 与共享检索内核 |
+
+**包结构规则**：
+
+- 新增类的归属 MUST 遵循上图：分类与路由进 `rag.*`，图相关进 `graph.*`，Agent 工具与循环进
+  `agent.*`；MUST NOT 把新范式塞进 `retrieval`，也 MUST NOT 在 `com.unirag` 根下新增散落类。
+- 一个能力一个包：同一能力的契约、实体与实现 MUST 同包；跨包调用 MUST 走公开接口，
+  MUST NOT 直接使用他包内部类。
+- `agent.tool` MUST 只通过 `retrieval` / `graph` 的公开只读接口取数，MUST NOT 直连 Mapper
+  或向量表，以保证观测、租户隔离与降级逻辑不被绕过。
+- 包移动 MUST 与触发它的 feature 同批交付并跑通全量测试；MUST NOT 单开"整理包结构"的 feature。
+- 迁移完成前，新增代码 MUST NOT 继续向 `upload/support` 增加跨模块类。
+- HTTP 适配器留在各自能力包（如 `retrieval/web`、`upload/*Controller`），
+  MUST NOT 为"分层好看"集中到全局 controller 包。
 
 ## 开发工作流与质量门
 
@@ -108,7 +194,7 @@ Sync Impact Report
   - **MAJOR**：移除或重定义原则，导致既有做法不再合规。
   - **MINOR**：新增原则或章节，或对既有指导做实质性扩展。
   - **PATCH**：措辞澄清、错别字修正等非语义调整。
-- **合规审查**：每个 plan MUST 通过 Constitution Check；存在违反时 MUST 在 plan 的 Complexity Tracking 表中给出理由与被否决的更简单替代方案。implement 阶段 MUST 复核原则 I、III、V 的落实情况。
+- **合规审查**：每个 plan MUST 通过 Constitution Check；存在违反时 MUST 在 plan 的 Complexity Tracking 表中给出理由与被否决的更简单替代方案。plan 的 Project Structure 段 MUST 与本宪法的"目标架构与包结构"一致。implement 阶段 MUST 复核原则 I、III、V、VI 的落实情况。
 - 运行时开发指导以 `AGENTS.md` 与 `README.md` 为入口，二者 MUST NOT 与本宪法冲突。
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-14
+**Version**: 1.1.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-23

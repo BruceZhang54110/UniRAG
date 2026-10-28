@@ -2,7 +2,7 @@ package com.unirag.upload;
 
 import com.unirag.upload.dto.DocumentDetail;
 import com.unirag.upload.dto.DocumentPage;
-import com.unirag.upload.support.ApiResponse;
+import com.unirag.common.web.ApiResponse;
 import org.apache.opendal.Operator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
  * 文档查询与下载（US2，contracts §4）：
  * GET /api/v1/documents（列表）、GET /api/v1/documents/{docName}（详情）、
  * GET /api/v1/documents/{docName}/file（原文下载，字节一致 + mime/归一化 filename 入 headers）。
- * 租户经 {@link com.unirag.upload.support.TenantContext} 定位；下载本体为原始字节，不经 {data} 包装。
+ * 租户经 {@link com.unirag.common.tenant.TenantContext} 定位；下载本体为原始字节，不经 {data} 包装。
  */
 @RestController
 @RequestMapping("/api/v1/documents")

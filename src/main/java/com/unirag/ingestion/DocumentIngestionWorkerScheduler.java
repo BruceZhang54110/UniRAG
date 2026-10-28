@@ -1,6 +1,6 @@
 package com.unirag.ingestion;
 
-import com.unirag.infrastructure.mp.service.DocumentIngestionJobService;
+import com.unirag.infrastructure.persistence.service.DocumentIngestionJobService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;

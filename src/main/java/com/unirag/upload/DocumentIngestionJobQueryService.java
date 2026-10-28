@@ -1,9 +1,9 @@
 package com.unirag.upload;
 
-import com.unirag.infrastructure.mp.entity.DocumentIngestionJob;
-import com.unirag.infrastructure.mp.service.DocumentIngestionJobService;
+import com.unirag.infrastructure.persistence.entity.DocumentIngestionJob;
+import com.unirag.infrastructure.persistence.service.DocumentIngestionJobService;
 import com.unirag.upload.dto.DocumentIngestionJobStatusResponse;
-import com.unirag.upload.support.ApiException;
+import com.unirag.common.web.ApiException;
 import org.springframework.stereotype.Service;
 
 @Service

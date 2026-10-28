@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.unirag.infrastructure.mp.mapper.DocumentChunkMapper">
+<mapper namespace="com.unirag.infrastructure.persistence.mapper.DocumentChunkMapper">
 
-    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.mp.entity.DocumentChunk">
+    <resultMap id="BaseResultMap" type="com.unirag.infrastructure.persistence.entity.DocumentChunk">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="documentId" column="document_id" jdbcType="BIGINT"/>
             <result property="documentVersionId" column="document_version_id" jdbcType="BIGINT"/>

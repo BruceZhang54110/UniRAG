@@ -15,5 +15,6 @@ public record ObservationItem(String traceId,
                               Integer hitCount,
                               Double topScore,
                               String errorMessage,
-                              String createdAt) {
+                              String createdAt,
+                              String detail) {
 }

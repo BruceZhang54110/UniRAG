@@ -1,7 +1,8 @@
 package com.unirag.upload.support;
 
-import com.unirag.infrastructure.mp.entity.UploadChunk;
-import com.unirag.infrastructure.mp.entity.UploadSession;
+import com.unirag.common.web.ApiException;
+import com.unirag.infrastructure.persistence.entity.UploadChunk;
+import com.unirag.infrastructure.persistence.entity.UploadSession;
 import com.unirag.upload.UploadService;
 import com.unirag.upload.UploadSessionService;
 import com.unirag.upload.dto.AsyncDocumentUploadResponse;

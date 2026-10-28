@@ -3,6 +3,7 @@ package com.unirag.retrieval;
 import com.unirag.ingestion.DeterministicEmbeddingModel;
 import com.unirag.ingestion.IngestRequest;
 import com.unirag.ingestion.IngestionTestDocuments;
+import com.unirag.rag.QaService;
 import com.unirag.retrieval.model.QaRequest;
 import com.unirag.retrieval.model.RetrievalRequest;
 import dev.langchain4j.model.chat.request.ChatRequest;
@@ -33,7 +34,7 @@ class ObservationChainIT extends AbstractRetrievalIT {
     private static final String DOC = "chain-doc-a";
 
     private static final List<String> QA_STAGES = List.of(
-            "QUERY_EMBEDDING", "VECTOR_SEARCH", "MERGE", "PROMPT_ASSEMBLY", "CHAT_GENERATION");
+            "ROUTE", "QUERY_EMBEDDING", "VECTOR_SEARCH", "MERGE", "PROMPT_ASSEMBLY", "CHAT_GENERATION");
     private static final List<String> RETRIEVAL_STAGES = List.of(
             "QUERY_EMBEDDING", "VECTOR_SEARCH", "MERGE");
 
@@ -69,8 +70,12 @@ class ObservationChainIT extends AbstractRetrievalIT {
         assertThat(rows).hasSize(QA_STAGES.size());
         assertThat(rows).extracting(row -> row.get("trace_id")).containsOnly(result.traceId());
         assertThat(rows).extracting(row -> row.get("stage")).containsExactlyElementsOf(QA_STAGES);
-        assertThat(rows).extracting(row -> row.get("status"))
+        assertThat(rows).filteredOn(row -> !"ROUTE".equals(row.get("stage")))
+                .extracting(row -> row.get("status"))
                 .containsOnly("SUCCESS");
+        assertThat(rows).filteredOn(row -> "ROUTE".equals(row.get("stage")))
+                .extracting(row -> row.get("status"))
+                .containsAnyOf("SUCCESS", "DEGRADED");
         assertThat(rows).extracting(row -> row.get("kind")).containsOnly("QA");
     }
 

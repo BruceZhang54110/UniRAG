@@ -6,6 +6,7 @@ import ch.qos.logback.core.read.ListAppender;
 import com.unirag.ingestion.DeterministicEmbeddingModel;
 import com.unirag.ingestion.IngestRequest;
 import com.unirag.ingestion.IngestionTestDocuments;
+import com.unirag.rag.QaService;
 import com.unirag.retrieval.model.QaRequest;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.openai.OpenAiChatModel;

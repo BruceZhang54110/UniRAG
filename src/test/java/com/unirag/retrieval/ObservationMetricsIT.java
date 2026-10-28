@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unirag.ingestion.DeterministicEmbeddingModel;
 import com.unirag.ingestion.IngestRequest;
 import com.unirag.ingestion.IngestionTestDocuments;
+import com.unirag.rag.QaService;
 import com.unirag.retrieval.model.QaRequest;
 import com.unirag.retrieval.model.RetrievalRequest;
 import dev.langchain4j.model.chat.request.ChatRequest;

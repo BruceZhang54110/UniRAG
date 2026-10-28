@@ -75,3 +75,4 @@ KIMI.md
 # ----- RAG evaluation artifacts -----
 eval/reports/*
 !eval/reports/.gitkeep
+specs

@@ -3,12 +3,13 @@ package com.unirag.retrieval;
 import com.unirag.ingestion.DeterministicEmbeddingModel;
 import com.unirag.ingestion.IngestRequest;
 import com.unirag.ingestion.IngestionTestDocuments;
+import com.unirag.rag.QaService;
 import com.unirag.retrieval.model.QaAnswer;
 import com.unirag.retrieval.model.QaRequest;
 import com.unirag.retrieval.pipeline.StageName;
 import com.unirag.retrieval.pipeline.StageStatus;
 import com.unirag.tenant.resource.ResourceType;
-import com.unirag.upload.support.ApiException;
+import com.unirag.common.web.ApiException;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,8 +85,8 @@ class QaDegradationIT extends AbstractRetrievalIT {
         verifyNoInteractions(emptyTenantModel);
         // 降级仍要留下完整阶段链，且问答生成阶段记为 DEGRADED（data-model.md §6）
         assertThat(stagesOf(EMPTY_TENANT)).containsExactly(
-                StageName.QUERY_EMBEDDING.name(), StageName.VECTOR_SEARCH.name(), StageName.MERGE.name(),
-                StageName.PROMPT_ASSEMBLY.name(), StageName.CHAT_GENERATION.name());
+                StageName.ROUTE.name(), StageName.QUERY_EMBEDDING.name(), StageName.VECTOR_SEARCH.name(),
+                StageName.MERGE.name(), StageName.PROMPT_ASSEMBLY.name(), StageName.CHAT_GENERATION.name());
         assertThat(statusOf(EMPTY_TENANT, StageName.CHAT_GENERATION)).isEqualTo(StageStatus.DEGRADED.name());
     }
 
@@ -141,11 +142,16 @@ class QaDegradationIT extends AbstractRetrievalIT {
         ask();
 
         assertThat(stagesOf(TENANT)).containsExactly(
-                StageName.QUERY_EMBEDDING.name(), StageName.VECTOR_SEARCH.name(), StageName.MERGE.name(),
-                StageName.PROMPT_ASSEMBLY.name(), StageName.CHAT_GENERATION.name());
+                StageName.ROUTE.name(), StageName.QUERY_EMBEDDING.name(), StageName.VECTOR_SEARCH.name(),
+                StageName.MERGE.name(), StageName.PROMPT_ASSEMBLY.name(), StageName.CHAT_GENERATION.name());
         assertThat(jdbcTemplate.queryForList(
-                "SELECT status FROM retrieval_observation WHERE tenant_id = ?", String.class, tenantId(TENANT)))
+                "SELECT status FROM retrieval_observation WHERE tenant_id = ? AND stage <> 'ROUTE'",
+                String.class, tenantId(TENANT)))
                 .containsOnly(StageStatus.SUCCESS.name());
+        assertThat(jdbcTemplate.queryForList(
+                "SELECT status FROM retrieval_observation WHERE tenant_id = ? AND stage = 'ROUTE'",
+                String.class, tenantId(TENANT)))
+                .containsAnyOf(StageStatus.SUCCESS.name(), StageStatus.DEGRADED.name());
         assertThat(jdbcTemplate.queryForList(
                 "SELECT DISTINCT trace_id FROM retrieval_observation WHERE tenant_id = ?",
                 String.class, tenantId(TENANT))).hasSize(1);

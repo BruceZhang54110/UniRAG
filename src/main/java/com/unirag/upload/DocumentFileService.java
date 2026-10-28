@@ -1,22 +1,22 @@
 package com.unirag.upload;
 
-import com.unirag.infrastructure.mp.entity.DocumentFile;
+import com.unirag.infrastructure.persistence.entity.DocumentFile;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 /**
  * 原文文件元数据落库（document_file，data-model.md）。
- * 注意：本类与 MP 层 {@link com.unirag.infrastructure.mp.service.DocumentFileService} 同名，
+ * 注意：本类与 MP 层 {@link com.unirag.infrastructure.persistence.service.DocumentFileService} 同名，
  * 构造器参数用全限定名避免遮蔽。
  */
 @Service
 public class DocumentFileService {
 
-    private final com.unirag.infrastructure.mp.service.DocumentFileService mpService;
+    private final com.unirag.infrastructure.persistence.service.DocumentFileService mpService;
 
     public DocumentFileService(
-            com.unirag.infrastructure.mp.service.DocumentFileService mpService) {
+            com.unirag.infrastructure.persistence.service.DocumentFileService mpService) {
         this.mpService = mpService;
     }
 

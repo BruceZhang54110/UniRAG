@@ -1,6 +1,6 @@
 package com.unirag.tenant.resource;
 
-import com.unirag.infrastructure.mp.service.TenantResourceConfigService;
+import com.unirag.infrastructure.persistence.service.TenantResourceConfigService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;

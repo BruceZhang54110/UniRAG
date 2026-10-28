@@ -1,9 +1,9 @@
 package com.unirag.upload;
 
-import com.unirag.infrastructure.mp.entity.UploadChunk;
-import com.unirag.infrastructure.mp.entity.UploadSession;
-import com.unirag.upload.support.ApiException;
-import com.unirag.upload.support.TenantContext;
+import com.unirag.infrastructure.persistence.entity.UploadChunk;
+import com.unirag.infrastructure.persistence.entity.UploadSession;
+import com.unirag.common.web.ApiException;
+import com.unirag.common.tenant.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -20,14 +20,14 @@ public class UploadSessionService {
     private static final int MAX_CHUNK_SIZE = 10 * 1024 * 1024;
     private static final int MAX_TOTAL_CHUNKS = 10000;
 
-    private final com.unirag.infrastructure.mp.service.UploadSessionService mpSessionService;
-    private final com.unirag.infrastructure.mp.service.UploadChunkService mpChunkService;
+    private final com.unirag.infrastructure.persistence.service.UploadSessionService mpSessionService;
+    private final com.unirag.infrastructure.persistence.service.UploadChunkService mpChunkService;
     private final UploadProperties uploadProperties;
     private final TenantContext tenantContext;
 
     public UploadSessionService(
-            com.unirag.infrastructure.mp.service.UploadSessionService mpSessionService,
-            com.unirag.infrastructure.mp.service.UploadChunkService mpChunkService,
+            com.unirag.infrastructure.persistence.service.UploadSessionService mpSessionService,
+            com.unirag.infrastructure.persistence.service.UploadChunkService mpChunkService,
             UploadProperties uploadProperties,
             TenantContext tenantContext) {
         this.mpSessionService = mpSessionService;

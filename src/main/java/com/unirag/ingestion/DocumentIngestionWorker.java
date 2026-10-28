@@ -1,10 +1,10 @@
 package com.unirag.ingestion;
 
-import com.unirag.infrastructure.mp.entity.DocumentIngestionJob;
-import com.unirag.infrastructure.mp.entity.DocumentIngestionVersion;
-import com.unirag.infrastructure.mp.entity.Tenant;
-import com.unirag.infrastructure.mp.mapper.TenantMapper;
-import com.unirag.infrastructure.mp.service.DocumentIngestionJobService;
+import com.unirag.infrastructure.persistence.entity.DocumentIngestionJob;
+import com.unirag.infrastructure.persistence.entity.DocumentIngestionVersion;
+import com.unirag.infrastructure.persistence.entity.Tenant;
+import com.unirag.infrastructure.persistence.mapper.TenantMapper;
+import com.unirag.infrastructure.persistence.service.DocumentIngestionJobService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.opendal.Operator;
 import org.springframework.stereotype.Service;

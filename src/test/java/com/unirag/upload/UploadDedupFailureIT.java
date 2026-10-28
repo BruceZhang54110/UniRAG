@@ -1,7 +1,7 @@
 package com.unirag.upload;
 
 import com.unirag.ingestion.DeterministicEmbeddingModel;
-import com.unirag.upload.support.TenantContextInterceptor;
+import com.unirag.common.tenant.TenantContextInterceptor;
 import org.apache.opendal.Operator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
