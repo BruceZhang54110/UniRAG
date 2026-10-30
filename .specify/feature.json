@@ -1,1 +1,3 @@
-{"feature_directory":"specs/014-rag-query-routing"}
+{
+  "feature_directory": "specs/016-sse-chat-streaming"
+}

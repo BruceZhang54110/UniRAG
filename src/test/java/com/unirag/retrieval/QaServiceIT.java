@@ -132,7 +132,8 @@ class QaServiceIT extends AbstractRetrievalIT {
     }
 
     private QaService.QaResult ask() {
-        return inTenant(TENANT, () -> qaService.ask(new QaRequest(QUESTION, null, 5, 0.0, "session-1")));
+        // 提示词/引用契约用例与记忆无关：保持无状态，避免跨用例的历史污染断言
+        return inTenant(TENANT, () -> qaService.ask(new QaRequest(QUESTION, null, 5, 0.0, null)));
     }
 
     private ChatRequest capturedRequest() {

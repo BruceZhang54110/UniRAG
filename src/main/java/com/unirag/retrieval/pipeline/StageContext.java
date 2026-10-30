@@ -14,7 +14,7 @@ import java.util.UUID;
  * @param kind        调用性质（{@code RETRIEVAL} / {@code QA}，data-model.md §1 的 kind 列）
  * @param tenantCode  租户码（资源解析用）
  * @param tenantId    租户主键（落库与租户隔离用）
- * @param sessionId   调用方透传的会话标识，可为空（本期不持久化对话记忆）
+ * @param sessionId   调用方透传的会话标识，可为空；非空时会话记忆按"租户 + sessionId"读写（015-chat-memory）
  * @param queryDigest 查询/问题原文，落库时截断与脱敏（research.md R3/R6）
  * @param documentId  请求限定的文档标识，可为空
  */

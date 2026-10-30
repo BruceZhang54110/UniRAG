@@ -14,6 +14,7 @@ import com.unirag.retrieval.model.StageResult;
 import com.unirag.retrieval.observation.ObservationMetrics;
 import com.unirag.retrieval.pipeline.StageContext;
 import com.unirag.retrieval.pipeline.StageStatus;
+import com.unirag.retrieval.stage.ChatTokenSink;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
@@ -45,11 +46,30 @@ public class QaService {
     }
 
     public QaResult ask(QaRequest request) {
-        String tenantCode = tenantContext.getTenantCode();
-        Long tenantId = tenantContext.getTenantId();
-        String traceId = StageContext.newTraceId();
+        return ask(request, null, StageContext.newTraceId(),
+                tenantContext.getTenantCode(), tenantContext.getTenantId());
+    }
+
+    /**
+     * 流式问答入口（016-sse-chat-streaming）：traceId 由调用方（SSE 端点）生成以便
+     * 先行写入响应头；令牌汇注入阶段上下文，生成阶段据此逐段推送（可空，空即非流式）。
+     */
+    public QaResult ask(QaRequest request, ChatTokenSink tokenSink, String traceId) {
+        return ask(request, tokenSink, traceId,
+                tenantContext.getTenantCode(), tenantContext.getTenantId());
+    }
+
+    /**
+     * 异步流式入口：请求作用域的 {@link TenantContext} 不能跨线程使用，租户身份由
+     * SSE 端点在请求线程内取出后显式传入（值对象，非代理）。
+     */
+    public QaResult ask(QaRequest request, ChatTokenSink tokenSink, String traceId,
+                        String tenantCode, Long tenantId) {
         StageContext ctx = new StageContext(traceId, StageResult.KIND_QA, tenantCode, tenantId,
                 request.sessionId(), request.question(), null);
+        if (tokenSink != null) {
+            ctx.put(ChatTokenSink.CONTEXT_KEY, tokenSink);
+        }
         RagRequest ragRequest = RagRequest.from(request);
         long startedAt = System.nanoTime();
         try {

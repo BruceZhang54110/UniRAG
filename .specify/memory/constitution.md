@@ -1,35 +1,31 @@
 <!--
 Sync Impact Report
 ==================
-版本变更: 1.0.0 → 1.1.0
-变更类型: MINOR（新增原则 VI 与"目标架构与包结构"章节，对既有指导做实质性扩展）
-历史: 1.0.0 首次批准（2026-10-14，初始采用）
+版本变更: 1.1.0 → 1.2.0
+变更类型: MINOR（新增原则 VII"体量相称，复用优先"）
+历史: 1.0.0 首次批准（2026-10-14，初始采用）→ 1.1.0（2026-10-23，新增原则 VI
+     与"目标架构与包结构"章节）→ 1.2.0（2026-10-29，新增原则 VII）
 
 新增原则:
-  VI. 三范式融合与查询路由
+  VII. 体量相称，复用优先
 
-修改原则: 无（原则 I–V 原文保留）
+修改原则: 无（原则 I–VI 原文保留）
 
-新增章节:
-  - 目标架构与包结构
+新增章节: 无
 
 移除章节: 无
 
 依赖产物一致性核查:
-  ✅ .specify/templates/plan-template.md — Constitution Check 为通用占位
-     ("[Gates determined based on constitution file]")，并已含 Complexity Tracking 表，
-     满足原则 I / VI 的"复杂度与图存储选型必须论证"要求，无需修改
-  ✅ .specify/templates/spec-template.md — 已含 Functional Requirements / Success Criteria /
-     Assumptions 章节，满足原则 II、VI 的可验证性要求，无需修改
-  ✅ .specify/templates/tasks-template.md — 已含 Phase 划分与测试门，满足原则 II / III，无需修改
-  ✅ .specify/templates/checklist-template.md — 无原则相关硬编码，无需修改
-  ✅ .kimi-code/skills/speckit-*/SKILL.md — 未发现过时的 agent 专有引用，
-     也未硬编码任何宪法条款编号，无需修改
+  ✅ .specify/templates/plan-template.md — Constitution Check 为通用占位并已含
+     Complexity Tracking 表，与本原则"超体量实现须论证"的落点一致，无需修改
+  ✅ .specify/templates/spec-template.md / tasks-template.md / checklist-template.md —
+     无原则相关硬编码，无需修改
+  ✅ .kimi-code/skills/speckit-*/SKILL.md — 未硬编码任何宪法条款编号，无需修改
   ✅ README.md / AGENTS.md — 均未引用具体宪法原则，无需同步
-  ⚠ 代码包结构 — 本宪法仅定义目标结构与迁移规则；实际迁移 MUST 由独立 feature 的
-     plan / tasks 驱动，本次不改动任何源码
+  ✅ Governance"合规审查"条款 — 已在宪法文件内同步将原则 VII 纳入 implement
+     阶段复核清单（I、III、V、VI → I、III、V、VI、VII）
 
-延期项: 无 TODO 占位符；包结构迁移按"目标架构与包结构"的渐进规则随 feature 落地
+延期项: 无 TODO 占位符
 -->
 
 # UniRAG Constitution
@@ -107,6 +103,22 @@ Sync Impact Report
 
 理由：企业级 RAG 的答案质量取决于检索策略与问题形态的匹配——单用向量检索答不了多跳关系，
 单用 Agent 又会让简单事实题付出数倍延迟与成本。路由让系统在正确的问题上花正确的代价。
+
+### VII. 体量相称，复用优先
+
+**实现体量必须与功能体量相称；能复用既有架构与模式的，MUST NOT 为单一功能另起炉灶。**
+
+- **体量红线**：简单功能 MUST NOT 以远超其复杂度的代码量实现（"几十行可完成的任务不引入框架、
+  不铺多层抽象"）；新增代码量与功能体量明显不匹配时，MUST 先重新审视设计而非继续堆码。
+- **复用优先**：动手前 MUST 盘点既有能力——共享阶段/扩展点、观测体系、资源路由、统一异常与响应、
+  既有持久化设施；新功能 MUST 以既有架构的自然延伸方式落地。
+- **超体量须论证**：确需超出直觉体量的实现（如为隔离性、可观测性、多租户预留的结构性代码），
+  MUST 在 plan 的 Complexity Tracking 中说明"更简单的替代方案为何不够"（与原则 I 同一落点）。
+- **评审标尺**：评审 MUST 把"新增代码行数 / 功能点数"是否异常作为检查项；体量异常且无论证的
+  变更 MUST NOT 通过。
+
+理由：代码量不匹配功能的背后几乎总是没有复用或过度设计；本项目按 spec/plan/tasks 小步交付，
+每一 feature 的实现体量都应可被一眼审完。
 
 ## 技术栈与工程约束
 
@@ -194,7 +206,7 @@ com.unirag
   - **MAJOR**：移除或重定义原则，导致既有做法不再合规。
   - **MINOR**：新增原则或章节，或对既有指导做实质性扩展。
   - **PATCH**：措辞澄清、错别字修正等非语义调整。
-- **合规审查**：每个 plan MUST 通过 Constitution Check；存在违反时 MUST 在 plan 的 Complexity Tracking 表中给出理由与被否决的更简单替代方案。plan 的 Project Structure 段 MUST 与本宪法的"目标架构与包结构"一致。implement 阶段 MUST 复核原则 I、III、V、VI 的落实情况。
+- **合规审查**：每个 plan MUST 通过 Constitution Check；存在违反时 MUST 在 plan 的 Complexity Tracking 表中给出理由与被否决的更简单替代方案。plan 的 Project Structure 段 MUST 与本宪法的"目标架构与包结构"一致。implement 阶段 MUST 复核原则 I、III、V、VI、VII 的落实情况。
 - 运行时开发指导以 `AGENTS.md` 与 `README.md` 为入口，二者 MUST NOT 与本宪法冲突。
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-23
+**Version**: 1.2.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-29

@@ -64,6 +64,8 @@ unirag:
       shadow: ${UNIRAG_RERANK_SHADOW:false}        # 观察模式：计算并记录，不改变返回
       recall-top-k: ${UNIRAG_RERANK_RECALL_TOP_K:20} # 内部召回数；实际取 max(topK, 该值)
       # 重排阈值：BGE reranker 的 relevance_score 刻度；0.5 为首期保守起点，可按模型/语料校准。
+      # 016 反清空兜底：过滤后若一条不剩而候选非空，按重排分数保留 topK 并记 THRESHOLD_RELAXED
+      # （观测可查），阈值可以安全校紧——永远不会因此产生"有命中却 NO_CONTEXT"。
       min-score: ${UNIRAG_RERANK_MIN_SCORE:0.5}
     # 查询改写（012）：租户配置了 QUERY_REWRITE_MODEL 才启用；资源默认复用主语言模型。
     query-rewrite:

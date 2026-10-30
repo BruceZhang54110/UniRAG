@@ -100,13 +100,27 @@ public class RerankEnhancement implements EnhancementExtension {
                     .sorted(scoreOrder(scores, merge.chunks()))
                     .limit(merge.request().topK())
                     .toList();
+            // 反清空兜底（016）：min-score 过滤是语义判断，刻度未按语料校准时可能把
+            // 向量检索已认可的命中全部过滤掉，导致"有命中却 NO_CONTEXT"。过滤后若一条
+            // 不剩而候选非空，按重排分数保留 topK——过滤语义保留，但永不清空结果。
+            boolean relaxed = rankedIndexes.isEmpty() && candidates > 0;
+            if (relaxed) {
+                log.info("[retrieval] trace={} RERANK all candidates below min-score {}, keep top {} by rerank order",
+                        ctx.traceId(), properties.minScore(), merge.request().topK());
+                rankedIndexes = IntStream.range(0, candidates)
+                        .boxed()
+                        .sorted(scoreOrder(scores, merge.chunks()))
+                        .limit(merge.request().topK())
+                        .toList();
+            }
             List<RetrievedChunk> ranked = rankedIndexes.stream()
                     .map(index -> merge.chunks().get(index).withRerankScore(scores.get(index)))
                     .toList();
 
             long elapsed = elapsedMillis(startedAt);
             RerankOutcome outcome = new RerankOutcome(candidates, ranked.size(),
-                    topScore(scores), elapsed, StageStatus.SUCCESS, null, properties.shadow(),
+                    topScore(scores), elapsed, StageStatus.SUCCESS,
+                    relaxed ? "THRESHOLD_RELAXED" : null, properties.shadow(),
                     detail(merge.chunks(), scores, rankedIndexes));
             ctx.put(RerankOutcome.CONTEXT_KEY, outcome);
             metrics.recordRerank(ctx.tenantCode(), StageStatus.SUCCESS, Duration.ofMillis(elapsed));

@@ -143,7 +143,8 @@ class QaDegradationIT extends AbstractRetrievalIT {
 
         assertThat(stagesOf(TENANT)).containsExactly(
                 StageName.ROUTE.name(), StageName.QUERY_EMBEDDING.name(), StageName.VECTOR_SEARCH.name(),
-                StageName.MERGE.name(), StageName.PROMPT_ASSEMBLY.name(), StageName.CHAT_GENERATION.name());
+                StageName.MERGE.name(), StageName.PROMPT_ASSEMBLY.name(),
+                StageName.CHAT_MEMORY.name(), StageName.CHAT_GENERATION.name());
         assertThat(jdbcTemplate.queryForList(
                 "SELECT status FROM retrieval_observation WHERE tenant_id = ? AND stage <> 'ROUTE'",
                 String.class, tenantId(TENANT)))

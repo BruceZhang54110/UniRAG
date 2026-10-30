@@ -1,5 +1,7 @@
 package com.unirag.retrieval.query;
 
+import com.unirag.retrieval.memory.ChatMemoryFactory;
+import com.unirag.retrieval.memory.ChatMemoryProperties;
 import com.unirag.retrieval.model.RetrievalRequest;
 import com.unirag.retrieval.model.StageResult;
 import com.unirag.retrieval.observation.ObservationMetrics;
@@ -40,6 +42,8 @@ class QueryRewriteEnhancementTest {
 
     private QueryTransformer transformer;
 
+    private ChatMemoryFactory chatMemoryFactory;
+
     private QueryRewriteEnhancement enhancement;
 
     @BeforeEach
@@ -48,7 +52,11 @@ class QueryRewriteEnhancementTest {
         support = mock(QueryRewriteSupport.class);
         metrics = mock(ObservationMetrics.class);
         transformer = mock(QueryTransformer.class);
-        enhancement = new QueryRewriteEnhancement(router, support, properties(false), metrics);
+        chatMemoryFactory = mock(ChatMemoryFactory.class);
+        when(chatMemoryFactory.get(any(), any())).thenReturn(Optional.empty());
+        ChatMemoryProperties chatMemoryProperties = mock(ChatMemoryProperties.class);
+        enhancement = new QueryRewriteEnhancement(router, support, properties(false), metrics,
+                chatMemoryFactory, chatMemoryProperties);
         when(support.primaryKey(TENANT)).thenReturn(Optional.of("rewriteModel"));
         when(router.getPrimary(eq(TENANT), eq(ResourceType.QUERY_REWRITE_MODEL),
                 eq(QueryTransformer.class))).thenReturn(transformer);
@@ -99,7 +107,8 @@ class QueryRewriteEnhancementTest {
     @Test
     void 原问题超长时跳过改写() {
         QueryRewriteEnhancement shortLimit = new QueryRewriteEnhancement(router, support,
-                new QueryRewriteProperties(true, false, 500, 2.0, 4, 120), metrics);
+                new QueryRewriteProperties(true, false, 500, 2.0, 4, 120), metrics,
+                chatMemoryFactory, mock(ChatMemoryProperties.class));
 
         Object output = shortLimit.beforeStage(StageName.QUERY_EMBEDDING, request(true), ctx());
 
@@ -140,7 +149,8 @@ class QueryRewriteEnhancementTest {
     @Test
     void 超长输出回退并记录原因() {
         QueryRewriteEnhancement shortLimit = new QueryRewriteEnhancement(router, support,
-                new QueryRewriteProperties(true, false, 10, 10.0, 2000, 120), metrics);
+                new QueryRewriteProperties(true, false, 10, 10.0, 2000, 120), metrics,
+                chatMemoryFactory, mock(ChatMemoryProperties.class));
         when(transformer.transform(any(Query.class)))
                 .thenReturn(List.of(Query.from("12345678901")));
 
@@ -167,7 +177,7 @@ class QueryRewriteEnhancementTest {
     @Test
     void 观察模式不改输入但记录改写结果() {
         QueryRewriteEnhancement shadow = new QueryRewriteEnhancement(router, support,
-                properties(true), metrics);
+                properties(true), metrics, chatMemoryFactory, mock(ChatMemoryProperties.class));
         StageContext ctx = ctx();
         when(transformer.transform(any(Query.class)))
                 .thenReturn(List.of(Query.from("文档切分配置")));

@@ -1,6 +1,8 @@
 package com.unirag.retrieval.query;
 
 import com.unirag.retrieval.Redaction;
+import com.unirag.retrieval.memory.ChatMemoryFactory;
+import com.unirag.retrieval.memory.ChatMemoryProperties;
 import com.unirag.retrieval.model.RetrievalRequest;
 import com.unirag.retrieval.observation.ObservationMetrics;
 import com.unirag.retrieval.pipeline.EnhancementExtension;
@@ -10,6 +12,8 @@ import com.unirag.retrieval.pipeline.StageName;
 import com.unirag.retrieval.pipeline.StageStatus;
 import com.unirag.tenant.resource.ResourceType;
 import com.unirag.tenant.resource.TenantResourceRouter;
+import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.rag.query.Query;
 import dev.langchain4j.rag.query.transformer.QueryTransformer;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +21,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -25,6 +31,10 @@ import java.util.Set;
  *
  * <p>可选优化，失败一律 fail-open：回退原问题继续检索，并把 {@link QueryRewriteOutcome} 写入
  * 上下文供观测扩展落行。原始 {@code query} 永远不被修改。
+ *
+ * <p>会话记忆（015-chat-memory，rewrite-v2）：携带 sessionId 且开启
+ * {@code rewrite-with-memory} 时，改写输入带上短期记忆窗口摘要，指代型追问先消歧再改写；
+ * 记忆读取失败按既有 FAIL_OPEN 降级为单问改写。
  */
 @Slf4j
 @Component
@@ -36,13 +46,19 @@ public class QueryRewriteEnhancement implements EnhancementExtension {
     private final QueryRewriteSupport support;
     private final QueryRewriteProperties properties;
     private final ObservationMetrics metrics;
+    private final ChatMemoryFactory chatMemoryFactory;
+    private final ChatMemoryProperties chatMemoryProperties;
 
     public QueryRewriteEnhancement(TenantResourceRouter router, QueryRewriteSupport support,
-                                   QueryRewriteProperties properties, ObservationMetrics metrics) {
+                                   QueryRewriteProperties properties, ObservationMetrics metrics,
+                                   ChatMemoryFactory chatMemoryFactory,
+                                   ChatMemoryProperties chatMemoryProperties) {
         this.router = router;
         this.support = support;
         this.properties = properties;
         this.metrics = metrics;
+        this.chatMemoryFactory = chatMemoryFactory;
+        this.chatMemoryProperties = chatMemoryProperties;
     }
 
     @Override
@@ -74,6 +90,7 @@ public class QueryRewriteEnhancement implements EnhancementExtension {
         long startedAt = System.nanoTime();
         String modelKey = null;
         String modelSource = null;
+        String promptVersion = LlmQueryTransformer.PROMPT_VERSION;
         try {
             modelKey = support.primaryKey(ctx.tenantCode()).orElse(null);
             QueryTransformer transformer = router.getPrimary(ctx.tenantCode(),
@@ -81,21 +98,47 @@ public class QueryRewriteEnhancement implements EnhancementExtension {
             if (transformer instanceof LlmQueryTransformer llm) {
                 modelSource = llm.modelSource();
             }
-            Collection<Query> transformed = transformer.transform(Query.from(request.query()));
+            Collection<Query> transformed;
+            List<ChatMessage> history = conversationOf(ctx);
+            if (!history.isEmpty() && transformer instanceof LlmQueryTransformer llm) {
+                promptVersion = LlmQueryTransformer.CONVERSATIONAL_PROMPT_VERSION;
+                transformed = llm.transform(Query.from(request.query()), history);
+            } else {
+                transformed = transformer.transform(Query.from(request.query()));
+            }
             String rejected = rejectReason(transformed, request.query());
             if (rejected != null) {
-                return degraded(ctx, request, modelKey, modelSource, startedAt, rejected);
+                return degraded(ctx, request, modelKey, modelSource, promptVersion, startedAt, rejected);
             }
 
             String rewritten = firstText(transformed).strip();
             long elapsed = elapsedMillis(startedAt);
-            record(ctx, request, modelKey, modelSource, elapsed, StageStatus.SUCCESS, null, rewritten);
+            record(ctx, request, modelKey, modelSource, promptVersion, elapsed, StageStatus.SUCCESS, null, rewritten);
             log.debug("[retrieval] trace={} QUERY_REWRITE success originalChars={} retrievalChars={} shadow={} model={}",
                     ctx.traceId(), request.query().length(), rewritten.length(), properties.shadow(),
                     modelSource == null ? "unknown" : modelSource);
             return properties.shadow() ? input : request.withRetrievalQuery(rewritten);
         } catch (RuntimeException e) {
-            return degraded(ctx, request, modelKey, modelSource, startedAt, Redaction.describe(e));
+            return degraded(ctx, request, modelKey, modelSource, promptVersion, startedAt, Redaction.describe(e));
+        }
+    }
+
+    /** 短期记忆窗口（clarify Q3）；任何失败返回空列表，由单问改写兜底。 */
+    private List<ChatMessage> conversationOf(StageContext ctx) {
+        if (!chatMemoryProperties.rewriteWithMemory()) {
+            return List.of();
+        }
+        try {
+            Optional<ChatMemory> memory = chatMemoryFactory.get(ctx.tenantId(), ctx.sessionId());
+            if (memory.isEmpty()) {
+                return List.of();
+            }
+            List<ChatMessage> messages = memory.get().messages();
+            return messages == null ? List.of() : messages;
+        } catch (RuntimeException e) {
+            log.warn("[chat-memory] 改写记忆读取失败，按单问改写: trace={}, type={}",
+                    ctx.traceId(), e.getClass().getName());
+            return List.of();
         }
     }
 
@@ -105,17 +148,18 @@ public class QueryRewriteEnhancement implements EnhancementExtension {
     }
 
     private Object degraded(StageContext ctx, RetrievalRequest request, String modelKey, String modelSource,
-                            long startedAt, String reason) {
+                            String promptVersion, long startedAt, String reason) {
         long elapsed = elapsedMillis(startedAt);
-        record(ctx, request, modelKey, modelSource, elapsed, StageStatus.DEGRADED, reason, request.query());
+        record(ctx, request, modelKey, modelSource, promptVersion, elapsed, StageStatus.DEGRADED, reason, request.query());
         log.warn("[retrieval] trace={} QUERY_REWRITE degraded, fallback to original: {}",
                 ctx.traceId(), reason);
         return request;
     }
 
     private void record(StageContext ctx, RetrievalRequest request, String modelKey, String modelSource,
-                        long elapsed, StageStatus status, String reason, String retrievalText) {
-        String detail = detail(modelSource, request.query(), retrievalText);
+                        String promptVersion, long elapsed, StageStatus status, String reason,
+                        String retrievalText) {
+        String detail = detail(modelSource, promptVersion, request.query(), retrievalText);
         QueryRewriteOutcome outcome = new QueryRewriteOutcome(modelKey, modelSource,
                 request.query().length(), retrievalText.length(), elapsed, status,
                 Redaction.sanitize(reason, Redaction.MAX_LENGTH), properties.shadow(), detail);
@@ -123,12 +167,12 @@ public class QueryRewriteEnhancement implements EnhancementExtension {
         metrics.recordQueryRewrite(ctx.tenantCode(), status, Duration.ofMillis(elapsed));
     }
 
-    private String detail(String modelSource, String original, String retrieval) {
+    private String detail(String modelSource, String promptVersion, String original, String retrieval) {
         String preview = Redaction.sanitize(retrieval.strip().replaceAll("\\s+", " "),
                 properties.previewChars());
         return "shadow=" + properties.shadow()
                 + ";model=" + (modelSource == null ? "unknown" : modelSource)
-                + ";prompt=" + LlmQueryTransformer.PROMPT_VERSION
+                + ";prompt=" + promptVersion
                 + ";originalChars=" + original.length()
                 + ";retrievalChars=" + retrieval.length()
                 + ";preview=" + (preview == null ? "" : preview);

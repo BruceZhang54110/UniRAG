@@ -5,7 +5,8 @@
  * 不新增 HTTP 客户端抽象；`X-Tenant-Code` 由 `client.ts` 统一注入。
  */
 
-import { apiRequest } from './client';
+import { apiFetch, apiRequest, ensureOk } from './client';
+import { SseParser } from './sse-parse';
 
 export interface Citation {
   documentId: number;
@@ -56,6 +57,67 @@ export async function ask(params: AskParams): Promise<AskResult> {
   });
   return normalizeAskResult(data);
 }
+
+const ASK_STREAM_PATH = '/v1/ask/stream';
+
+export interface AskStreamHandlers {
+  /** 内容增量：仅用于就地渲染；全量结果以返回值（done 事件）为准 */
+  onDelta: (delta: string) => void;
+}
+
+/**
+ * 流式问答（016-sse-chat-streaming，contracts/ask-stream-endpoint.md）：fetch 流式读取
+ * SSE 事件，`message` 增量回调、`done` 时 resolve 全量结果（与非流式 `AskResult` 同形状）、
+ * `error` 事件或非 2xx 时抛归一 `ApiError`；`signal` 中止透传给后端（断开的轮次不入记忆）。
+ */
+export async function askStream(
+  params: AskParams,
+  handlers: AskStreamHandlers,
+  signal?: AbortSignal,
+): Promise<AskResult> {
+  const response = await apiFetch(ASK_STREAM_PATH, {
+    method: 'POST',
+    body: JSON.stringify({
+      question: params.question,
+      granularity: params.granularity,
+      topK: params.topK,
+      minScore: params.minScore,
+      sessionId: params.sessionId,
+    }),
+    signal,
+  });
+  await ensureOk(response);
+
+  const parser = new SseParser();
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new Error('当前浏览器不支持流式读取');
+  }
+  const decoder = new TextDecoder();
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    for (const event of parser.feed(decoder.decode(value, { stream: true }))) {
+      if (event.event === 'message') {
+        handlers.onDelta(toText(asRecord(JSON.parse(event.data)).delta));
+      } else if (event.event === 'done') {
+        return normalizeAskResult(JSON.parse(event.data));
+      } else if (event.event === 'error') {
+        const payload = asRecord(JSON.parse(event.data));
+        const { ApiError } = await import('./client');
+        throw new ApiError({
+          code: toText(payload.code) || 'STREAM_ERROR',
+          message: toText(payload.message) || '问答处理失败',
+          status: 0,
+        });
+      }
+    }
+  }
+  const { ApiError } = await import('./client');
+  throw new ApiError({ code: 'STREAM_INCOMPLETE', message: '回答流意外结束', status: 0 });
+}
+
+
 
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};

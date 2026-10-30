@@ -196,6 +196,13 @@ export const zhCN = {
     noContextTitle: '知识库中未找到相关内容',
     noContextHint: '可以换个说法再问，或先上传相关文档',
     failedTitle: '回答生成失败',
+    /** 多轮对话（016-sse-chat-streaming） */
+    inputPlaceholder: '继续提问，回车发送（Shift+回车换行）',
+    sendQuestion: '发送',
+    sendWarp: '换行',
+    stopAnswer: '停止',
+    newConversation: '新对话',
+    stoppedHint: '已停止生成，该轮不会写入会话记忆',
   },
 
   errors: {

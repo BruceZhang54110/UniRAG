@@ -115,6 +115,31 @@ class RerankApiIT extends AbstractRetrievalIT {
     }
 
     @Test
+    void 全部候选低于阈值时反清空兜底保留topK并留痕() throws Exception {
+        // 反清空兜底（016）：reranker 全部给低分（如宽泛提问）时不得清空命中，
+        // 按重排分数保留 topK，观测记 THRESHOLD_RELAXED
+        stubRerankModel(TENANT, segment -> 0.1);
+
+        mockMvc.perform(post("/api/v1/ask")
+                        .header("X-Tenant-Code", TENANT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"question":"实时语音转写大模型讲了什么？","topK":5,"rerank":true}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.citations").isNotEmpty());
+
+        Map<String, Object> row = jdbcTemplate.queryForMap("""
+                SELECT status, error_message
+                FROM retrieval_observation
+                WHERE tenant_id = ? AND stage = 'RERANK'
+                ORDER BY id DESC LIMIT 1
+                """, tenantId(TENANT));
+        assertThat(row.get("status")).isEqualTo("SUCCESS");
+        assertThat((String) row.get("error_message")).isEqualTo("THRESHOLD_RELAXED");
+    }
+
+    @Test
     void 显式关闭重排时返回原向量结果() throws Exception {
         mockMvc.perform(post("/api/v1/retrieve")
                         .header("X-Tenant-Code", TENANT)

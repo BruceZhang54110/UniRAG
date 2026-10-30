@@ -35,6 +35,11 @@ class ObservationChainIT extends AbstractRetrievalIT {
 
     private static final List<String> QA_STAGES = List.of(
             "ROUTE", "QUERY_EMBEDDING", "VECTOR_SEARCH", "MERGE", "PROMPT_ASSEMBLY", "CHAT_GENERATION");
+
+    /** 携带 sessionId 的问答额外产生 CHAT_MEMORY 观测行（015-chat-memory，FR-008）。 */
+    private static final List<String> QA_STAGES_WITH_MEMORY = List.of(
+            "ROUTE", "QUERY_EMBEDDING", "VECTOR_SEARCH", "MERGE", "PROMPT_ASSEMBLY",
+            "CHAT_MEMORY", "CHAT_GENERATION");
     private static final List<String> RETRIEVAL_STAGES = List.of(
             "QUERY_EMBEDDING", "VECTOR_SEARCH", "MERGE");
 
@@ -67,9 +72,9 @@ class ObservationChainIT extends AbstractRetrievalIT {
                 () -> qaService.ask(new QaRequest("向量数据库", null, 5, 0.0, "chain-session")));
 
         List<Map<String, Object>> rows = observationRows();
-        assertThat(rows).hasSize(QA_STAGES.size());
+        assertThat(rows).hasSize(QA_STAGES_WITH_MEMORY.size());
         assertThat(rows).extracting(row -> row.get("trace_id")).containsOnly(result.traceId());
-        assertThat(rows).extracting(row -> row.get("stage")).containsExactlyElementsOf(QA_STAGES);
+        assertThat(rows).extracting(row -> row.get("stage")).containsExactlyElementsOf(QA_STAGES_WITH_MEMORY);
         assertThat(rows).filteredOn(row -> !"ROUTE".equals(row.get("stage")))
                 .extracting(row -> row.get("status"))
                 .containsOnly("SUCCESS");

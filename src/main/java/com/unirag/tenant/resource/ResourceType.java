@@ -13,7 +13,13 @@ public enum ResourceType {
 
     RERANK_MODEL("rerankModel"),
 
-    QUERY_REWRITE_MODEL("queryRewriteModel");
+    QUERY_REWRITE_MODEL("queryRewriteModel"),
+
+    /**
+     * 流式聊天模型（016-sse-chat-streaming）：JSON schema 与 {@link #LLM} 完全一致，
+     * 构建 {@code OpenAiStreamingChatModel}；租户未配置时流式端点降级为缓冲输出（research.md R3）。
+     */
+    STREAMING_LLM("streamingLlm");
 
     private final String beanPrefix;
 

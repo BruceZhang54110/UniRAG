@@ -27,6 +27,9 @@ public enum StageName {
     /** 重排序；以 MERGE 的增强型扩展执行，观测上独立成行。 */
     RERANK,
 
+    /** 会话记忆参与情况；仅用于观测，实际读写发生在 CHAT_GENERATION 阶段（015-chat-memory）。 */
+    CHAT_MEMORY,
+
     /** 提示词组装。 */
     PROMPT_ASSEMBLY,
 
