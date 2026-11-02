@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -60,6 +61,11 @@ class ChatMemoryControllerIT extends AbstractRetrievalIT {
                 .andExpect(jsonPath("$.data").doesNotExist());
 
         assertThat(memoryRows()).isZero();
+        // 017 级联：完整历史一并删除，历史查询 404，chat_message 无残留
+        assertThat(historyRows()).isZero();
+        mockMvc.perform(get("/api/v1/chat-memories/{sessionId}/messages", SESSION)
+                        .header("X-Tenant-Code", TENANT))
+                .andExpect(status().isNotFound());
 
         // 幂等：再次清空仍 200
         mockMvc.perform(delete("/api/v1/chat-memories/{sessionId}", SESSION)
@@ -109,5 +115,11 @@ class ChatMemoryControllerIT extends AbstractRetrievalIT {
         return jdbcTemplate.queryForObject(
                 "SELECT count(*) FROM chat_memory WHERE memory_id = ?", Long.class,
                 tenantId(TENANT) + ":" + SESSION);
+    }
+
+    private Long historyRows() {
+        return jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM chat_message WHERE tenant_id = ? AND session_id = ?",
+                Long.class, tenantId(TENANT), SESSION);
     }
 }

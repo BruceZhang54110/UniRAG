@@ -1,17 +1,22 @@
 /**
- * 多轮对话页测试（016-sse-chat-streaming T14，FR-005/006/010）：
- * - 流式首轮流式追加渲染，done 后展示完整回答与引用；
- * - NO_CONTEXT 独立成态、失败可重试；
- * - 多轮：第二轮自动携带 sessionId、历史按序回显；
- * - 刷新后历史可见；流式中输入禁用可停止；会话内串行约束。
+ * 多轮对话页测试（018-chat-page-layout）。
  *
- * 这里 mock 掉 `@/api/retrieval` 的 `askStream`（不篡改全局 fetch），不访问任何后端。
+ * 覆盖：
+ * - 流式渲染、引用合并为"标号 + 文档名称"链接、不渲染片段正文；
+ * - 检索为空独立成态、失败可重试、多轮共享会话标识；
+ * - 刷新后状态保真（失败/降级不被洗白）、历史回显不带引用；
+ * - 长会话先取最后一页；
+ * - 复制、重新生成、清空二次确认、空对话态、回到最新。
+ *
+ * 这里 mock 掉接口层（不篡改全局 fetch），不访问任何后端。
  */
 
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError } from '@/api/client';
+import { clearChatSession, getChatHistory } from '@/api/chatHistory';
+import { fetchDocumentFile, listDocuments } from '@/api/documents';
 import { askStream, NO_CONTEXT_REASON, type AskResult } from '@/api/retrieval';
 import { zhCN } from '@/content/zh-CN';
 import ChatPage from '@/features/chat/ChatPage';
@@ -22,10 +27,28 @@ vi.mock('@/api/retrieval', async (importOriginal) => {
   return { ...actual, askStream: vi.fn() };
 });
 
+vi.mock('@/api/chatHistory', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/api/chatHistory')>();
+  return { ...actual, getChatHistory: vi.fn(), clearChatSession: vi.fn() };
+});
+
+vi.mock('@/api/documents', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/api/documents')>();
+  return { ...actual, listDocuments: vi.fn(), fetchDocumentFile: vi.fn() };
+});
+
 const askStreamMock = vi.mocked(askStream);
+const getChatHistoryMock = vi.mocked(getChatHistory);
+const clearChatSessionMock = vi.mocked(clearChatSession);
+const listDocumentsMock = vi.mocked(listDocuments);
+const fetchDocumentFileMock = vi.mocked(fetchDocumentFile);
 
 const QUESTION = '向量数据库存在哪里？';
 const CHAT_ENTRY = [`/chat?q=${encodeURIComponent(QUESTION)}`];
+
+function emptyHistory(total = 0) {
+  return { sessionId: 'any', total, page: 0, size: 100, items: [] };
+}
 
 function buildAnswer(overrides: Partial<AskResult> = {}): AskResult {
   return {
@@ -39,6 +62,22 @@ function buildAnswer(overrides: Partial<AskResult> = {}): AskResult {
         chunkIndex: 3,
         score: 0.42,
         text: '原文文件以键值形式保存在数据库中。',
+      },
+      {
+        documentId: 620,
+        docName: 'demo-doc-1',
+        pipelineKey: 'main',
+        chunkIndex: 7,
+        score: 0.31,
+        text: '这是同一文档的另一个片段。',
+      },
+      {
+        documentId: 621,
+        docName: 'demo-doc-2',
+        pipelineKey: 'main',
+        chunkIndex: 1,
+        score: 0.28,
+        text: '另一个文档的片段正文。',
       },
     ],
     degraded: false,
@@ -58,29 +97,40 @@ function mockStreamingAnswer(result: AskResult = buildAnswer()) {
 
 beforeEach(() => {
   askStreamMock.mockReset();
+  getChatHistoryMock.mockReset();
+  getChatHistoryMock.mockResolvedValue(emptyHistory());
+  clearChatSessionMock.mockReset();
+  clearChatSessionMock.mockResolvedValue(undefined);
+  listDocumentsMock.mockReset();
+  listDocumentsMock.mockResolvedValue({ total: 0, items: [] });
+  fetchDocumentFileMock.mockReset();
   sessionStorage.clear();
   localStorage.clear();
 });
 
-describe('ChatPage 多轮对话', () => {
-  it('首轮：流式增量追加渲染，done 后展示完整回答与引用', async () => {
+describe('ChatPage 对话工作区', () => {
+  it('首轮：流式完成后引用合并为"标号 + 文档名称"，不展示片段正文', async () => {
     mockStreamingAnswer();
 
     renderWithProviders(<ChatPage />, CHAT_ENTRY);
 
-    await waitFor(() => expect(screen.getByText(zhCN.chat.answerTitle)).toBeInTheDocument());
-    expect(screen.getByText(buildAnswer().answer)).toBeInTheDocument();
-    expect(askStreamMock).toHaveBeenCalledWith(
-      expect.objectContaining({ question: QUESTION, sessionId: expect.any(String) }),
-      expect.anything(),
-      expect.anything(),
-    );
+    await waitFor(() => expect(screen.getByText(buildAnswer().answer)).toBeInTheDocument());
 
-    const citation = screen.getAllByTestId('chat-citation')[0];
-    expect(citation.textContent).toContain('demo-doc-1');
+    const links = screen.getAllByTestId('chat-citation-link');
+    expect(links).toHaveLength(2);
+    expect(links[0].textContent).toContain('demo-doc-1');
+    expect(links[0].textContent).toContain('[1]');
+    expect(links[0].textContent).toContain('[2]');
+    expect(links[1].textContent).toContain('demo-doc-2');
+    expect(links[1].textContent).toContain('[3]');
+
+    // 片段正文、段号、分数一律不得进入页面
+    expect(screen.queryByText(/原文文件以键值形式保存在数据库中/)).toBeNull();
+    expect(screen.queryByText(/第 3 段/)).toBeNull();
+    expect(screen.queryByText(/0\.42/)).toBeNull();
   });
 
-  it('NO_CONTEXT 独立成态，不渲染引用清单', async () => {
+  it('NO_CONTEXT 独立成态，不渲染引用区', async () => {
     mockStreamingAnswer(
       buildAnswer({
         answer: '知识库中未找到相关内容，无法基于现有资料回答该问题。',
@@ -108,59 +158,97 @@ describe('ChatPage 多轮对话', () => {
     mockStreamingAnswer();
     fireEvent.click(screen.getByRole('button', { name: zhCN.common.retry }));
 
-    await waitFor(() => expect(screen.getByText(zhCN.chat.answerTitle)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(buildAnswer().answer)).toBeInTheDocument());
     expect(askStreamMock).toHaveBeenCalledTimes(2);
   });
 
-  it('多轮：第二轮自动携带同一会话标识，历史按序回显', async () => {
+  it('多轮：第二轮自动携带同一会话标识', async () => {
     mockStreamingAnswer();
     renderWithProviders(<ChatPage />, CHAT_ENTRY);
     await waitFor(() => expect(screen.getByText(buildAnswer().answer)).toBeInTheDocument());
 
     const SECOND = '那切片的粒度怎么配？';
-    mockStreamingAnswer(buildAnswer({ answer: '按管线配置 chunk 上限与重叠。[1]' }));
+    mockStreamingAnswer(buildAnswer({ answer: '按管线配置 chunk 上限与重叠。', citations: [] }));
     fireEvent.change(screen.getByPlaceholderText(zhCN.chat.inputPlaceholder), {
       target: { value: SECOND },
     });
     fireEvent.keyDown(screen.getByPlaceholderText(zhCN.chat.inputPlaceholder), { key: 'Enter' });
 
-    await waitFor(() => expect(screen.getByText('按管线配置 chunk 上限与重叠。[1]')).toBeInTheDocument());
-    // 两轮历史都在页面上
+    await waitFor(() => expect(screen.getByText('按管线配置 chunk 上限与重叠。')).toBeInTheDocument());
     expect(screen.getAllByTestId('chat-message')).toHaveLength(2);
-    expect(screen.getByText(SECOND)).toBeInTheDocument();
 
     const calls = askStreamMock.mock.calls;
     expect(calls[1][0].sessionId).toEqual(calls[0][0].sessionId);
   });
 
-  it('刷新后同会话历史回显，且不带 ?q= 不会自动发问', async () => {
-    mockStreamingAnswer();
-    const { unmount } = renderWithProviders(<ChatPage />, CHAT_ENTRY);
-    await waitFor(() => expect(screen.getByText(buildAnswer().answer)).toBeInTheDocument());
-    const callsAfterFirst = askStreamMock.mock.calls.length;
-    unmount();
+  it('刷新后失败与检索为空状态保持，且历史回显无引用区', async () => {
+    getChatHistoryMock.mockResolvedValue({
+      sessionId: 'any',
+      total: 4,
+      page: 0,
+      size: 100,
+      items: [
+        { roundSeq: 1, role: 'USER', content: '第一问', status: 'SUCCESS', degradeReason: null, traceId: 't0', createdAt: null },
+        { roundSeq: 1, role: 'AI', content: '半截回答', status: 'FAILED', degradeReason: null, traceId: 't0', createdAt: null },
+        { roundSeq: 2, role: 'USER', content: '第二问', status: 'SUCCESS', degradeReason: null, traceId: 't1', createdAt: null },
+        { roundSeq: 2, role: 'AI', content: '未找到相关内容。', status: 'SUCCESS', degradeReason: NO_CONTEXT_REASON, traceId: 't1', createdAt: null },
+      ],
+    });
 
-    // 模拟刷新：重新挂载（sessionStorage 的 sessionId 保留）
     renderWithProviders(<ChatPage />, ['/chat']);
-    expect(screen.getByText(buildAnswer().answer)).toBeInTheDocument();
-    expect(askStreamMock).toHaveBeenCalledTimes(callsAfterFirst);
+
+    await waitFor(() => expect(screen.getAllByTestId('chat-message')).toHaveLength(2));
+    // 失败轮次仍可重试，而非伪装成正常回答
+    expect(screen.getByText(zhCN.errors.bannerTitle)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: zhCN.common.retry })).toBeInTheDocument();
+    // 检索为空仍单独成态
+    expect(screen.getByText(zhCN.chat.noContextTitle)).toBeInTheDocument();
+    // 历史没有引用清单 → 不渲染引用区
+    expect(screen.queryByTestId('chat-citations')).not.toBeInTheDocument();
+    // 不带 ?q= 不自动发问
+    expect(askStreamMock).not.toHaveBeenCalled();
   });
 
-  it('流式中输入禁用并显示停止，停止后该轮标记失败可重试', async () => {
+  it('长会话先取最后一页：total=250 时请求 page=0 与 page=2', async () => {
+    getChatHistoryMock.mockImplementation(async (_sessionId, page = 0) =>
+      page === 0
+        ? emptyHistory(250)
+        : {
+            sessionId: 'any',
+            total: 250,
+            page,
+            size: 100,
+            items: [
+              { roundSeq: 126, role: 'USER', content: '最后一轮的问题', status: 'SUCCESS', degradeReason: null, traceId: 't', createdAt: null },
+              { roundSeq: 126, role: 'AI', content: '最后一轮的回答', status: 'SUCCESS', degradeReason: null, traceId: 't', createdAt: null },
+            ],
+          },
+    );
+
+    renderWithProviders(<ChatPage />, ['/chat']);
+
+    await waitFor(() => expect(screen.getByText('最后一轮的回答')).toBeInTheDocument());
+    expect(getChatHistoryMock).toHaveBeenCalledWith(expect.any(String), 0, 100);
+    expect(getChatHistoryMock).toHaveBeenCalledWith(expect.any(String), 2, 100);
+  });
+
+  it('生成中允许编辑草稿，发送位显示停止', async () => {
     askStreamMock.mockImplementation(
       (_params, handlers, signal) =>
         new Promise<AskResult>((_resolve, reject) => {
           handlers.onDelta('半段回答');
-          signal?.addEventListener('abort', () =>
-            reject(new DOMException('Aborted', 'AbortError')),
-          );
+          signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
         }),
     );
 
     renderWithProviders(<ChatPage />, CHAT_ENTRY);
 
     await waitFor(() => expect(screen.getByText(zhCN.chat.stopAnswer)).toBeInTheDocument());
-    expect(screen.getByPlaceholderText('')).toBeDisabled();
+
+    const textarea = screen.getByPlaceholderText(zhCN.chat.inputPlaceholder);
+    expect(textarea).not.toBeDisabled();
+    fireEvent.change(textarea, { target: { value: '下一问的草稿' } });
+    expect((textarea as HTMLTextAreaElement).value).toBe('下一问的草稿');
 
     fireEvent.click(screen.getByRole('button', { name: zhCN.chat.stopAnswer }));
 
@@ -168,13 +256,86 @@ describe('ChatPage 多轮对话', () => {
     expect(screen.getByRole('button', { name: zhCN.common.retry })).toBeInTheDocument();
   });
 
-  it('新对话按钮清空历史并换新会话', async () => {
+  it('复制回答后给出"已复制"反馈', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+
     mockStreamingAnswer();
     renderWithProviders(<ChatPage />, CHAT_ENTRY);
     await waitFor(() => expect(screen.getByText(buildAnswer().answer)).toBeInTheDocument());
 
-    fireEvent.click(screen.getByRole('button', { name: zhCN.chat.newConversation }));
+    fireEvent.click(screen.getByRole('button', { name: zhCN.chat.copyAnswer }));
 
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(buildAnswer().answer));
+    expect(screen.getByText(zhCN.chat.copied)).toBeInTheDocument();
+  });
+
+  it('重新生成替换当前轮，不产生重复消息', async () => {
+    mockStreamingAnswer();
+    renderWithProviders(<ChatPage />, CHAT_ENTRY);
+    await waitFor(() => expect(screen.getByText(buildAnswer().answer)).toBeInTheDocument());
+
+    mockStreamingAnswer(buildAnswer({ answer: '重新生成的回答。', citations: [] }));
+    fireEvent.click(screen.getByRole('button', { name: zhCN.chat.regenerate }));
+
+    await waitFor(() => expect(screen.getByText('重新生成的回答。')).toBeInTheDocument());
+    expect(screen.getAllByTestId('chat-message')).toHaveLength(1);
+    expect(askStreamMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('清空会话取消时不删除任何数据', async () => {
+    mockStreamingAnswer();
+    renderWithProviders(<ChatPage />, CHAT_ENTRY);
+    await waitFor(() => expect(screen.getByText(buildAnswer().answer)).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole('button', { name: zhCN.chat.clearConversation }));
+    expect(await screen.findByText(zhCN.chat.clearConfirmBody)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: zhCN.chat.clearConfirmCancel }));
+
+    expect(clearChatSessionMock).not.toHaveBeenCalled();
+    expect(screen.getAllByTestId('chat-message')).toHaveLength(1);
+  });
+
+  it('清空会话确认后调用级联删除并重置页面', async () => {
+    mockStreamingAnswer();
+    renderWithProviders(<ChatPage />, CHAT_ENTRY);
+    await waitFor(() => expect(screen.getByText(buildAnswer().answer)).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole('button', { name: zhCN.chat.clearConversation }));
+    fireEvent.click(await screen.findByRole('button', { name: zhCN.chat.clearConfirmOk }));
+
+    await waitFor(() => expect(clearChatSessionMock).toHaveBeenCalledTimes(1));
     expect(screen.queryByTestId('chat-message')).not.toBeInTheDocument();
+  });
+
+  it('空对话显示中性提示，不渲染消息', async () => {
+    renderWithProviders(<ChatPage />, ['/chat']);
+
+    await waitFor(() => expect(screen.getByTestId('chat-empty')).toBeInTheDocument());
+    expect(screen.queryByTestId('chat-message')).not.toBeInTheDocument();
+    expect(screen.getByTestId('chat-composer')).toBeInTheDocument();
+  });
+
+  it('上翻离开底部时出现"回到最新"，点击后恢复跟随', async () => {
+    mockStreamingAnswer();
+    renderWithProviders(<ChatPage />, CHAT_ENTRY);
+    await waitFor(() => expect(screen.getByText(buildAnswer().answer)).toBeInTheDocument());
+
+    const transcript = screen.getByTestId('chat-transcript');
+    Object.defineProperty(transcript, 'scrollHeight', { configurable: true, value: 1000 });
+    Object.defineProperty(transcript, 'clientHeight', { configurable: true, value: 400 });
+    transcript.scrollTop = 0;
+    fireEvent.scroll(transcript);
+
+    const backToLatest = await screen.findByTestId('chat-back-to-latest');
+    fireEvent.click(backToLatest);
+
+    await waitFor(() =>
+      expect(screen.queryByTestId('chat-back-to-latest')).not.toBeInTheDocument(),
+    );
   });
 });

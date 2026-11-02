@@ -9,6 +9,7 @@ import com.unirag.rag.route.RagRoute;
 import com.unirag.rag.route.RagRouter;
 import com.unirag.rag.route.RouteObservationWriter;
 import com.unirag.retrieval.model.QaAnswer;
+import com.unirag.retrieval.history.ChatHistoryWriter;
 import com.unirag.retrieval.model.QaRequest;
 import com.unirag.retrieval.model.StageResult;
 import com.unirag.retrieval.observation.ObservationMetrics;
@@ -32,17 +33,20 @@ public class QaService {
     private final ClassificationRunner classificationRunner;
     private final RagRouter ragRouter;
     private final ObjectProvider<RouteObservationWriter> routeObservationWriter;
+    private final ChatHistoryWriter chatHistoryWriter;
 
     public QaService(TenantContext tenantContext,
                      ObservationMetrics metrics,
                      ClassificationRunner classificationRunner,
                      RagRouter ragRouter,
-                     ObjectProvider<RouteObservationWriter> routeObservationWriter) {
+                     ObjectProvider<RouteObservationWriter> routeObservationWriter,
+                     ChatHistoryWriter chatHistoryWriter) {
         this.tenantContext = tenantContext;
         this.metrics = metrics;
         this.classificationRunner = classificationRunner;
         this.ragRouter = ragRouter;
         this.routeObservationWriter = routeObservationWriter;
+        this.chatHistoryWriter = chatHistoryWriter;
     }
 
     public QaResult ask(QaRequest request) {
@@ -83,7 +87,19 @@ public class QaService {
             return new QaResult(traceId, answer);
         } catch (RuntimeException e) {
             metrics.recordQa(tenantCode, StageStatus.FAILED, elapsed(startedAt));
+            // 017 FR-001：异常失败轮以 FAILED 追加历史（问题 + 空回答 + 异常类型），best-effort
+            recordFailedRound(request, traceId, tenantId, e);
             throw e;
+        }
+    }
+
+    /** 失败轮历史（017）：写入失败只记 warn，绝不影响原异常路径（FR-004）。 */
+    private void recordFailedRound(QaRequest request, String traceId, Long tenantId, RuntimeException e) {
+        try {
+            chatHistoryWriter.recordRound(tenantId, request.sessionId(), request.question(),
+                    null, "FAILED", e.getClass().getSimpleName(), traceId);
+        } catch (RuntimeException ignored) {
+            // best-effort：历史缺失的可见性由生成阶段观测与日志承担
         }
     }
 

@@ -61,7 +61,8 @@ class StreamingAbortTest {
         when(router.getPrimary(anyString(), eq(ResourceType.LLM), eq(OpenAiChatModel.class)))
                 .thenThrow(new IllegalStateException("不应走同步路径"));
 
-        ChatGenerationStage stage = new ChatGenerationStage(router, memoryFactory, properties);
+        ChatGenerationStage stage = new ChatGenerationStage(router, memoryFactory, properties,
+                mock(com.unirag.retrieval.history.ChatHistoryWriter.class));
         com.unirag.retrieval.pipeline.StageContext ctx = new com.unirag.retrieval.pipeline.StageContext(
                 com.unirag.retrieval.pipeline.StageContext.newTraceId(), "QA", "demo", 1L,
                 "s-abort", "问题原文", null);

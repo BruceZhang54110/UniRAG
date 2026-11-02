@@ -2,6 +2,7 @@ package com.unirag.retrieval.web;
 
 import com.unirag.common.tenant.TenantContext;
 import com.unirag.common.web.ApiResponse;
+import com.unirag.retrieval.history.ChatHistoryWriter;
 import com.unirag.retrieval.memory.ChatMemoryFactory;
 import com.unirag.retrieval.model.StageResult;
 import com.unirag.retrieval.observation.ObservationProperties;
@@ -10,6 +11,7 @@ import com.unirag.retrieval.pipeline.StageContext;
 import com.unirag.retrieval.pipeline.StageName;
 import com.unirag.retrieval.pipeline.StageStatus;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,19 +31,28 @@ public class ChatMemoryController {
 
     private final TenantContext tenantContext;
     private final ChatMemoryFactory chatMemoryFactory;
+    private final ChatHistoryWriter historyWriter;
     private final ObservationRecorder recorder;
     private final ObservationProperties observationProperties;
 
     public ChatMemoryController(TenantContext tenantContext, ChatMemoryFactory chatMemoryFactory,
+                                ChatHistoryWriter historyWriter,
                                 ObservationRecorder recorder, ObservationProperties observationProperties) {
         this.tenantContext = tenantContext;
         this.chatMemoryFactory = chatMemoryFactory;
+        this.historyWriter = historyWriter;
         this.recorder = recorder;
         this.observationProperties = observationProperties;
     }
 
+    /**
+     * 清空会话（017 起级联）：删除记忆窗口与该会话的完整历史，单事务执行
+     * （FR-008/clarify Q1），该会话彻底不可恢复；幂等。
+     */
     @DeleteMapping("/chat-memories/{sessionId}")
+    @Transactional
     public ApiResponse<Void> clear(@PathVariable String sessionId) {
+        historyWriter.deleteBySession(tenantContext.getTenantId(), sessionId);
         chatMemoryFactory.clear(tenantContext.getTenantId(), sessionId);
         recordClear(sessionId);
         return ApiResponse.ok(null);

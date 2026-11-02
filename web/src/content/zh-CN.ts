@@ -190,9 +190,13 @@ export const zhCN = {
     yourQuestion: '你的问题',
     answerTitle: '回答',
     loadingAnswer: '正在检索资料并生成回答…',
-    citationsTitle: '引用片段',
-    /** 引用条目标题模板，`{index}`/`{docName}`/`{chunkIndex}` 由调用方替换 */
-    citationSource: '片段 {index} · 文档 {docName} · 第 {chunkIndex} 段',
+    citationsTitle: '引用来源',
+    /** 引用区操作提示：链接实际行为为新标签页打开原文 */
+    citationsHint: '（点击可查看原文）',
+    /** 引用数据缺失文档名称时的中性占位 */
+    citationUnknown: '未命名文档',
+    /** 打开原文失败的行内提示 */
+    citationOpenFailed: '原文暂时无法打开，请稍后重试',
     noContextTitle: '知识库中未找到相关内容',
     noContextHint: '可以换个说法再问，或先上传相关文档',
     failedTitle: '回答生成失败',
@@ -202,7 +206,35 @@ export const zhCN = {
     sendWarp: '换行',
     stopAnswer: '停止',
     newConversation: '新对话',
+    clearConversation: '清空会话',
     stoppedHint: '已停止生成，该轮不会写入会话记忆',
+    /** 页面结构（018） */
+    headerPrefix: '对话',
+    untitledConversation: '新对话',
+    backHomeShort: '返回首页',
+    /** 消息区无障碍名称 */
+    messagesLabel: '对话消息',
+    emptyTitle: '开始新的对话',
+    emptyHint: '输入问题即开始，回答会标注引用来源，可点击查看原文',
+    /** 输入区页脚：只陈述系统实际具备的能力 */
+    footerNote: '回答基于知识库检索生成，引用可点击查看原文',
+    /** 回答操作（018） */
+    copyAnswer: '复制',
+    copied: '已复制',
+    copyFailed: '复制失败，请手动选择文本',
+    regenerate: '重新生成',
+    /** 清空会话二次确认 */
+    clearConfirmTitle: '清空当前会话',
+    clearConfirmBody: '本次对话的记忆与历史将被删除，且无法恢复。',
+    clearConfirmOk: '确认清空',
+    clearConfirmCancel: '取消',
+    clearFailed: '清空失败，请稍后重试',
+    /** 滚动与历史分页（018） */
+    backToLatest: '回到最新',
+    loadEarlier: '正在加载更早的消息…',
+    loadEarlierFailed: '更早的消息加载失败',
+    historyLoadFailed: '历史消息加载失败',
+    historyRetry: '重试加载',
   },
 
   errors: {

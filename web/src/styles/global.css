@@ -13,6 +13,7 @@
 html,
 body,
 #root {
+  height: 100%;
   margin: 0;
   padding: 0;
 }
@@ -87,4 +88,73 @@ body {
   .recent-doc-item:nth-child(n + 5) {
     display: none;
   }
+}
+
+/*
+ * 对话页（018-chat-page-layout）：三段式工作区。
+ *
+ * ConsoleShell 在页面根元素带 `data-page-layout="flush"` 时会取消 main 的内边距与滚动
+ * （见 @lobehub/ui 的 ConsoleShell 样式），滚动因此收敛到 `.chat-transcript` 一处，
+ * 输入区永远停在可视区域底部。
+ */
+.chat-page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-block-size: 0;
+  block-size: 100%;
+  inline-size: 100%;
+}
+
+.chat-transcript {
+  flex: 1;
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.chat-transcript:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+
+.chat-transcript-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  inline-size: 100%;
+  max-inline-size: 880px;
+  margin-inline: auto;
+  padding: 8px 16px 24px;
+}
+
+.chat-header,
+.chat-composer-area {
+  flex: none;
+  inline-size: 100%;
+}
+
+.chat-composer-area {
+  padding: 8px 16px 12px;
+}
+
+@media (max-width: 767px) {
+  .chat-transcript-inner {
+    padding: 8px 12px 20px;
+  }
+
+  .chat-composer-area {
+    padding: 6px 12px 10px;
+  }
+}
+
+/*
+ * 高度链路（018）：ThemeProvider 会在 #root 与 ConsoleShell 之间插入 antd 的
+ * `.ant-app` 容器；它默认高度为 auto，会让 `.shell{height:100%}` 失效，
+ * 页面因此退回"内容多高、页面多高"，输入区也就会被内容挤走。
+ */
+#root > .ant-app {
+  block-size: 100%;
 }

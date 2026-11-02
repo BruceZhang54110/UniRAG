@@ -47,7 +47,8 @@ class ChatMemoryStatelessTest {
         });
 
         ChatMemoryProperties properties = mock(ChatMemoryProperties.class);
-        ChatGenerationStage stage = new ChatGenerationStage(router, factory, properties);
+        ChatGenerationStage stage = new ChatGenerationStage(router, factory, properties,
+                mock(com.unirag.retrieval.history.ChatHistoryWriter.class));
         com.unirag.retrieval.pipeline.StageContext ctx = new com.unirag.retrieval.pipeline.StageContext(
                 com.unirag.retrieval.pipeline.StageContext.newTraceId(), "QA", "demo", 1L,
                 null, "问题", null);
@@ -80,7 +81,8 @@ class ChatMemoryStatelessTest {
         when(factory.get(anyLong(), anyString())).thenReturn(Optional.of(memory));
         ChatMemoryProperties properties = mock(ChatMemoryProperties.class);
         when(properties.recordNoContextRound()).thenReturn(recordNoContext);
-        ChatGenerationStage stage = new ChatGenerationStage(router, factory, properties);
+        ChatGenerationStage stage = new ChatGenerationStage(router, factory, properties,
+                mock(com.unirag.retrieval.history.ChatHistoryWriter.class));
         com.unirag.retrieval.pipeline.StageContext ctx = new com.unirag.retrieval.pipeline.StageContext(
                 com.unirag.retrieval.pipeline.StageContext.newTraceId(), "QA", "demo", 1L,
                 "s-1", "问题原文", null);

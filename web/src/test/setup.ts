@@ -35,8 +35,7 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
   globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
 }
 
-if (typeof globalThis.IntersectionObserver === 'undefined') {
-  class IntersectionObserverStub {
+if (typeof globalThis.IntersectionObserver === 'undefined') {  class IntersectionObserverStub {
     observe() {}
     unobserve() {}
     disconnect() {}
@@ -73,4 +72,27 @@ if (typeof globalThis.CSS === 'undefined' || typeof globalThis.CSS.supports !== 
       writable: true,
     });
   }
+}
+
+// jsdom 不实现元素滚动 API；对话页的"滚到底部/定位最新"依赖它们（018 T003）
+if (typeof Element !== 'undefined' && typeof Element.prototype.scrollTo !== 'function') {
+  Element.prototype.scrollTo = function scrollTo() {} as Element['scrollTo'];
+}
+
+if (typeof Element !== 'undefined' && typeof Element.prototype.scrollIntoView !== 'function') {
+  Element.prototype.scrollIntoView = function scrollIntoView() {};
+}
+
+// jsdom 的 window.scrollTo 会抛 "Not implemented"，测试中统一降级为 no-op
+if (typeof window !== 'undefined') {
+  window.scrollTo = (() => {}) as typeof window.scrollTo;
+}
+
+// jsdom 不实现对象 URL：引用打开原文（018）会用到（真实浏览器由平台提供）
+if (typeof URL.createObjectURL !== 'function') {
+  URL.createObjectURL = () => 'blob:mock';
+}
+
+if (typeof URL.revokeObjectURL !== 'function') {
+  URL.revokeObjectURL = () => {};
 }

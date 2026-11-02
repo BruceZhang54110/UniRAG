@@ -199,6 +199,18 @@ export async function getDocument(docName: string, signal?: AbortSignal): Promis
 }
 
 /**
+ * 取文档原文（018-chat-page-layout，contracts/document-original.md）。
+ *
+ * 原文接口要求 `X-Tenant-Code`，因此不能直接放 `<a href>`；由 `apiFetch` 注入租户头后
+ * 以 `Blob` 返回，调用方再用对象 URL 打开。错误统一归一为 `ApiError`。
+ */
+export async function fetchDocumentFile(docName: string, signal?: AbortSignal): Promise<Blob> {
+  const response = await apiFetch(`${DOCUMENTS_PATH}/${encodeURIComponent(docName)}/file`, { signal });
+  await ensureOk(response);
+  return response.blob();
+}
+
+/**
  * 解析 `Content-Disposition`：后端**仅**返回 RFC 5987 的 `filename*=UTF-8''<pct-encoded>`，
  * 无普通 `filename=` 回退，因此 `decodeURIComponent` 失败时必须兜底（契约 §3）。
  */

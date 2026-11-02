@@ -1,6 +1,7 @@
 package com.unirag.retrieval.stage;
 
 import com.unirag.retrieval.Redaction;
+import com.unirag.retrieval.history.ChatHistoryWriter;
 import com.unirag.retrieval.memory.ChatMemoryFactory;
 import com.unirag.retrieval.memory.ChatMemoryOutcome;
 import com.unirag.retrieval.memory.ChatMemoryProperties;
@@ -67,12 +68,15 @@ public class ChatGenerationStage implements Stage<PromptBundle, QaAnswer> {
     private final TenantResourceRouter router;
     private final ChatMemoryFactory chatMemoryFactory;
     private final ChatMemoryProperties chatMemoryProperties;
+    private final ChatHistoryWriter chatHistoryWriter;
 
     public ChatGenerationStage(TenantResourceRouter router, ChatMemoryFactory chatMemoryFactory,
-                               ChatMemoryProperties chatMemoryProperties) {
+                               ChatMemoryProperties chatMemoryProperties,
+                               ChatHistoryWriter chatHistoryWriter) {
         this.router = router;
         this.chatMemoryFactory = chatMemoryFactory;
         this.chatMemoryProperties = chatMemoryProperties;
+        this.chatHistoryWriter = chatHistoryWriter;
     }
 
     @Override
@@ -89,6 +93,7 @@ public class ChatGenerationStage implements Stage<PromptBundle, QaAnswer> {
             if (chatMemoryProperties.recordNoContextRound() && ctx.queryDigest() != null) {
                 remember(memory, ctx, AiMessage.from(noContext.answer()));
             }
+            recordHistory(ctx, noContext.answer(), "SUCCESS", QaAnswer.NO_CONTEXT);
             return noContext;
         }
         List<ChatMessage> messages = new ArrayList<>();
@@ -216,7 +221,14 @@ public class ChatGenerationStage implements Stage<PromptBundle, QaAnswer> {
         if (!degraded) {
             remember(memory, ctx, aiMessage);
         }
+        recordHistory(ctx, answer, degraded ? "ABORTED" : "SUCCESS", degradeReason);
         return new QaAnswer(answer, citations, degraded, degradeReason);
+    }
+
+    /** 完整历史追加（017）：best-effort，与记忆写回互不依赖；无会话标识时不记录。 */
+    private void recordHistory(StageContext ctx, String answer, String status, String degradeReason) {
+        chatHistoryWriter.recordRound(ctx.tenantId(), ctx.sessionId(), ctx.queryDigest(),
+                answer, status, degradeReason, ctx.traceId());
     }
 
     /** 流式模型解析；租户未配置（或未启用流式）时返回空，走缓冲降级（R3）。 */
