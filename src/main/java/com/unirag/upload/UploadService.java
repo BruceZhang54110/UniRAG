@@ -14,7 +14,7 @@ import com.unirag.upload.dto.DocumentUploadResponse;
 import com.unirag.common.web.ApiException;
 import com.unirag.common.tenant.TenantContext;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.opendal.Operator;
+import com.unirag.infrastructure.storage.DocumentStorage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +34,7 @@ public class UploadService {
     private final TenantContext tenantContext;
     private final FileTypeValidator fileTypeValidator;
     private final UploadProperties uploadProperties;
-    private final Operator documentStorageOperator;
+    private final DocumentStorage documentStorage;
     private final DocumentService documentService;
     private final com.unirag.upload.DocumentFileService documentFileService;
     private final IngestionService ingestionService;
@@ -44,7 +44,7 @@ public class UploadService {
     public UploadService(TenantContext tenantContext,
                          FileTypeValidator fileTypeValidator,
                          UploadProperties uploadProperties,
-                         Operator documentStorageOperator,
+                         DocumentStorage documentStorage,
                          DocumentService documentService,
                          DocumentFileService documentFileService,
                          IngestionService ingestionService,
@@ -53,7 +53,7 @@ public class UploadService {
         this.tenantContext = tenantContext;
         this.fileTypeValidator = fileTypeValidator;
         this.uploadProperties = uploadProperties;
-        this.documentStorageOperator = documentStorageOperator;
+        this.documentStorage = documentStorage;
         this.documentService = documentService;
         this.documentFileService = documentFileService;
         this.ingestionService = ingestionService;
@@ -71,7 +71,7 @@ public class UploadService {
     }
 
     /**
-     * 上传收尾共用核心：落 blob → 摄取 → 落元数据。分块拼装与一次性上传共用（research R4）。
+     * 上传收尾共用核心：落原文对象 → 摄取 → 落元数据。分块拼装与一次性上传共用（research R4/019）。
      */
     public DocumentUploadResponse finalizeUpload(String docName, String title,
                                                  String originalFilename, byte[] bytes) {
@@ -114,7 +114,7 @@ public class UploadService {
                 : storagePathOf(tenantContext.getTenantCode(), docName, proposedVersion);
         boolean wroteBlob = existingFile == null || !storagePath.equals(existingFile.getStoragePath());
         if (wroteBlob) {
-            documentStorageOperator.write(storagePath, bytes);
+            documentStorage.write(storagePath, bytes);
         }
         try {
             DocumentIngestionJob job = ingestionJobService.createOrReuse(document, fingerprint,
@@ -128,7 +128,7 @@ public class UploadService {
         } catch (RuntimeException | Error failure) {
             if (wroteBlob) {
                 try {
-                    documentStorageOperator.delete(storagePath);
+                    documentStorage.delete(storagePath);
                 } catch (Exception cleanupFailure) {
                     failure.addSuppressed(cleanupFailure);
                     log.warn("上传持久化失败后的原文补偿删除失败: tenant={}, doc={}",
@@ -148,7 +148,7 @@ public class UploadService {
         Document existing = documentService.findByTenantAndName(tenantContext.getTenantId(), docName);
         boolean sameContent = existing != null && fingerprint.equals(existing.getContentFingerprint());
         if (!sameContent) {
-            documentStorageOperator.write(storagePath, bytes);
+            documentStorage.write(storagePath, bytes);
         }
         try {
             T result = finalizer.get();
@@ -159,7 +159,7 @@ public class UploadService {
             return result;
         } catch (RuntimeException | Error failure) {
             try {
-                documentStorageOperator.delete(storagePath);
+                documentStorage.delete(storagePath);
             } catch (Exception cleanupFailure) {
                 log.warn("上传持久化失败后的原文补偿删除失败: tenant={}, doc={}",
                         tenantContext.getTenantCode(), docName);
@@ -239,7 +239,7 @@ public class UploadService {
 
     private void deleteObsoleteBlob(String oldPath, String tenantCode, String docName) {
         try {
-            documentStorageOperator.delete(oldPath);
+            documentStorage.delete(oldPath);
         } catch (Exception e) {
             // best-effort：删除失败仅 WARN 不阻断，下次重摄取兜底（tasks T024）
             log.warn("删除旧版本原文失败（暂不阻断）: tenant={}, doc={}, path={}", tenantCode, docName, oldPath);

@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * 文档原文元数据：与 document 1:1；blob 本体在 document_blob（经 OpenDAL，data-model.md）。
+ * 文档原文元数据：与 document 1:1；原文本体在 RustFS 对象（经 OpenDAL，019）。
  *
  * @TableName document_file
  */

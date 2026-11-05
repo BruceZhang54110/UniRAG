@@ -93,19 +93,21 @@ class DocumentIngestionWorkerUS3IT extends AbstractIngestionIT {
 
     @Test
     void retryPolicyRecoversAndExhaustsAndStaleTokenCannotFinalize() {
-        long job = enqueueVersion(1, "version one", true);
+        // 注意：enqueueVersion 返回的是版本 id；任务 id 必须从认领结果取（序列不保证两者相等）
+        enqueueVersion(1, "version one", true);
         DocumentIngestionJob first = claims.claim(1, 3, 300_000).getFirst();
-        assertThat(jobs.markRetryOrFailed(job, first.getLeaseToken(), first.getAttemptCount(), 3,
+        long jobId = first.getId();
+        assertThat(jobs.markRetryOrFailed(jobId, first.getLeaseToken(), first.getAttemptCount(), 3,
                 "TEST_FAILURE", "temporary", Duration.ZERO)).isTrue();
         DocumentIngestionJob second = claims.claim(1, 3, 300_000).getFirst();
         assertThat(second.getAttemptCount()).isEqualTo(2);
-        assertThat(jobs.markRetryOrFailed(job, second.getLeaseToken(), second.getAttemptCount(), 3,
+        assertThat(jobs.markRetryOrFailed(second.getId(), second.getLeaseToken(), second.getAttemptCount(), 3,
                 "TEST_FAILURE", "temporary", Duration.ZERO)).isTrue();
         DocumentIngestionJob third = claims.claim(1, 3, 300_000).getFirst();
-        assertThat(jobs.markRetryOrFailed(job, third.getLeaseToken(), third.getAttemptCount(), 3,
+        assertThat(jobs.markRetryOrFailed(third.getId(), third.getLeaseToken(), third.getAttemptCount(), 3,
                 "TEST_FAILURE", "temporary", Duration.ZERO)).isTrue();
-        assertThat(jdbc.queryForObject("SELECT status FROM document_ingestion_job WHERE id=?", String.class, job)).isEqualTo("FAILED");
-        assertThat(jobs.markReady(job, first.getLeaseToken(), tenantId, first.getDocumentVersionId())).isFalse();
+        assertThat(jdbc.queryForObject("SELECT status FROM document_ingestion_job WHERE id=?", String.class, jobId)).isEqualTo("FAILED");
+        assertThat(jobs.markReady(jobId, first.getLeaseToken(), tenantId, first.getDocumentVersionId())).isFalse();
     }
 
     private void runWorkerOnce() {
@@ -121,7 +123,7 @@ class DocumentIngestionWorkerUS3IT extends AbstractIngestionIT {
                 VALUES (?, ?, ?, ?, ?, 'document.txt', 'text/plain', ?, FALSE) RETURNING id""",
                 Long.class, tenantId, documentId, version, fp, path, content.length());
         if (writeBlob) {
-            documentStorageOperator.write(path, content.getBytes(StandardCharsets.UTF_8));
+            writeWithRetry(path, content.getBytes(StandardCharsets.UTF_8));
         }
         jdbc.update("""
                 INSERT INTO document_ingestion_job
@@ -130,6 +132,28 @@ class DocumentIngestionWorkerUS3IT extends AbstractIngestionIT {
                 VALUES (?, ?, ?, ?, ?, 'QUEUED', 'UPLOADED', 0, 3, CURRENT_TIMESTAMP)""",
                 tenantId, documentId, versionId, version, fp);
         return versionId;
+    }
+
+    /**
+     * 测试侧重试：RustFS 每次响应后关闭 keep-alive 连接，池化连接复用偶发 connection closed
+     * （research R4）；生产代码由 DocumentStorage 重试，测试直接写对象需同等韧性。
+     */
+    private void writeWithRetry(String path, byte[] bytes) {
+        for (int attempt = 1; ; attempt++) {
+            try {
+                documentStorageOperator.write(path, bytes);
+                return;
+            } catch (RuntimeException e) {
+                if (attempt >= 6) {
+                    throw e;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
     }
 
     private long jobForVersion(int version) {

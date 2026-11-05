@@ -8,13 +8,13 @@
             <result property="sessionId" column="session_id" jdbcType="BIGINT"/>
             <result property="seq" column="seq" jdbcType="INTEGER"/>
             <result property="sizeBytes" column="size_bytes" jdbcType="INTEGER"/>
-            <result property="data" column="data"/>
+            <result property="storagePath" column="storage_path" jdbcType="VARCHAR"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         session_id,seq,size_bytes,
-        data,created_at
+        storage_path,created_at
     </sql>
 
     <select id="findSeqsBySessionId" resultType="java.lang.Integer">

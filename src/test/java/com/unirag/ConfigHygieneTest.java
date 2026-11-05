@@ -41,6 +41,12 @@ class ConfigHygieneTest {
 
         Object pgPassword = getNested(yaml, "spring", "datasource", "password");
         assertPlaceholder("spring.datasource.password", pgPassword);
+
+        // 019：RustFS 对象存储凭据必须外部化（FR-003 / contracts §1 卫生要求）
+        Object s3AccessKey = getNested(yaml, "unirag", "storage", "s3", "access-key");
+        assertPlaceholder("unirag.storage.s3.access-key", s3AccessKey);
+        Object s3SecretKey = getNested(yaml, "unirag", "storage", "s3", "secret-key");
+        assertPlaceholder("unirag.storage.s3.secret-key", s3SecretKey);
     }
 
     @Test

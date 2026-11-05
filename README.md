@@ -30,6 +30,7 @@ UniRAG 是一个基于 **Java 21 + Spring Boot 3 + PostgreSQL/pgvector + LangCha
 | JDK | 21+ | `java -version` 核验 |
 | PostgreSQL | 16+ | 默认连接 `localhost:5432/uni_rag_db` |
 | pgvector | 已安装 | Flyway 会自动启用扩展 |
+| RustFS | 1.0+ | 原文对象存储，默认 `localhost:9000`（启动方式见 `specs/019-rustfs-file-storage/quickstart.md`，应用启动时自动建桶） |
 | Maven | 无需安装 | 仓库内置 Maven Wrapper |
 
 ### 三条命令启动
@@ -113,6 +114,6 @@ curl http://localhost:8080/actuator/health
 | Runtime | Java 21, Spring Boot 3.5 |
 | 数据库 | PostgreSQL, pgvector, Flyway, MyBatis Plus |
 | RAG / AI | LangChain4j, OpenAI-compatible models, BGE rerank |
-| 原文存储 | Apache OpenDAL：PostgreSQL / FS / S3 |
+| 原文存储 | Apache OpenDAL + RustFS（S3 兼容对象存储，本机 9000 端口） |
 | 观测 | Spring Actuator, Micrometer, 统一观测表 |
-| 测试 | JUnit 5, AssertJ, Mockito, MockMvc, 真实 PostgreSQL IT |
+| 测试 | JUnit 5, AssertJ, Mockito, MockMvc, 真实 PostgreSQL + RustFS IT |

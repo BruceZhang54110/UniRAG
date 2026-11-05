@@ -15,7 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
  *   <li>测试数据保留在开发库中无害且可追溯；如需清理可在子类加
  *       {@code @Sql(executionPhase = AFTER_TEST_CLASS)} 删除本类租户码的数据；</li>
  *   <li>本地 PG 已安装 pgvector 扩展（{@code CREATE EXTENSION vector}，需一次性超级用户权限），
- *       EMBEDDING_STORE 测试可完整建表；未安装的库才退化为 {@code "create-table": false}。</li>
+ *       EMBEDDING_STORE 测试可完整建表；未安装的库才退化为 {@code "create-table": false}；</li>
+ *   <li><b>本机 RustFS 已启动</b>（019 起与 PG 同等前置，见 {@code specs/019-rustfs-file-storage/quickstart.md}）：
+ *       原文/分块存储测试连接真实 RustFS，桶由应用启动期自动创建。</li>
  * </ul>
  */
 @SpringBootTest(properties = {

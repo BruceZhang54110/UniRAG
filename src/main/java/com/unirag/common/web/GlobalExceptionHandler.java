@@ -53,7 +53,8 @@ public class GlobalExceptionHandler {
             case "TENANT_CODE_REQUIRED", "VALIDATION_FAILED", "UNSUPPORTED_FILE_TYPE",
                     "GRANULARITY_NOT_FOUND" -> HttpStatus.BAD_REQUEST;
             case "TENANT_NOT_FOUND", "UPLOAD_NOT_FOUND", "DOCUMENT_NOT_FOUND",
-                    "DOCUMENT_INGESTION_JOB_NOT_FOUND", "SESSION_NOT_FOUND" -> HttpStatus.NOT_FOUND;
+                    "DOCUMENT_INGESTION_JOB_NOT_FOUND", "SESSION_NOT_FOUND",
+                    "ORIGINAL_FILE_UNAVAILABLE" -> HttpStatus.NOT_FOUND;
             case "UPLOAD_EXPIRED" -> HttpStatus.GONE;
             case "UPLOAD_INCOMPLETE", "CHECKSUM_MISMATCH", "CONCURRENT_MODIFICATION" -> HttpStatus.CONFLICT;
             case "FILE_TOO_LARGE" -> HttpStatus.PAYLOAD_TOO_LARGE;

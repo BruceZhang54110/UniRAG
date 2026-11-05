@@ -2,8 +2,10 @@ package com.unirag.upload;
 
 import com.unirag.upload.dto.DocumentDetail;
 import com.unirag.upload.dto.DocumentPage;
+import com.unirag.common.web.ApiException;
 import com.unirag.common.web.ApiResponse;
-import org.apache.opendal.Operator;
+import com.unirag.infrastructure.storage.DocumentStorage;
+import org.apache.opendal.OpenDALException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +29,12 @@ import java.nio.charset.StandardCharsets;
 public class DocumentQueryController {
 
     private final DocumentQueryService queryService;
-    private final Operator documentStorageOperator;
+    private final DocumentStorage documentStorage;
 
     public DocumentQueryController(DocumentQueryService queryService,
-                                   Operator documentStorageOperator) {
+                                   DocumentStorage documentStorage) {
         this.queryService = queryService;
-        this.documentStorageOperator = documentStorageOperator;
+        this.documentStorage = documentStorage;
     }
 
     /** 列表：仅本租户，按创建时间倒序（page 默认 1，size 默认 20）。 */
@@ -48,11 +50,11 @@ public class DocumentQueryController {
         return ApiResponse.ok(queryService.detail(docName));
     }
 
-    /** 下载原文：按 storage_path 读 blob；Content-Type = 登记 mime，filename* 为 UTF-8 percent 编码（RFC 5987）。 */
+    /** 下载原文：按 storage_path 读对象；对象缺失 → 404 ORIGINAL_FILE_UNAVAILABLE（FR-011）。 */
     @GetMapping("/{docName}/file")
     public ResponseEntity<byte[]> download(@PathVariable String docName) {
         DocumentQueryService.DownloadTarget target = queryService.resolveDownload(docName);
-        byte[] bytes = documentStorageOperator.read(target.storagePath());
+        byte[] bytes = readOriginal(docName, target.storagePath());
         String encodedFileName = URLEncoder.encode(target.fileName(), StandardCharsets.UTF_8)
                 .replace("+", "%20");
         return ResponseEntity.ok()
@@ -60,6 +62,17 @@ public class DocumentQueryController {
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename*=UTF-8''" + encodedFileName)
                 .body(bytes);
+    }
+
+    private byte[] readOriginal(String docName, String storagePath) {
+        try {
+            return documentStorage.read(storagePath);
+        } catch (OpenDALException e) {
+            if (e.getCode() == OpenDALException.Code.NotFound) {
+                throw new ApiException("ORIGINAL_FILE_UNAVAILABLE", "文档原文不可用: " + docName);
+            }
+            throw e;
+        }
     }
 
     private MediaType mediaTypeOf(String mimeType) {

@@ -4,15 +4,19 @@ import com.unirag.infrastructure.persistence.entity.UploadChunk;
 import com.unirag.infrastructure.persistence.entity.UploadSession;
 import com.unirag.common.web.ApiException;
 import com.unirag.common.tenant.TenantContext;
+import com.unirag.infrastructure.storage.DocumentStorage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 
 /**
- * 分块上传会话编排（spec FR-010，research R4）：初始化校验、分块幂等写入、已收块清单、归属校验。
- * 租户隔离：会话按 (id, tenant_id) 双条件访问，跨租户一律 404 UPLOAD_NOT_FOUND（不泄漏存在性）。
+ * 分块上传会话编排（spec FR-010，research R4/019 R5）：初始化校验、分块幂等写入、已收块清单、归属校验。
+ * 块字节存 RustFS 临时对象（019：一块一对象，键 upload_chunk/{tenantCode}/{sessionId}/{seq}），
+ * 本表只存对象键与字节数。租户隔离：会话按 (id, tenant_id) 双条件访问，跨租户一律 404 UPLOAD_NOT_FOUND。
  */
+@Slf4j
 @Service
 public class UploadSessionService {
 
@@ -24,16 +28,19 @@ public class UploadSessionService {
     private final com.unirag.infrastructure.persistence.service.UploadChunkService mpChunkService;
     private final UploadProperties uploadProperties;
     private final TenantContext tenantContext;
+    private final DocumentStorage documentStorage;
 
     public UploadSessionService(
             com.unirag.infrastructure.persistence.service.UploadSessionService mpSessionService,
             com.unirag.infrastructure.persistence.service.UploadChunkService mpChunkService,
             UploadProperties uploadProperties,
-            TenantContext tenantContext) {
+            TenantContext tenantContext,
+            DocumentStorage documentStorage) {
         this.mpSessionService = mpSessionService;
         this.mpChunkService = mpChunkService;
         this.uploadProperties = uploadProperties;
         this.tenantContext = tenantContext;
+        this.documentStorage = documentStorage;
     }
 
     /**
@@ -78,7 +85,8 @@ public class UploadSessionService {
     }
 
     /**
-     * 分块写入：同 seq 重传 = 幂等覆盖；非尾块必须恰为 chunkSize，尾块必须恰为剩余字节数。
+     * 分块写入（019 R5）：先写 RustFS 临时对象（同 seq 重传 = 同键幂等覆盖），
+     * 再 upsert 索引行；行写入失败时补偿删除对象，避免孤儿对象。
      */
     public List<Integer> putChunk(Long uploadId, int seq, byte[] body) {
         UploadSession session = ownedSession(uploadId);
@@ -93,22 +101,39 @@ public class UploadSessionService {
                     "块 " + seq + " 大小 " + body.length + " 与期望 " + expected + " 不符");
         }
 
-        UploadChunk chunk = new UploadChunk();
-        chunk.setSessionId(uploadId);
-        chunk.setSeq(seq);
-        chunk.setSizeBytes(body.length);
-        chunk.setData(body);
-        chunk.setCreatedAt(new Date());
-        // 同 seq 重传 = 覆盖（PK(session_id, seq) 裁决，断点续传幂等）
-        var keyWrapper = com.baomidou.mybatisplus.core.toolkit.Wrappers.<UploadChunk>query()
-                .eq("session_id", uploadId)
-                .eq("seq", seq);
-        if (mpChunkService.count(keyWrapper) > 0) {
-            mpChunkService.update(chunk, keyWrapper);
-        } else {
-            mpChunkService.save(chunk);
+        String storagePath = chunkKey(uploadId, seq);
+        documentStorage.write(storagePath, body);
+        try {
+            UploadChunk chunk = new UploadChunk();
+            chunk.setSessionId(uploadId);
+            chunk.setSeq(seq);
+            chunk.setSizeBytes(body.length);
+            chunk.setStoragePath(storagePath);
+            chunk.setCreatedAt(new Date());
+            // 同 seq 重传 = 覆盖（PK(session_id, seq) 裁决，断点续传幂等）
+            var keyWrapper = com.baomidou.mybatisplus.core.toolkit.Wrappers.<UploadChunk>query()
+                    .eq("session_id", uploadId)
+                    .eq("seq", seq);
+            if (mpChunkService.count(keyWrapper) > 0) {
+                mpChunkService.update(chunk, keyWrapper);
+            } else {
+                mpChunkService.save(chunk);
+            }
+        } catch (RuntimeException | Error failure) {
+            try {
+                documentStorage.delete(storagePath);
+            } catch (Exception cleanupFailure) {
+                failure.addSuppressed(cleanupFailure);
+                log.warn("分块索引写入失败后的对象补偿删除失败: sessionId={}, seq={}", uploadId, seq);
+            }
+            throw failure;
         }
         return receivedChunks(uploadId);
+    }
+
+    /** 分块对象键（data-model.md）：upload_chunk/{tenantCode}/{sessionId}/{seq}。 */
+    public String chunkKey(Long uploadId, int seq) {
+        return "upload_chunk/" + tenantContext.getTenantCode() + "/" + uploadId + "/" + seq;
     }
 
     /** 已收块清单（断点续传客户端只补缺块的依据）。 */
@@ -138,8 +163,20 @@ public class UploadSessionService {
         return session;
     }
 
-    /** 完成/过期清理后硬删除会话与暂存块。 */
+    /**
+     * 完成/过期清理（019 R5）：先按索引行删 RustFS 临时对象（失败仅 WARN，不阻断），
+     * 再硬删除会话与暂存块行。
+     */
     public void deleteSessionWithChunks(Long uploadId) {
+        List<UploadChunk> chunks = mpChunkService.findBySessionIdOrderBySeq(uploadId);
+        for (UploadChunk chunk : chunks) {
+            try {
+                documentStorage.delete(chunk.getStoragePath());
+            } catch (Exception e) {
+                log.warn("删除分块暂存对象失败（跳过）: sessionId={}, seq={}, path={}",
+                        uploadId, chunk.getSeq(), chunk.getStoragePath());
+            }
+        }
         mpChunkService.deleteBySessionId(uploadId);
         mpSessionService.removeById(uploadId);
     }

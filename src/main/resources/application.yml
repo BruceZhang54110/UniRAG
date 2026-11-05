@@ -86,16 +86,17 @@ unirag:
     models:
       default:
         api-key: ${OPENAI_API_KEY:sk-placeholder}
-  # 原文文件存储；默认值适用于本地开发，生产凭据应由环境变量或密钥管理系统提供。
+  # 原文文件存储（S3 兼容对象存储，本机 RustFS，019）。
+  # 本地开发默认值对应 quickstart 的 rustfs server 启动命令；生产环境必须用环境变量覆盖凭据。
   storage:
-    backend: postgresql            # 存储后端：postgresql、fs 或 s3；默认 postgresql。
-    # PostgreSQL 连接串；留空时复用 spring.datasource 的连接参数，避免重复配置凭据。
-    connection-string: ""
-    table: document_blob           # PostgreSQL 后端的键值表名，Flyway V5 创建。
-    key-field: path                # 键列名，须与 document_blob 表结构一致。
-    value-field: data              # 内容列名，须与 document_blob 表结构一致。
-    root: /                        # OpenDAL 对象键前缀，默认不额外添加前缀。
-    fs-root: ./unirag-files        # backend=fs 时的本地存储目录。
+    s3:
+      endpoint: ${UNIRAG_STORAGE_S3_ENDPOINT:http://127.0.0.1:9000}
+      bucket: ${UNIRAG_STORAGE_S3_BUCKET:unirag-documents}
+      region: ${UNIRAG_STORAGE_S3_REGION:us-east-1}
+      access-key: ${UNIRAG_STORAGE_S3_ACCESS_KEY:unirag}
+      secret-key: ${UNIRAG_STORAGE_S3_SECRET_KEY:unirag-secret}
+      path-style: ${UNIRAG_STORAGE_S3_PATH_STYLE:true}   # RustFS 未配置 RUSTFS_SERVER_DOMAINS 时必须为 true
+      root: ${UNIRAG_STORAGE_S3_ROOT:/}                  # OpenDAL 键前缀，默认不额外添加前缀
   # 上传限制；大小单位为字节，时长使用 Spring Duration 格式。
   upload:
     max-file-size: 52428800        # 单文件最大 50 MiB，适用于一次性及分块上传。

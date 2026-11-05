@@ -19,9 +19,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * 断点续传验收（spec FR-010，SC-007，research R4）：
+ * 断点续传验收（spec FR-010，SC-007，research R4/019 R5）：
  * 8 块会话只传一半 → complete 409 列缺失块；补传后 complete 200 且原文逐字节一致；
- * 同 seq 重传幂等覆盖；SHA-256 不符 409 CHECKSUM_MISMATCH；跨租户访问会话 404。
+ * 同 seq 重传幂等覆盖（RustFS 对象键 upload_chunk/{tenant}/{sessionId}/{seq}）；完成后块对象清零；
+ * SHA-256 不符 409 CHECKSUM_MISMATCH；跨租户访问会话 404。
  * 租户码全局唯一：{@code upResume} / {@code upResumePeer}。
  */
 class ChunkedUploadResumeIT extends AbstractUploadIT {
@@ -56,6 +57,13 @@ class ChunkedUploadResumeIT extends AbstractUploadIT {
         for (int seq = 0; seq < 4; seq++) {
             putChunk(TENANT, uploadId, seq, chunkOf(content, seq));
         }
+        // 019 R5：暂存块以对象形式落在 RustFS，索引行含 storage_path
+        for (int seq = 0; seq < 4; seq++) {
+            assertThat(blobExists(chunkPath(uploadId, seq))).isTrue();
+        }
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT storage_path FROM upload_chunk WHERE session_id = ? AND seq = 0",
+                String.class, uploadId)).isEqualTo(chunkPath(uploadId, 0));
         mockMvc.perform(post("/api/v1/uploads/{id}/complete", uploadId)
                         .header(TenantContextInterceptor.TENANT_HEADER, TENANT))
                 .andExpect(status().isConflict())
@@ -78,9 +86,33 @@ class ChunkedUploadResumeIT extends AbstractUploadIT {
                         + "WHERE d.doc_name = ? AND d.tenant_id = (SELECT id FROM tenant WHERE tenant_code = ?)",
                 String.class, DOC, TENANT);
         assertThat(blobBytes(storagePath)).isEqualTo(content);
-        // 暂存块已清除
+        // 暂存块已清除：索引行与 RustFS 对象双双清零（SC-004）
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT count(*) FROM upload_chunk WHERE session_id = ?", Long.class, uploadId)).isZero();
+        for (int seq = 0; seq < TOTAL_CHUNKS; seq++) {
+            assertThat(blobExists(chunkPath(uploadId, seq))).isFalse();
+        }
+    }
+
+    @Test
+    void scenario1b_missingChunkObjectTreatedAsIncomplete() throws Exception {
+        byte[] content = chunkableContent();
+        long uploadId = initSession(TENANT, DOC, content);
+        for (int seq = 0; seq < TOTAL_CHUNKS; seq++) {
+            putChunk(TENANT, uploadId, seq, chunkOf(content, seq));
+        }
+        // 外部删除第 3 块对象 → complete 按缺块处理（409），会话保留
+        withStorageRetry(() -> {
+            documentStorageOperator.delete(chunkPath(uploadId, 3));
+            return null;
+        });
+
+        mockMvc.perform(post("/api/v1/uploads/{id}/complete", uploadId)
+                        .header(TenantContextInterceptor.TENANT_HEADER, TENANT))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error.code").value("UPLOAD_INCOMPLETE"));
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM upload_session WHERE id = ?", Long.class, uploadId)).isEqualTo(1);
     }
 
     @Test
@@ -192,5 +224,9 @@ class ChunkedUploadResumeIT extends AbstractUploadIT {
 
     private String sha256Hex(byte[] bytes) throws Exception {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+    }
+
+    private String chunkPath(long uploadId, int seq) {
+        return "upload_chunk/" + TENANT + "/" + uploadId + "/" + seq;
     }
 }

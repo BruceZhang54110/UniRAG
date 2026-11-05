@@ -6,7 +6,7 @@ import com.unirag.infrastructure.persistence.entity.Tenant;
 import com.unirag.infrastructure.persistence.mapper.TenantMapper;
 import com.unirag.infrastructure.persistence.service.DocumentIngestionJobService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.opendal.Operator;
+import com.unirag.infrastructure.storage.DocumentStorage;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -18,18 +18,18 @@ public class DocumentIngestionWorker {
     private final DocumentIngestionJobClaimRepository claims;
     private final DocumentIngestionJobService jobs;
     private final IngestionService ingestion;
-    private final Operator storage;
+    private final DocumentStorage storage;
     private final TenantMapper tenants;
     private final AsyncIngestionProperties properties;
     private final DocumentIngestionRetryPolicy retryPolicy;
 
     public DocumentIngestionWorker(DocumentIngestionJobClaimRepository claims, DocumentIngestionJobService jobs,
-                                   IngestionService ingestion, Operator documentStorageOperator, TenantMapper tenants,
+                                   IngestionService ingestion, DocumentStorage documentStorage, TenantMapper tenants,
                                    AsyncIngestionProperties properties, DocumentIngestionRetryPolicy retryPolicy) {
         this.claims = claims;
         this.jobs = jobs;
         this.ingestion = ingestion;
-        this.storage = documentStorageOperator;
+        this.storage = documentStorage;
         this.tenants = tenants;
         this.properties = properties;
         this.retryPolicy = retryPolicy;

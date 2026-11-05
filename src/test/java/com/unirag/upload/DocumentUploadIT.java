@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * US1 验收（spec.md US1，FR-001/002/005，SC-001/SC-004/SC-005）：
- * 一次性上传长 Markdown → 原文落 document_blob（OpenDAL 读回字节一致）→ 005 摄取管线切片向量化
+ * 一次性上传长 Markdown → 原文落 RustFS（OpenDAL 读回字节一致）→ 005 摄取管线切片向量化
  * （chunk 行数与向量表一致）→ 响应含逐管线 outcome；同内容二次上传 NOOP 不翻倍；
  * 对端租户上传同名文档完全隔离。
  * 租户码全局唯一：{@code upUS1} / {@code upUS1Peer}。
@@ -78,7 +78,7 @@ class DocumentUploadIT extends AbstractUploadIT {
         long vectorRows = jdbcTemplate.queryForObject("SELECT count(*) FROM " + TABLE, Long.class);
         assertThat(chunkRows).isEqualTo(vectorRows).isPositive();
 
-        // 原文存储：元数据行 + blob 字节一致（SC-005）
+        // 原文存储：元数据行 + RustFS 对象字节一致（SC-005）；旧 PG 键值表不得新增行（FR-017）
         Map<String, Object> fileRow = jdbcTemplate.queryForMap(
                 "SELECT storage_path, file_name, mime_type, size_bytes FROM document_file WHERE document_id = ?", documentId);
         String storagePath = (String) fileRow.get("storage_path");
@@ -86,6 +86,7 @@ class DocumentUploadIT extends AbstractUploadIT {
         assertThat(fileRow.get("file_name")).isEqualTo(FILE_NAME);
         assertThat(((Number) fileRow.get("size_bytes")).longValue()).isEqualTo(bytes.length);
         assertThat(blobBytes(storagePath)).isEqualTo(bytes);
+        // 注：旧 PG 键值表 document_blob 的移除由 StorageSchemaIT（US2，V12 后）断言。
     }
 
     @Test
