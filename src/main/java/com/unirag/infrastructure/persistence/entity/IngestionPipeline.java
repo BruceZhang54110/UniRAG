@@ -36,6 +36,18 @@ public class IngestionPipeline {
     @TableField("overlap_tokens")
     private Integer overlapTokens;
 
+    /** 父块 token 上限（仅 PARENT_CHILD 策略使用，data-model.md §3）。 */
+    @TableField("parent_max_tokens")
+    private Integer parentMaxTokens;
+
+    /** 回填上下文父块数量上限（默认 5）。 */
+    @TableField("parent_context_max_chunks")
+    private Integer parentContextMaxChunks;
+
+    /** 回填上下文父块 token 合计上限（默认 4000）。 */
+    @TableField("parent_context_max_tokens")
+    private Integer parentContextMaxTokens;
+
     /** 引用租户 EMBEDDING_STORE 资源 key（非外键，003 tenant_resource_config）。 */
     @TableField("embedding_store_key")
     private String embeddingStoreKey;

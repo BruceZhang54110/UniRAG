@@ -253,19 +253,23 @@ public final class EvalTenantProvisioner {
 
     private void insertPipelines(long tenantId, DatasetConfig config) {
         for (PipelineConfig pipeline : config.pipelines()) {
+            // parent_max_tokens：PARENT_CHILD 策略必填（校验器保证 > maxSegmentTokens）；
+            // RECURSIVE 策略置 NULL 由 COALESCE 落库默认值（与 V13 迁移默认 1200 一致）
             jdbcTemplate.update("""
                     INSERT INTO ingestion_pipeline
-                        (tenant_id, pipeline_key, strategy, max_segment_tokens, overlap_tokens,
+                        (tenant_id, pipeline_key, strategy, max_segment_tokens, overlap_tokens, parent_max_tokens,
                          embedding_store_key, embedding_model_key, enabled, deleted)
-                    VALUES (?, ?, 'RECURSIVE', ?, ?, ?, ?, TRUE, FALSE)
+                    VALUES (?, ?, ?, ?, ?, COALESCE(?, 1200), ?, ?, TRUE, FALSE)
                     ON CONFLICT (tenant_id, pipeline_key) DO UPDATE
                     SET strategy = EXCLUDED.strategy,
                         max_segment_tokens = EXCLUDED.max_segment_tokens,
                         overlap_tokens = EXCLUDED.overlap_tokens,
+                        parent_max_tokens = EXCLUDED.parent_max_tokens,
                         embedding_store_key = EXCLUDED.embedding_store_key,
                         embedding_model_key = EXCLUDED.embedding_model_key,
                         enabled = TRUE, deleted = FALSE""",
-                    tenantId, pipeline.key(), pipeline.maxSegmentTokens(), pipeline.overlapTokens(),
+                    tenantId, pipeline.key(), pipeline.strategy(), pipeline.maxSegmentTokens(),
+                    pipeline.overlapTokens(), pipeline.parentMaxTokens(),
                     pipeline.storeKey(), pipeline.modelKey());
         }
     }

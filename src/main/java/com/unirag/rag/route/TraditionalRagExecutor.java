@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * 传统 RAG 执行适配器：只承接原问答编排里的五段链组装与租户开关解析，
- * 不改变阶段输入输出、空结果语义或错误语义。
+ * 传统 RAG 执行适配器：只承接原问答编排里的六段链组装（020 起 MERGE 与 PROMPT_ASSEMBLY
+ * 之间含 PARENT_FETCH 父块回填）与租户开关解析，不改变阶段输入输出、空结果语义或错误语义。
  */
 @Component
 public class TraditionalRagExecutor implements RagParadigmExecutor {
@@ -39,14 +39,17 @@ public class TraditionalRagExecutor implements RagParadigmExecutor {
                                   QueryEmbeddingStage queryEmbeddingStage,
                                   VectorSearchStage vectorSearchStage,
                                   MergeStage mergeStage,
+                                  com.unirag.retrieval.stage.ParentFetchStage parentFetchStage,
                                   PromptAssemblyStage promptAssemblyStage,
                                   ChatGenerationStage chatGenerationStage) {
         this.pipeline = pipeline;
         this.rerankSupport = rerankSupport;
         this.rerankProperties = rerankProperties;
         this.rewriteSupport = rewriteSupport;
+        // 020：MERGE（含 RERANK 扩展）之后回填父块，PROMPT_ASSEMBLY 之前；
+        // 纯检索服务链（RetrievalService）不含此阶段（contracts/parent-child-chunking.md §2）
         this.chain = List.of(queryEmbeddingStage, vectorSearchStage, mergeStage,
-                promptAssemblyStage, chatGenerationStage);
+                parentFetchStage, promptAssemblyStage, chatGenerationStage);
     }
 
     @Override

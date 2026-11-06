@@ -1,7 +1,8 @@
 package com.unirag.retrieval.pipeline;
 
 /**
- * 流水线阶段标识（contracts/pipeline-extension.md §1）：检索执行前三段，问答执行全部五段。
+ * 流水线阶段标识（contracts/pipeline-extension.md §1）：检索执行前三段，问答执行全部六段
+ * （MERGE 与 PROMPT_ASSEMBLY 之间含 PARENT_FETCH 回填，020-parent-child-chunking）。
  *
  * <p>同时作为观测记录的 {@code stage} 取值来源（research.md R3）。{@link #QUERY_REWRITE}
  * 仅用于观测：实际执行由 {@code QUERY_EMBEDDING} 的增强型扩展承担；{@link #ROUTE}
@@ -26,6 +27,9 @@ public enum StageName {
 
     /** 重排序；以 MERGE 的增强型扩展执行，观测上独立成行。 */
     RERANK,
+
+    /** 父子切片父块回填；仅问答执行链包含（020，contracts/parent-child-chunking.md §2）。 */
+    PARENT_FETCH,
 
     /** 会话记忆参与情况；仅用于观测，实际读写发生在 CHAT_GENERATION 阶段（015-chat-memory）。 */
     CHAT_MEMORY,

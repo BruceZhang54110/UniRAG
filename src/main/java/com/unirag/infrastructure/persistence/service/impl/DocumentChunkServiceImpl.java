@@ -19,6 +19,15 @@ public class DocumentChunkServiceImpl
     }
 
     @Override
+    public java.util.Map<Integer, DocumentChunk> findParentsByChildSeqIndexes(Long documentId, Long pipelineId,
+                                                                              List<Integer> childSeqIndexes) {
+        if (childSeqIndexes == null || childSeqIndexes.isEmpty()) {
+            return java.util.Map.of();
+        }
+        return baseMapper.findParentsByChildSeqIndexes(documentId, pipelineId, childSeqIndexes);
+    }
+
+    @Override
     public void deleteByDocumentAndPipeline(Long documentId, Long pipelineId) {
         baseMapper.deleteByDocumentAndPipeline(documentId, pipelineId);
     }

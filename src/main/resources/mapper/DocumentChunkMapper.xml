@@ -13,13 +13,15 @@
             <result property="content" column="content" jdbcType="VARCHAR"/>
             <result property="tokenCount" column="token_count" jdbcType="INTEGER"/>
             <result property="embeddingId" column="embedding_id" jdbcType="VARCHAR"/>
+            <result property="chunkLevel" column="chunk_level" jdbcType="VARCHAR"/>
+            <result property="parentChunkId" column="parent_chunk_id" jdbcType="BIGINT"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,document_id,document_version_id,pipeline_id,
         seq_index,content,token_count,
-        embedding_id,created_at
+        embedding_id,chunk_level,parent_chunk_id,created_at
     </sql>
 
     <select id="findByDocumentAndPipeline" resultMap="BaseResultMap">
@@ -36,4 +38,35 @@
         DELETE FROM document_chunk
         WHERE document_id = #{documentId} AND pipeline_id = #{pipelineId}
     </delete>
+
+    <resultMap id="ParentByChildMap" type="com.unirag.infrastructure.persistence.entity.DocumentChunk">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="documentId" column="document_id" jdbcType="BIGINT"/>
+        <result property="documentVersionId" column="document_version_id" jdbcType="BIGINT"/>
+        <result property="pipelineId" column="pipeline_id" jdbcType="BIGINT"/>
+        <result property="seqIndex" column="seq_index" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="tokenCount" column="token_count" jdbcType="INTEGER"/>
+        <result property="embeddingId" column="embedding_id" jdbcType="VARCHAR"/>
+        <result property="chunkLevel" column="chunk_level" jdbcType="VARCHAR"/>
+        <result property="parentChunkId" column="parent_chunk_id" jdbcType="BIGINT"/>
+        <result property="childSeq" column="child_seq" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 020 父子回填：子块命中 → parent_chunk_id 自引用 → 父块行；按租户作用域（document 归属）隔离 -->
+    <select id="findParentsByChildSeqIndexes" resultMap="ParentByChildMap">
+        SELECT p.id, p.document_id, p.document_version_id, p.pipeline_id,
+               p.seq_index, p.content, p.token_count, p.embedding_id,
+               p.chunk_level, p.parent_chunk_id, p.created_at,
+               c.seq_index AS child_seq
+        FROM document_chunk c
+        JOIN document_chunk p ON p.id = c.parent_chunk_id
+        WHERE c.document_id = #{documentId}
+          AND c.pipeline_id = #{pipelineId}
+          AND c.seq_index IN
+        <foreach collection="childSeqIndexes" item="seq" open="(" separator="," close=")">
+            #{seq}
+        </foreach>
+    </select>
 </mapper>

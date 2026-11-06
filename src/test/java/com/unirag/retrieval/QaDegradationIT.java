@@ -86,7 +86,8 @@ class QaDegradationIT extends AbstractRetrievalIT {
         // 降级仍要留下完整阶段链，且问答生成阶段记为 DEGRADED（data-model.md §6）
         assertThat(stagesOf(EMPTY_TENANT)).containsExactly(
                 StageName.ROUTE.name(), StageName.QUERY_EMBEDDING.name(), StageName.VECTOR_SEARCH.name(),
-                StageName.MERGE.name(), StageName.PROMPT_ASSEMBLY.name(), StageName.CHAT_GENERATION.name());
+                StageName.MERGE.name(), StageName.PARENT_FETCH.name(),
+                StageName.PROMPT_ASSEMBLY.name(), StageName.CHAT_GENERATION.name());
         assertThat(statusOf(EMPTY_TENANT, StageName.CHAT_GENERATION)).isEqualTo(StageStatus.DEGRADED.name());
     }
 
@@ -143,7 +144,8 @@ class QaDegradationIT extends AbstractRetrievalIT {
 
         assertThat(stagesOf(TENANT)).containsExactly(
                 StageName.ROUTE.name(), StageName.QUERY_EMBEDDING.name(), StageName.VECTOR_SEARCH.name(),
-                StageName.MERGE.name(), StageName.PROMPT_ASSEMBLY.name(),
+                StageName.MERGE.name(), StageName.PARENT_FETCH.name(),
+                StageName.PROMPT_ASSEMBLY.name(),
                 StageName.CHAT_MEMORY.name(), StageName.CHAT_GENERATION.name());
         assertThat(jdbcTemplate.queryForList(
                 "SELECT status FROM retrieval_observation WHERE tenant_id = ? AND stage <> 'ROUTE'",

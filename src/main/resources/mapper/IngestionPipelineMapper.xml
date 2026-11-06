@@ -11,6 +11,9 @@
             <result property="strategy" column="strategy" jdbcType="VARCHAR"/>
             <result property="maxSegmentTokens" column="max_segment_tokens" jdbcType="INTEGER"/>
             <result property="overlapTokens" column="overlap_tokens" jdbcType="INTEGER"/>
+            <result property="parentMaxTokens" column="parent_max_tokens" jdbcType="INTEGER"/>
+            <result property="parentContextMaxChunks" column="parent_context_max_chunks" jdbcType="INTEGER"/>
+            <result property="parentContextMaxTokens" column="parent_context_max_tokens" jdbcType="INTEGER"/>
             <result property="embeddingStoreKey" column="embedding_store_key" jdbcType="VARCHAR"/>
             <result property="embeddingModelKey" column="embedding_model_key" jdbcType="VARCHAR"/>
             <result property="enabled" column="enabled" jdbcType="BOOLEAN"/>
@@ -22,6 +25,7 @@
     <sql id="Base_Column_List">
         id,tenant_id,pipeline_key,
         strategy,max_segment_tokens,overlap_tokens,
+        parent_max_tokens,parent_context_max_chunks,parent_context_max_tokens,
         embedding_store_key,embedding_model_key,enabled,
         created_at,updated_at,deleted
     </sql>

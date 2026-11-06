@@ -1,0 +1,6 @@
+{"id":"q-001","question":"质量问题退货运费由谁承担？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"refund.md","span":"因商品质量问题产生的退款，往返运费由卖家承担；因买家个人原因产生的退款，发货运费由买家承担，退货运费由双方协商解决。协商不成的，可申请平台客服调解。"}]}
+{"id":"q-002","question":"卖家一直不响应退款申请会怎么处理？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"refund.md","span":"买家发起退款后，系统将在二十四小时内通知卖家，卖家应在三个工作日内响应。卖家未响应的，系统将自动确认退款；卖家拒绝的，买家可提交平台介入，平台将在五个工作日内完成裁决。"}]}
+{"id":"q-003","question":"哪些商品不适用无理由退款？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"refund.md","span":"定制类商品、鲜活易腐商品与已拆封的音像制品不适用无理由退款。卖家应当在商品详情页以显著方式标注不适用条款，未标注的视为适用无理由退款规则。"}]}
+{"id":"q-004","question":"请病假需要提供什么材料？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"attendance.md","span":"员工请病假应当提供二级以上医疗机构出具的诊断证明与病假建议书，无法当日提供的，应当在返岗后三个工作日内补交。逾期未补交的，按事假处理，病假期间工资按当地规定执行。"}]}
+{"id":"q-005","question":"工作日加班的调休有效期是多久？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"attendance.md","span":"工作日加班可申请同等时长的调休，调休应当在加班发生后三个月内使用完毕，逾期自动作废。法定节假日加班的，按照国家规定支付三倍工资，不再安排调休。"}]}
+{"id":"q-006","question":"平台支持商品分期付款吗？","tags":["unanswerable"],"split":"test","answerable":false,"relevant":[]}

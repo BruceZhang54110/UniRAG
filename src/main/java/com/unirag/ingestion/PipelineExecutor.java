@@ -39,6 +39,9 @@ public class PipelineExecutor {
     static final String META_CHUNK_INDEX = "chunk_index";
     static final String META_DOCUMENT_VERSION_ID = "document_version_id";
 
+    static final String CHUNK_LEVEL_PARENT = "PARENT";
+    static final String CHUNK_LEVEL_CHILD = "CHILD";
+
     static final int MAX_ERROR_LENGTH = 500;
 
     private final TenantResourceRouter router;
@@ -84,12 +87,16 @@ public class PipelineExecutor {
 
             clearOldChunks(document.getId(), document.getIngestionVersionId(), pipeline.getId(), store);
 
-            List<TextSegment> segments = split(pipeline, document, content);
-            Response<List<Embedding>> response = model.embedAll(segments);
-            writtenIds = store.generateIds(segments.size());
-            store.addAll(writtenIds, response.content(), segments);
+            SplitPlan plan = split(pipeline, document, content);
+            // 父子策略：父块先落库拿自增 id，子块行才能回写 parent_chunk_id（contracts §4）
+            if (!plan.parentRows().isEmpty()) {
+                chunkService.saveBatch(plan.parentRows());
+            }
+            Response<List<Embedding>> response = model.embedAll(plan.segments());
+            writtenIds = store.generateIds(plan.segments().size());
+            store.addAll(writtenIds, response.content(), plan.segments());
 
-            List<DocumentChunk> chunks = toChunks(document, pipeline, segments, writtenIds);
+            List<DocumentChunk> chunks = toChunks(document, pipeline, plan, writtenIds);
             if (document.getIngestionVersionId() != null) {
                 chunks.forEach(chunk -> chunk.setDocumentVersionId(document.getIngestionVersionId()));
             }
@@ -148,31 +155,97 @@ public class PipelineExecutor {
         }
     }
 
-    /** 切片并附加契约四键 metadata（contracts §3）。 */
-    private List<TextSegment> split(IngestionPipeline pipeline, Document document, String content) {
+    /** 切片计划：子块片段（含契约 metadata）+ 需先落库的父块行 + 每个子块所属父块下标。 */
+    private record SplitPlan(List<TextSegment> segments,
+                             List<DocumentChunk> parentRows,
+                             List<Integer> childParentIndexes) {
+    }
+
+    /** 切片并附加契约四键 metadata（contracts §3）；父子策略额外产出父块行与归属下标。 */
+    private SplitPlan split(IngestionPipeline pipeline, Document document, String content) {
+        boolean parentChild = DocumentSplitterFactory.STRATEGY_PARENT_CHILD
+                .equalsIgnoreCase(String.valueOf(pipeline.getStrategy()).trim());
+        if (parentChild) {
+            return splitParentChild(pipeline, document, content);
+        }
         DocumentSplitter splitter = DocumentSplitterFactory.create(
                 pipeline.getStrategy(), pipeline.getMaxSegmentTokens(), pipeline.getOverlapTokens(), tokenizer);
         List<TextSegment> raw = splitter.split(dev.langchain4j.data.document.Document.from(content));
+        return new SplitPlan(withContractMetadata(document, pipeline, raw), List.of(), List.of());
+    }
+
+    /** 父子两级切分（020）：子块带契约 metadata；父块行未落库（id 由调用方先 saveBatch 获得）。 */
+    private SplitPlan splitParentChild(IngestionPipeline pipeline, Document document, String content) {
+        ParentChildSplitter splitter = DocumentSplitterFactory.createParentChild(
+                pipeline.getMaxSegmentTokens(), pipeline.getOverlapTokens(),
+                pipeline.getParentMaxTokens(), tokenizer);
+        List<ParentChildSplitter.ParentSplit> splits =
+                splitter.splitWithParents(dev.langchain4j.data.document.Document.from(content));
+        Date now = new Date();
+        List<DocumentChunk> parentRows = new ArrayList<>(splits.size());
+        List<TextSegment> segments = new ArrayList<>();
+        List<Integer> childParentIndexes = new ArrayList<>();
+        for (int parentIndex = 0; parentIndex < splits.size(); parentIndex++) {
+            ParentChildSplitter.ParentSplit split = splits.get(parentIndex);
+            parentRows.add(parentRow(document, pipeline, parentIndex, split.parentText(), now));
+            for (String childText : split.childTexts()) {
+                segments.add(segmentWithContractMetadata(document, pipeline, childText, segments.size()));
+                childParentIndexes.add(parentIndex);
+            }
+        }
+        return new SplitPlan(segments, parentRows, childParentIndexes);
+    }
+
+    /** 父块行：仅落库不向量化（FR-004），seq 在 (document, pipeline, version, PARENT) 内连续。 */
+    private DocumentChunk parentRow(Document document, IngestionPipeline pipeline,
+                                    int parentIndex, String content, Date now) {
+        DocumentChunk parent = new DocumentChunk();
+        parent.setDocumentId(document.getId());
+        parent.setDocumentVersionId(document.getIngestionVersionId());
+        parent.setPipelineId(pipeline.getId());
+        parent.setSeqIndex(parentIndex);
+        parent.setContent(content);
+        parent.setTokenCount(tokenizer.estimateTokens(content));
+        parent.setEmbeddingId(null);
+        parent.setChunkLevel(CHUNK_LEVEL_PARENT);
+        parent.setParentChunkId(null);
+        parent.setCreatedAt(now);
+        return parent;
+    }
+
+    /**
+     * 单级切分 metadata 重建：勿 copy 切片器产物（langchain4j 会自带 "index" 键），
+     * 保证恰好契约四键（contracts §3）；版本摄取追加版本键。
+     */
+    private List<TextSegment> withContractMetadata(Document document, IngestionPipeline pipeline,
+                                                   List<TextSegment> raw) {
         List<TextSegment> segments = new ArrayList<>(raw.size());
         for (int i = 0; i < raw.size(); i++) {
-            // 新建 metadata（勿 copy 切片器产物：langchain4j 会自带 "index" 键），保证恰好契约四键（contracts §3）
-            Metadata metadata = new Metadata();
-            metadata.put(META_DOC_NAME, document.getDocName());
-            metadata.put(META_DOCUMENT_ID, document.getId());
-            metadata.put(META_PIPELINE_KEY, pipeline.getPipelineKey());
-            metadata.put(META_CHUNK_INDEX, i);
-            if (document.getIngestionVersionId() != null) {
-                metadata.put(META_DOCUMENT_VERSION_ID, document.getIngestionVersionId());
-            }
-            segments.add(TextSegment.from(raw.get(i).text(), metadata));
+            segments.add(segmentWithContractMetadata(document, pipeline, raw.get(i).text(), i));
         }
         return segments;
     }
 
+    private TextSegment segmentWithContractMetadata(Document document, IngestionPipeline pipeline,
+                                                    String text, int chunkIndex) {
+        // 新建 metadata（勿 copy 切片器产物），保证恰好契约四键（contracts §3）
+        Metadata metadata = new Metadata();
+        metadata.put(META_DOC_NAME, document.getDocName());
+        metadata.put(META_DOCUMENT_ID, document.getId());
+        metadata.put(META_PIPELINE_KEY, pipeline.getPipelineKey());
+        metadata.put(META_CHUNK_INDEX, chunkIndex);
+        if (document.getIngestionVersionId() != null) {
+            metadata.put(META_DOCUMENT_VERSION_ID, document.getIngestionVersionId());
+        }
+        return TextSegment.from(text, metadata);
+    }
+
     private List<DocumentChunk> toChunks(Document document, IngestionPipeline pipeline,
-                                         List<TextSegment> segments, List<String> embeddingIds) {
+                                         SplitPlan plan, List<String> embeddingIds) {
         Date now = new Date();
+        List<TextSegment> segments = plan.segments();
         List<DocumentChunk> chunks = new ArrayList<>(segments.size());
+        boolean parentChild = !plan.parentRows().isEmpty();
         for (int i = 0; i < segments.size(); i++) {
             DocumentChunk chunk = new DocumentChunk();
             chunk.setDocumentId(document.getId());
@@ -182,6 +255,10 @@ public class PipelineExecutor {
             chunk.setContent(segments.get(i).text());
             chunk.setTokenCount(tokenizer.estimateTokens(segments.get(i).text()));
             chunk.setEmbeddingId(embeddingIds.get(i));
+            chunk.setChunkLevel(CHUNK_LEVEL_CHILD);
+            if (parentChild) {
+                chunk.setParentChunkId(plan.parentRows().get(plan.childParentIndexes().get(i)).getId());
+            }
             chunk.setCreatedAt(now);
             chunks.add(chunk);
         }

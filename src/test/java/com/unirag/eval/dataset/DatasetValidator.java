@@ -149,6 +149,15 @@ public final class DatasetValidator {
                     "管线缺少 modelKey: " + pipeline.key());
             require(pipeline.storeKey() != null && !pipeline.storeKey().isBlank(), "V-008",
                     "管线缺少 storeKey: " + pipeline.key());
+            // 020 父子策略：合法策略枚举 + PARENT_CHILD 必须配置合法的父块上限
+            String strategy = pipeline.strategy() == null ? "" : pipeline.strategy().trim().toUpperCase();
+            require(Set.of("RECURSIVE", "PARENT_CHILD").contains(strategy), "V-008",
+                    "未知切片策略: " + pipeline.key() + " -> " + pipeline.strategy());
+            if ("PARENT_CHILD".equals(strategy)) {
+                require(pipeline.parentMaxTokens() != null
+                                && pipeline.parentMaxTokens() > pipeline.maxSegmentTokens(), "V-008",
+                        "PARENT_CHILD 管线的 parentMaxTokens 必须大于 maxSegmentTokens: " + pipeline.key());
+            }
         }
     }
 

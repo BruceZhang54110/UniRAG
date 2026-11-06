@@ -58,6 +58,12 @@ public class ObservationMetrics {
         timer("unirag.rag.route.duration", tenantCode).record(duration);
     }
 
+    /** 父块回填量与延迟（020，FR-010）；状态取 SUCCESS/DEGRADED（父块缺失降级）。 */
+    public void recordParentFetch(String tenantCode, StageStatus status, Duration duration) {
+        registry.counter("unirag.parent.fetch.requests", TENANT_TAG, tenantCode, STATUS_TAG, status.name()).increment();
+        timer("unirag.parent.fetch.duration", tenantCode).record(duration);
+    }
+
     /** 留存清理量（T040）：全局计数，不带租户标签（清理任务不区分租户）。 */
     public void recordRetentionCleanup(int deleted) {
         if (deleted > 0) {

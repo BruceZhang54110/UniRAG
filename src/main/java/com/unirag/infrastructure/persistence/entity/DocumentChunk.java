@@ -44,6 +44,18 @@ public class DocumentChunk {
     @TableField("embedding_id")
     private String embeddingId;
 
+    /** 切片层级：PARENT=父块（不向量化）；CHILD=子块。 */
+    @TableField("chunk_level")
+    private String chunkLevel;
+
+    /** 子块→父块自引用（同 document+pipeline+version 作用域）；父块与单级切片为 NULL。 */
+    @TableField("parent_chunk_id")
+    private Long parentChunkId;
+
+    /** 非持久化：findParentsByChildSeqIndexes 查询回带的子块 seq（回填映射键）。 */
+    @com.baomidou.mybatisplus.annotation.TableField(exist = false)
+    private Integer childSeq;
+
     @TableField("created_at")
     private Date createdAt;
 }

@@ -114,6 +114,55 @@ class DatasetValidatorTest {
         assertRule("V-002", dataset);
     }
 
+    @Test
+    void rejectsUnknownPipelineStrategy() {
+        EvaluationDataset dataset = datasetWithPipeline(
+                new PipelineConfig("pc", 300, 50, "eval-embedding", "eval-store", "UNKNOWN", null));
+        assertRule("V-008", dataset);
+    }
+
+    @Test
+    void rejectsParentChildWithoutParentMaxTokens() {
+        EvaluationDataset dataset = datasetWithPipeline(
+                new PipelineConfig("pc", 300, 50, "eval-embedding", "eval-store", "PARENT_CHILD", null));
+        assertRule("V-008", dataset);
+    }
+
+    @Test
+    void rejectsParentChildParentMaxNotGreaterThanChild() {
+        EvaluationDataset dataset = datasetWithPipeline(
+                new PipelineConfig("pc", 300, 50, "eval-embedding", "eval-store", "PARENT_CHILD", 300));
+        assertRule("V-008", dataset);
+    }
+
+    @Test
+    void acceptsValidParentChildPipeline() {
+        EvaluationDataset dataset = datasetWithPipeline(
+                new PipelineConfig("pc", 300, 50, "eval-embedding", "eval-store", "PARENT_CHILD", 1200));
+        assertDoesNotThrow(() -> validator.validate(dataset, "baseline"));
+    }
+
+    @Test
+    void defaultsStrategyToRecursiveWhenOmitted() {
+        PipelineConfig pipeline = new PipelineConfig("fine", 300, 50, "eval-embedding", "eval-store");
+        assertThatStrategyIsRecursive(pipeline);
+    }
+
+    private void assertThatStrategyIsRecursive(PipelineConfig pipeline) {
+        org.junit.jupiter.api.Assertions.assertEquals("RECURSIVE", pipeline.strategy());
+        org.junit.jupiter.api.Assertions.assertNull(pipeline.parentMaxTokens());
+    }
+
+    private EvaluationDataset datasetWithPipeline(PipelineConfig pipeline) {
+        DatasetConfig config = new DatasetConfig("baseline", "eval_baseline",
+                new StoreConfig("embeddings_eval_baseline", 1024),
+                List.of(pipeline),
+                new RetrievalConfig(5, 20, 0.2, false, false),
+                new MetricConfig(List.of(1, 3, 5, 10), 50));
+        return new EvaluationDataset("baseline", corpus(), List.of(query("q-1", true, "目标片段")),
+                config, Map.of(), "h", "h", "h", "v");
+    }
+
     private void assertRule(String rule, EvaluationDataset dataset) {
         DatasetValidationException error = assertThrows(DatasetValidationException.class,
                 () -> validator.validate(dataset, "baseline"));

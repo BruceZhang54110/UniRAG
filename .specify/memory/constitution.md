@@ -1,29 +1,32 @@
 <!--
 Sync Impact Report
 ==================
-版本变更: 1.1.0 → 1.2.0
-变更类型: MINOR（新增原则 VII"体量相称，复用优先"）
+版本变更: 1.2.0 → 1.3.0
+变更类型: MINOR（新增原则 VIII"单文件行数红线"）
 历史: 1.0.0 首次批准（2026-10-14，初始采用）→ 1.1.0（2026-10-23，新增原则 VI
-     与"目标架构与包结构"章节）→ 1.2.0（2026-10-29，新增原则 VII）
+     与"目标架构与包结构"章节）→ 1.2.0（2026-10-29，新增原则 VII）→
+     1.3.0（2026-11-05，新增原则 VIII）
 
 新增原则:
-  VII. 体量相称，复用优先
+  VIII. 单文件行数红线
 
-修改原则: 无（原则 I–VI 原文保留）
+修改原则: 无（原则 I–VII 原文保留）
 
 新增章节: 无
 
 移除章节: 无
 
 依赖产物一致性核查:
-  ✅ .specify/templates/plan-template.md — Constitution Check 为通用占位并已含
-     Complexity Tracking 表，与本原则"超体量实现须论证"的落点一致，无需修改
+  ✅ .specify/templates/plan-template.md — Constitution Check 为通用占位
+     （"Gates determined based on constitution file"），无硬编码原则编号，
+     与新红线的落点（plan 门禁 + 评审检查项）一致，无需修改
   ✅ .specify/templates/spec-template.md / tasks-template.md / checklist-template.md —
      无原则相关硬编码，无需修改
-  ✅ .kimi-code/skills/speckit-*/SKILL.md — 未硬编码任何宪法条款编号，无需修改
-  ✅ README.md / AGENTS.md — 均未引用具体宪法原则，无需同步
-  ✅ Governance"合规审查"条款 — 已在宪法文件内同步将原则 VII 纳入 implement
-     阶段复核清单（I、III、V、VI → I、III、V、VI、VII）
+  ✅ .kimi-code/skills/speckit-*/SKILL.md — 未硬编码任何宪法原则编号，无需修改
+  ✅ README.md / AGENTS.md — README 仅泛化链接 constitution 文件，未引用具体原则，
+     无需同步
+  ✅ Governance"合规审查"条款 — 已同步将原则 VIII 纳入 implement 阶段复核清单
+     （I、III、V、VI、VII → I、III、V、VI、VII、VIII）
 
 延期项: 无 TODO 占位符
 -->
@@ -120,6 +123,22 @@ Sync Impact Report
 理由：代码量不匹配功能的背后几乎总是没有复用或过度设计；本项目按 spec/plan/tasks 小步交付，
 每一 feature 的实现体量都应可被一眼审完。
 
+### VIII. 单文件行数红线
+
+**单个 Java 源文件 MUST NOT 超过 1500 行**（`wc -l` 口径，含 import、空行与注释）。
+
+- **预警阈值**：单文件超过 1200 行即视为拆分信号；新增代码导致文件逼近上限时，MUST 优先按职责
+  内聚拆分（提取策略实现、值对象、内部类、组装器），MUST NOT 以"类还算内聚"为由放任膨胀。
+- **超限例外**：确需超过 1500 行的场景（如宽度固有的策略注册表），MUST 在 plan 的
+  Complexity Tracking 中论证"更简单的替代方案为何不够"，并在源文件头部注明保留理由
+  （与原则 I、VII 同一论证落点）。
+- **评审检查项**：评审与合并前 MUST 检查变更涉及文件的行数；超限且无论证的变更 MUST NOT 通过。
+- **存量文件**：存量超线文件不强制立即拆分，但 MUST NOT 继续增长；每次修改触及该文件时，
+  SHOULD 顺带完成向红线的收敛。
+
+理由：文件行数是复杂度最直观的先行指标——1500 行已超出单人单屏审阅与心智加载上限，
+继续膨胀通常意味着职责泄漏或抽象缺失；用硬红线把它挡在评审环节，成本远低于事后拆分。
+
 ## 技术栈与工程约束
 
 - **语言与框架**：Java 21 + Spring Boot 3.5.16（父 POM 锁定版本），构建走 Maven Wrapper（`./mvnw`），MUST NOT 依赖系统安装的 Maven。
@@ -196,7 +215,7 @@ com.unirag
 - **质量门**：任何变更在声明完成前 MUST 通过 `./mvnw test`（含集成测试）；测试红灯时 MUST NOT 声明完成。
 - **规格产物纳入版本控制**：`specs/` 下的 spec / plan / tasks / contracts MUST 进入 Git，MUST NOT 被 gitignore 排除。
 - **一致性维护**：修改被 `AGENTS.md` 或 `README.md` 记录的行为时，MUST 同步更新对应文档。
-- **评审重点**：新增代码是否重复造轮子、是否引入无理由的抽象或依赖、是否有对应的验证用例。
+- **评审重点**：新增代码是否重复造轮子、是否引入无理由的抽象或依赖、是否有对应的验证用例、变更文件是否触碰单文件行数红线（原则 VIII）。
 
 ## Governance
 
@@ -206,7 +225,7 @@ com.unirag
   - **MAJOR**：移除或重定义原则，导致既有做法不再合规。
   - **MINOR**：新增原则或章节，或对既有指导做实质性扩展。
   - **PATCH**：措辞澄清、错别字修正等非语义调整。
-- **合规审查**：每个 plan MUST 通过 Constitution Check；存在违反时 MUST 在 plan 的 Complexity Tracking 表中给出理由与被否决的更简单替代方案。plan 的 Project Structure 段 MUST 与本宪法的"目标架构与包结构"一致。implement 阶段 MUST 复核原则 I、III、V、VI、VII 的落实情况。
+- **合规审查**：每个 plan MUST 通过 Constitution Check；存在违反时 MUST 在 plan 的 Complexity Tracking 表中给出理由与被否决的更简单替代方案。plan 的 Project Structure 段 MUST 与本宪法的"目标架构与包结构"一致。implement 阶段 MUST 复核原则 I、III、V、VI、VII、VIII 的落实情况。
 - 运行时开发指导以 `AGENTS.md` 与 `README.md` 为入口，二者 MUST NOT 与本宪法冲突。
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-29
+**Version**: 1.3.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-11-05

@@ -33,13 +33,15 @@ class ObservationChainIT extends AbstractRetrievalIT {
     private static final String TABLE = "embeddings_obschain_main";
     private static final String DOC = "chain-doc-a";
 
+    /** 020-parent-child-chunking 起问答链含 PARENT_FETCH 父块回填（纯检索链不含）。 */
     private static final List<String> QA_STAGES = List.of(
-            "ROUTE", "QUERY_EMBEDDING", "VECTOR_SEARCH", "MERGE", "PROMPT_ASSEMBLY", "CHAT_GENERATION");
+            "ROUTE", "QUERY_EMBEDDING", "VECTOR_SEARCH", "MERGE", "PARENT_FETCH",
+            "PROMPT_ASSEMBLY", "CHAT_GENERATION");
 
     /** 携带 sessionId 的问答额外产生 CHAT_MEMORY 观测行（015-chat-memory，FR-008）。 */
     private static final List<String> QA_STAGES_WITH_MEMORY = List.of(
-            "ROUTE", "QUERY_EMBEDDING", "VECTOR_SEARCH", "MERGE", "PROMPT_ASSEMBLY",
-            "CHAT_MEMORY", "CHAT_GENERATION");
+            "ROUTE", "QUERY_EMBEDDING", "VECTOR_SEARCH", "MERGE", "PARENT_FETCH",
+            "PROMPT_ASSEMBLY", "CHAT_MEMORY", "CHAT_GENERATION");
     private static final List<String> RETRIEVAL_STAGES = List.of(
             "QUERY_EMBEDDING", "VECTOR_SEARCH", "MERGE");
 

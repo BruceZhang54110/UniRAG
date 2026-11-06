@@ -23,4 +23,13 @@ public interface DocumentChunkMapper extends BaseMapper<DocumentChunk> {
      */
     int deleteByDocumentAndPipeline(@Param("documentId") Long documentId,
                                     @Param("pipelineId") Long pipelineId);
+
+    /**
+     * 按子块 (document_id, pipeline_id, seq_index) 经 parent_chunk_id join 取回父块行
+     * （020 PARENT_FETCH 回填）。Map 键 = 子块 seq_index，值 = 父块行。
+     */
+    @org.apache.ibatis.annotations.MapKey("childSeq")
+    java.util.Map<Integer, DocumentChunk> findParentsByChildSeqIndexes(@Param("documentId") Long documentId,
+                                                                       @Param("pipelineId") Long pipelineId,
+                                                                       @Param("childSeqIndexes") List<Integer> childSeqIndexes);
 }

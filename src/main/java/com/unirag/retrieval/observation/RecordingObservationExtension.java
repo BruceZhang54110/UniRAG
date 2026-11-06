@@ -48,6 +48,11 @@ public class RecordingObservationExtension implements ObservationExtension {
 
     @Override
     public void afterStage(StageName stage, Object output, StageOutcome outcome, StageContext ctx) {
+        if (stage == StageName.PARENT_FETCH) {
+            // 020：PARENT_FETCH 的观测行由 ParentFetchObservationExtension 专属承载
+            // （含去重/截断/降级明细），通用记录器不重复落行
+            return;
+        }
         for (StageResult result : describe(stage, output, outcome)) {
             recorder.record(ctx, result);
         }
@@ -68,7 +73,7 @@ public class RecordingObservationExtension implements ObservationExtension {
             return describeSearch(search, outcome);
         }
         if (output instanceof MergeResult merge) {
-            return List.of(describeMerge(merge, outcome));
+            return List.of(describeMerge(stage, merge, outcome));
         }
         if (output instanceof PromptBundle bundle) {
             return List.of(entry(stage, null, outcome, null, null, bundle.citations().size()));
@@ -94,11 +99,12 @@ public class RecordingObservationExtension implements ObservationExtension {
     }
 
     /** 部分表失败时整体仍返回，故归并记录为 DEGRADED（data-model.md §6）。 */
-    private StageResult describeMerge(MergeResult merge, StageOutcome outcome) {
+    private StageResult describeMerge(StageName stage, MergeResult merge, StageOutcome outcome) {
         StageOutcome mergeOutcome = merge.failedTables().isEmpty()
                 ? outcome
                 : StageOutcome.degraded(outcome.durationMs(), summarise(merge.failedTables()));
-        return entry(StageName.MERGE, null, mergeOutcome,
+        // stage 用实际阶段：MERGE 与 PARENT_FETCH 的输出同为 MergeResult（020），行标签必须区分
+        return entry(stage, null, mergeOutcome,
                 merge.chunks().size(), maxChunkScore(merge.chunks()), null);
     }
 

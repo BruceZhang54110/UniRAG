@@ -1,0 +1,30 @@
+{
+  "name": "pc-compare-parent",
+  "tenant": "eval_pc_compare",
+  "store": {
+    "table": "embeddings_eval_pc_parent",
+    "dimension": 8
+  },
+  "pipelines": [
+    {
+      "key": "pc",
+      "maxSegmentTokens": 48,
+      "overlapTokens": 6,
+      "modelKey": "eval-embedding",
+      "storeKey": "eval-store",
+      "strategy": "PARENT_CHILD",
+      "parentMaxTokens": 384
+    }
+  ],
+  "retrieval": {
+    "topK": 3,
+    "recallTopK": 5,
+    "minScore": 0.0,
+    "rerank": false,
+    "rewrite": false
+  },
+  "metrics": {
+    "k": [1, 3, 5],
+    "diagnosticTopK": 10
+  }
+}
