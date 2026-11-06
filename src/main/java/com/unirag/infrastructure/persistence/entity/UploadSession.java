@@ -42,6 +42,10 @@ public class UploadSession {
     @TableField("content_sha256")
     private String contentSha256;
 
+    /** 原始文件名（022）：决定入库抽取路径；NULL 为旧会话，完成时回退 {docName}.txt。 */
+    @TableField("file_name")
+    private String fileName;
+
     /** INIT / COMPLETED / EXPIRED。 */
     @TableField("status")
     private String status;

@@ -29,28 +29,36 @@ public class UploadSessionService {
     private final UploadProperties uploadProperties;
     private final TenantContext tenantContext;
     private final DocumentStorage documentStorage;
+    private final FileTypeValidator fileTypeValidator;
 
     public UploadSessionService(
             com.unirag.infrastructure.persistence.service.UploadSessionService mpSessionService,
             com.unirag.infrastructure.persistence.service.UploadChunkService mpChunkService,
             UploadProperties uploadProperties,
             TenantContext tenantContext,
-            DocumentStorage documentStorage) {
+            DocumentStorage documentStorage,
+            FileTypeValidator fileTypeValidator) {
         this.mpSessionService = mpSessionService;
         this.mpChunkService = mpChunkService;
         this.uploadProperties = uploadProperties;
         this.tenantContext = tenantContext;
         this.documentStorage = documentStorage;
+        this.fileTypeValidator = fileTypeValidator;
     }
 
     /**
      * 初始化上传会话：派生参数一致性校验（totalSize/chunkSize/totalChunks 关系与上限）。
      */
     public UploadSession create(String docName, String title, long totalSize, int chunkSize,
-                                int totalChunks, String contentSha256) {
+                                int totalChunks, String contentSha256, String fileName) {
         if (docName == null || docName.isBlank() || docName.length() > 255) {
             throw new ApiException("VALIDATION_FAILED", "docName 为空或长度超过 255");
         }
+        // 022：原始文件名（含扩展名）决定入库抽取路径；缺省回退 {docName}.txt 保持旧客户端兼容。
+        String effectiveFileName = (fileName == null || fileName.isBlank())
+                ? docName + ".txt"
+                : fileTypeValidator.sanitizeFileName(fileName);
+        fileTypeValidator.validateFileName(effectiveFileName);
         if (totalSize <= 0 || totalSize > uploadProperties.getMaxFileSize()) {
             throw new ApiException("VALIDATION_FAILED",
                     "totalSize 非法或超过单文件上限 " + uploadProperties.getMaxFileSize() + " 字节");
@@ -76,6 +84,7 @@ public class UploadSessionService {
         session.setChunkSize(chunkSize);
         session.setTotalChunks(totalChunks);
         session.setContentSha256(contentSha256.toLowerCase());
+        session.setFileName(effectiveFileName);
         session.setStatus("INIT");
         session.setCreatedAt(now);
         session.setUpdatedAt(now);

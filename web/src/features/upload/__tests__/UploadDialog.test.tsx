@@ -1,22 +1,23 @@
 /**
- * T035 / US3 测试：最小上传对话框。
+ * T035 / US3 测试：最小上传对话框（022 扩展：pdf/docx 白名单、分档大小上限、分块上传路由）。
  *
- * 覆盖 ui-contract §2.8 的可断言行为：
- * 前置校验失败**不发起请求**、四种结果文案映射、202 降级不得判为失败。
+ * 覆盖 ui-contract §2.8 + contracts/upload-formats.md §7 的可断言行为：
+ * 前置校验失败**不发起请求**、四种结果文案映射、超大文件自动走分块路径。
  *
  * 实现事实（决定了断言写法）：
  * 1. `@lobehub/ui` 的 `Upload` 会先按 `accept` 过滤文件，再交给 `onFiles`；
- *    因此非法扩展名根本不会到达组件逻辑，尺寸限制才由本组件校验。
- * 2. 这里 mock 掉 `@/api/documents` 的 `uploadDocument`，而不是篡改全局 `XMLHttpRequest`
- *    ——后者会干扰 antd-style 等库在 jsdom 中的行为，导致测试进程异常缓慢。
+ *    不在 accept 白名单内的扩展名不会到达组件逻辑，尺寸/扩展名校验由本组件承担。
+ * 2. 这里 mock 掉 `@/api/documents` 的 `uploadDocument` / `uploadDocumentChunked`，
+ *    不篡改全局 `XMLHttpRequest`。
  */
 
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { uploadDocument, type UploadResult } from '@/api/documents';
+import { uploadDocument, uploadDocumentChunked, type UploadResult } from '@/api/documents';
 import { zhCN } from '@/content/zh-CN';
 import UploadDialog, {
+  MAX_BINARY_BYTES,
   MAX_UPLOAD_BYTES,
   defaultDocName,
   uploadResultText,
@@ -27,10 +28,11 @@ import { renderWithProviders } from '@/test/render';
 
 vi.mock('@/api/documents', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/api/documents')>();
-  return { ...actual, uploadDocument: vi.fn() };
+  return { ...actual, uploadDocument: vi.fn(), uploadDocumentChunked: vi.fn() };
 });
 
 const uploadMock = vi.mocked(uploadDocument);
+const chunkedMock = vi.mocked(uploadDocumentChunked);
 
 const BASE_RESULT: UploadResult = {
   docName: 'handbook',
@@ -64,16 +66,21 @@ afterEach(() => {
 });
 
 describe('上传校验纯函数', () => {
-  it('只接受 txt / md / markdown，大小写不敏感', () => {
+  it('接受 txt / md / markdown / pdf / docx，大小写不敏感', () => {
     expect(validateFile(makeFile('a.txt'))).toBeNull();
     expect(validateFile(makeFile('a.md'))).toBeNull();
     expect(validateFile(makeFile('a.MARKDOWN'))).toBeNull();
-    expect(validateFile(makeFile('a.pdf'))).toBe(zhCN.upload.invalidType);
+    expect(validateFile(makeFile('a.pdf'))).toBeNull();
+    expect(validateFile(makeFile('a.Docx'))).toBeNull();
+    expect(validateFile(makeFile('a.xlsx'))).toBe(zhCN.upload.invalidType);
   });
 
-  it('超过 10 MB 直接拒绝', () => {
+  it('按类型分档限制大小：文本 10 MiB，PDF/Word 50 MiB（022 FR-007）', () => {
     expect(validateFile(makeFile('a.md', MAX_UPLOAD_BYTES + 1))).toBe(zhCN.upload.fileTooLarge);
     expect(validateFile(makeFile('a.md', MAX_UPLOAD_BYTES))).toBeNull();
+    // PDF 超过 50 MiB 拒绝，20 MiB 放行（走分块）
+    expect(validateFile(makeFile('a.pdf', MAX_BINARY_BYTES + 1))).toBe(zhCN.upload.fileTooLarge);
+    expect(validateFile(makeFile('a.pdf', 20 * 1024 * 1024))).toBeNull();
   });
 
   it('文档标识非空且不超过 255 字符', () => {
@@ -96,7 +103,7 @@ describe('上传校验纯函数', () => {
 });
 
 describe('UploadDialog', () => {
-  it('超大文件就地提示，且提交时不发起请求', async () => {
+  it('超过格式上限的文件就地提示，且提交时不发起请求', async () => {
     renderWithProviders(<UploadDialog open onClose={vi.fn()} onUploaded={vi.fn()} />);
 
     await pickFile('handbook.md', MAX_UPLOAD_BYTES + 1);
@@ -104,19 +111,33 @@ describe('UploadDialog', () => {
 
     clickSubmit();
     expect(uploadMock).not.toHaveBeenCalled();
+    expect(chunkedMock).not.toHaveBeenCalled();
   });
 
   it('非法扩展名被 accept 过滤，不进入上传流程也不发请求', async () => {
     renderWithProviders(<UploadDialog open onClose={vi.fn()} onUploaded={vi.fn()} />);
 
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    fireEvent.change(input, { target: { files: [makeFile('report.pdf')] } });
+    fireEvent.change(input, { target: { files: [makeFile('report.xlsx')] } });
 
     // 未选中任何文件：界面仍显示选择提示，提交时提示"请先选择文件"
     expect(screen.getByText(zhCN.upload.pickFile)).toBeInTheDocument();
 
     clickSubmit();
     expect(await screen.findByTestId('upload-issue')).toHaveTextContent(zhCN.upload.fileRequired);
+    expect(uploadMock).not.toHaveBeenCalled();
+  });
+
+  it('超过 10 MiB 的合规 PDF 自动走分块上传路径', async () => {
+    chunkedMock.mockResolvedValue({ kind: 'completed', result: BASE_RESULT });
+    renderWithProviders(<UploadDialog open onClose={vi.fn()} onUploaded={vi.fn()} />);
+
+    await pickFile('big-report.pdf', MAX_UPLOAD_BYTES + 1);
+    clickSubmit();
+
+    expect(await screen.findByTestId('upload-result')).toHaveTextContent(zhCN.upload.results.INGESTED);
+    expect(chunkedMock).toHaveBeenCalledTimes(1);
+    expect(chunkedMock.mock.calls[0][0]).toMatchObject({ docName: 'big-report' });
     expect(uploadMock).not.toHaveBeenCalled();
   });
 
@@ -152,6 +173,25 @@ describe('UploadDialog', () => {
     clickSubmit();
 
     expect(await screen.findByTestId('upload-result')).toHaveTextContent(zhCN.upload.results.FAILED);
+  });
+
+  it('异步终态失败展示服务端安全文案（022）', async () => {
+    chunkedMock.mockResolvedValue({
+      kind: 'completed',
+      result: {
+        ...BASE_RESULT,
+        status: 'FAILED',
+        failureMessage: '文件损坏或格式不受支持，无法提取文字',
+      },
+    });
+    renderWithProviders(<UploadDialog open onClose={vi.fn()} onUploaded={vi.fn()} />);
+
+    await pickFile('broken.pdf', MAX_UPLOAD_BYTES + 1);
+    clickSubmit();
+
+    expect(await screen.findByTestId('upload-failure')).toHaveTextContent(
+      '文件损坏或格式不受支持，无法提取文字',
+    );
   });
 
   it('异步 202 走降级分支：提示已接收，不判为失败', async () => {

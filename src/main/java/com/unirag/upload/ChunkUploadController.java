@@ -46,7 +46,8 @@ public class ChunkUploadController {
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<Map<String, Object>> init(@RequestBody UploadInitRequest request) {
         UploadSession session = sessionService.create(request.docName(), request.title(),
-                request.totalSize(), request.chunkSize(), request.totalChunks(), request.contentSha256());
+                request.totalSize(), request.chunkSize(), request.totalChunks(), request.contentSha256(),
+                request.fileName());
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("uploadId", session.getId());
         data.put("expiresAt", session.getExpiresAt().getTime());
@@ -77,6 +78,6 @@ public class ChunkUploadController {
 
     /** 初始化请求体（contracts §3-①）。 */
     public record UploadInitRequest(String docName, String title, long totalSize, int chunkSize,
-                                    int totalChunks, String contentSha256) {
+                                    int totalChunks, String contentSha256, String fileName) {
     }
 }

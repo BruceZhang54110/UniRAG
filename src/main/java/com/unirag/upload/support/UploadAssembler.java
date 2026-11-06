@@ -58,9 +58,9 @@ public class UploadAssembler {
                     "拼装结果与初始化声明的 contentSha256 不一致，请重传全部块或新建会话");
         }
 
-        // 与一次性上传共用核心（落原文对象 → 005 摄取 → 元数据）；原文名为 docName（契约 §3 无 fileName 字段）
+        // 与一次性上传共用核心（落原文对象 → 005 摄取 → 元数据）；fileName 取自会话（022）
         DocumentUploadResponse response = uploadService.finalizeUpload(
-                session.getDocName(), session.getTitle(), session.getDocName() + ".txt", assembled);
+                session.getDocName(), session.getTitle(), session.getFileName(), assembled);
         sessionService.deleteSessionWithChunks(uploadId);
         log.info("Chunked upload completed: tenantSession={}, doc={}, size={}",
                 uploadId, session.getDocName(), assembled.length);
@@ -81,7 +81,7 @@ public class UploadAssembler {
                     "拼装结果与初始化声明的 contentSha256 不一致，请重传全部块或新建会话");
         }
         AsyncDocumentUploadResponse response = uploadService.finalizeUploadAsyncChunked(
-                session.getDocName(), session.getTitle(), "upload.txt", assembled);
+                session.getDocName(), session.getTitle(), session.getFileName(), assembled);
         sessionService.deleteSessionWithChunks(uploadId);
         log.info("Chunked upload accepted: session={}, doc={}, size={}",
                 uploadId, session.getDocName(), assembled.length);

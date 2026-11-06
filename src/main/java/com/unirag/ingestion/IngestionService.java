@@ -80,7 +80,12 @@ public class IngestionService {
             throw new IllegalArgumentException("Unknown tenant: " + request.tenantCode());
         }
         List<IngestionPipeline> pipelines = pipelineService.findEnabledByTenant(tenant.getId());
-        String fingerprint = DocumentFingerprint.sha256(request.content());
+        // 022：fingerprint 一律以原始字节为准（spec FR-008）。二进制格式（pdf/docx）经抽取后
+        // content 为文本，其哈希与字节哈希不同——调用方传 expectedFingerprint（字节 SHA-256）时优先采用；
+        // 未传（文本类直传/既有调用）时 content 即原始字节，回退到 content 哈希保持行为不变。
+        String fingerprint = request.expectedFingerprint() != null && !request.expectedFingerprint().isBlank()
+                ? request.expectedFingerprint()
+                : DocumentFingerprint.sha256(request.content());
         Document document = documentService.findByTenantAndName(tenant.getId(), request.docName());
 
         if (request.versionId() != null) {

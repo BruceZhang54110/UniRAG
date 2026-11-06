@@ -21,6 +21,10 @@ public interface DocumentIngestionJobMapper extends BaseMapper<DocumentIngestion
 
     int recoverExpiredLeases();
 
+    /** 记录抽取字符数（022 FR-011）：仅在 PROCESSING 且租约有效时生效，markReady 之前调用。 */
+    int recordExtractedChars(@Param("id") Long id, @Param("token") String token,
+                             @Param("extractedChars") long extractedChars);
+
     Long lockTenant(@Param("tenantId") Long tenantId);
 
     Integer nextVersion(@Param("tenantId") Long tenantId, @Param("documentId") Long documentId);

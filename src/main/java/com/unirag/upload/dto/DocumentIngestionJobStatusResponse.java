@@ -6,7 +6,7 @@ public record DocumentIngestionJobStatusResponse(Long jobId, Long documentId, St
                                                  Integer documentVersion, String status, String stage,
                                                  Integer attemptCount, Integer maxAttempts,
                                                  Date nextAttemptAt, Date createdAt, Date updatedAt,
-                                                 Date finishedAt, Error error) {
+                                                 Date finishedAt, Long extractedChars, Error error) {
     public record Error(String code, String message) {
     }
 }

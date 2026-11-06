@@ -24,6 +24,8 @@
         <langchain4j-pgvector.version>1.20.0-beta30</langchain4j-pgvector.version>
         <!-- Apache OpenDAL Java 绑定（独立于 Rust core 版本号，见 opendal.apache.org/docs/bindings/java） -->
         <opendal.version>0.50.6</opendal.version>
+        <!-- Apache Tika 3.3.x 稳定线：pdf/docx 文本抽取（spec FR-010 依赖最小集，不引 standard-package） -->
+        <tika.version>3.3.0</tika.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>21</maven.compiler.release>
@@ -108,6 +110,22 @@
             <artifactId>opendal</artifactId>
             <version>${opendal.version}</version>
             <classifier>${os.detected.classifier}</classifier>
+        </dependency>
+        <!-- Apache Tika：仅 core + pdf/microsoft 两个解析模块（依赖最小集，research R1） -->
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>${tika.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parser-pdf-module</artifactId>
+            <version>${tika.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parser-microsoft-module</artifactId>
+            <version>${tika.version}</version>
         </dependency>
     </dependencies>
 

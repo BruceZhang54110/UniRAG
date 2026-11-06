@@ -27,13 +27,15 @@ public class DocumentIngestionJobQueryService {
         return new DocumentIngestionJobStatusResponse(job.getId(), job.getDocumentId(), documentName,
                 job.getDocumentVersion(), job.getStatus(), job.getStage(), job.getAttemptCount(),
                 job.getMaxAttempts(), job.getNextAttemptAt(), job.getCreatedAt(), job.getUpdatedAt(),
-                job.getFinishedAt(), error);
+                job.getFinishedAt(), job.getExtractedChars(), error);
     }
 
     private String safeMessage(String code) {
         return switch (code) {
             case "TEMPORARY_INGESTION_FAILURE" -> "摄取服务暂时不可用，请等待自动重试";
             case "INGESTION_FAILED" -> "文档摄取失败，请检查文件后重试";
+            case "PARSE_FAILED" -> "文件损坏或格式不受支持，无法提取文字";
+            case "EMPTY_EXTRACTED_TEXT" -> "未能从文件中提取到文字内容，可能是扫描件或纯图片文档";
             default -> "文档摄取暂时未完成";
         };
     }

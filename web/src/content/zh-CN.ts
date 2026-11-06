@@ -102,7 +102,7 @@ export const zhCN = {
     title: '知识库还是空的',
     description: '三步就能开始问答，上传的文档只在你自己的知识库内使用',
     steps: [
-      { title: '上传文档', description: '支持 txt、md、markdown，单份不超过 10 MB' },
+      { title: '上传文档', description: '支持 txt、md、markdown、pdf、docx，文本单份不超过 10 MB，PDF/Word 不超过 50 MB' },
       { title: '自动处理', description: '系统会自动切分并建立索引，通常很快完成' },
       { title: '开始提问', description: '处理完成后回到首页，直接输入问题即可' },
     ],
@@ -111,7 +111,7 @@ export const zhCN = {
 
   actionCard: {
     title: '上传新文档，让知识库更聪明',
-    description: '支持 txt、md、markdown，单份不超过 10 MB',
+    description: '支持 txt、md、markdown、pdf、docx，文本单份不超过 10 MB，PDF/Word 不超过 50 MB',
     cta: '上传文档',
   },
 
@@ -152,7 +152,7 @@ export const zhCN = {
 
   upload: {
     title: '上传文档',
-    description: '支持 txt、md、markdown，单份不超过 10 MB',
+    description: '支持 txt、md、markdown、pdf、docx，文本单份不超过 10 MB，PDF/Word 不超过 50 MB',
     pickFile: '点击或拖拽文件到此处',
     changeFile: '重新选择',
     docNameLabel: '文档标识',
@@ -162,8 +162,9 @@ export const zhCN = {
     submit: '开始上传',
     cancel: '取消',
     uploading: '正在上传 {percent}%',
-    invalidType: '仅支持 txt、md、markdown 格式的文本文件',
-    fileTooLarge: '文件过大：直接上传上限 10 MB',
+    processing: '已接收，正在后台入库，请稍候…',
+    invalidType: '仅支持 txt、md、markdown、pdf、docx 格式的文件',
+    fileTooLarge: '文件过大：该格式单份上限 文本 10 MB / PDF·Word 50 MB',
     docNameRequired: '请填写文档标识',
     docNameTooLong: '文档标识不能超过 255 个字符',
     fileRequired: '请先选择文件',
@@ -243,7 +244,7 @@ export const zhCN = {
     /** 知识导航层告警条标题 */
     bannerTitle: '知识库读取失败',
     validationFailed: '提交的内容不符合要求，请检查后重试',
-    unsupportedFileType: '仅支持 txt、md、markdown 格式的文本文件',
+    unsupportedFileType: '仅支持 txt、md、markdown、pdf、docx 格式的文件',
     fileTooLarge: '文件过大：直接上传上限 10 MB',
     documentNotFound: '该文档不存在或已被移除',
     conflict: '操作冲突，请重试',

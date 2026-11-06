@@ -19,6 +19,7 @@
         <result property="leasedUntil" column="leased_until" jdbcType="TIMESTAMP"/>
         <result property="lastErrorCode" column="last_error_code" jdbcType="VARCHAR"/>
         <result property="lastErrorMessage" column="last_error_message" jdbcType="VARCHAR"/>
+        <result property="extractedChars" column="extracted_chars" jdbcType="BIGINT"/>
         <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
         <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
         <result property="startedAt" column="started_at" jdbcType="TIMESTAMP"/>
@@ -130,5 +131,11 @@
         UPDATE document_ingestion_job SET status='RETRYING', stage='CLAIMED', lease_token=NULL, leased_until=NULL,
             next_attempt_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP
         WHERE status='PROCESSING' AND leased_until &lt;= CURRENT_TIMESTAMP
+    </update>
+
+    <update id="recordExtractedChars">
+        UPDATE document_ingestion_job SET extracted_chars=#{extractedChars}, updated_at=CURRENT_TIMESTAMP
+        WHERE id=#{id} AND status='PROCESSING' AND lease_token=#{token}
+          AND leased_until &gt; CURRENT_TIMESTAMP
     </update>
 </mapper>

@@ -40,6 +40,7 @@ public class UploadService {
     private final IngestionService ingestionService;
     private final DocumentIngestionJobService ingestionJobService;
     private final AsyncIngestionProperties asyncProperties;
+    private final com.unirag.ingestion.support.DocumentTextExtractor textExtractor;
 
     public UploadService(TenantContext tenantContext,
                          FileTypeValidator fileTypeValidator,
@@ -49,7 +50,8 @@ public class UploadService {
                          DocumentFileService documentFileService,
                          IngestionService ingestionService,
                          DocumentIngestionJobService ingestionJobService,
-                         AsyncIngestionProperties asyncProperties) {
+                         AsyncIngestionProperties asyncProperties,
+                         com.unirag.ingestion.support.DocumentTextExtractor textExtractor) {
         this.tenantContext = tenantContext;
         this.fileTypeValidator = fileTypeValidator;
         this.uploadProperties = uploadProperties;
@@ -58,6 +60,7 @@ public class UploadService {
         this.documentFileService = documentFileService;
         this.ingestionService = ingestionService;
         this.ingestionJobService = ingestionJobService;
+        this.textExtractor = textExtractor;
         this.asyncProperties = asyncProperties;
     }
 
@@ -180,10 +183,17 @@ public class UploadService {
         }
         validateDocName(docName);
         fileTypeValidator.validateFileName(originalFilename);
-        fileTypeValidator.validateContent(bytes);
-        if (new String(bytes, StandardCharsets.UTF_8).isBlank()) {
+        fileTypeValidator.validateContent(originalFilename, bytes);
+        if (isTextFile(originalFilename) && new String(bytes, StandardCharsets.UTF_8).isBlank()) {
             throw new ApiException("VALIDATION_FAILED", "文件为空或仅包含空白字符");
         }
+    }
+
+    /** 文本类的空白检查在入口；二进制类（pdf/docx）的空白语义下沉到抽取后（DocumentTextExtractor）。 */
+    private boolean isTextFile(String originalFilename) {
+        String ext = originalFilename.substring(originalFilename.lastIndexOf('.') + 1)
+                .toLowerCase(java.util.Locale.ROOT);
+        return ext.equals("txt") || ext.equals("md") || ext.equals("markdown");
     }
 
     private int predictedVersion(String docName, String fingerprint) {
@@ -194,10 +204,12 @@ public class UploadService {
 
     private DocumentUploadResponse finalizeSynchronously(String docName, String title,
                                                           String originalFilename, byte[] bytes) {
-        String text = new String(bytes, StandardCharsets.UTF_8);
+        String text = textExtractor.extract(originalFilename, bytes);
         String tenantCode = tenantContext.getTenantCode();
+        // FR-008：指纹基于原始字节，保证与异步路径（版本对象字节指纹）去重语义一致
+        String bytesFingerprint = com.unirag.ingestion.support.DocumentFingerprint.sha256(bytes);
         IngestOutcome outcome = ingestionService.ingest(
-                new IngestRequest(tenantCode, docName, title, text, "upload"));
+                new IngestRequest(tenantCode, docName, title, text, "upload", null, null, bytesFingerprint));
         documentFileService.saveFileMeta(outcome.documentId(),
                 storagePathOf(tenantCode, docName, outcome.version()),
                 fileTypeValidator.sanitizeFileName(originalFilename),

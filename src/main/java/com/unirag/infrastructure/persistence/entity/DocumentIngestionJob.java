@@ -54,6 +54,10 @@ public class DocumentIngestionJob {
     @TableField("last_error_message")
     private String lastErrorMessage;
 
+    /** 抽取文本字符数（022 FR-011）；NULL 表示未走到抽取或同步路径。 */
+    @TableField("extracted_chars")
+    private Long extractedChars;
+
     @TableField("created_at")
     private Date createdAt;
 

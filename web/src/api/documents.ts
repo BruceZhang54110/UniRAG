@@ -60,6 +60,8 @@ export interface UploadResult {
   chunkCount: number;
   fileSizeBytes: number | null;
   pipelines: UploadPipelineResult[];
+  /** 异步终态失败时的服务端安全文案（022；仅 FAILED 时可能携带） */
+  failureMessage?: string;
 }
 
 /** 上传结果：`completed` 为同步 200 的最终结论；`accepted` 为异步 202 的降级分支 */
@@ -334,4 +336,199 @@ export function uploadDocument(params: UploadDocumentParams): Promise<UploadOutc
 
     xhr.send(form);
   });
+}
+
+/* ------------------------------------------------------------------ */
+/* 分块上传 + 异步任务轮询（022 pdf/docx，contracts/upload-formats.md §3/§4） */
+/* ------------------------------------------------------------------ */
+
+export const UPLOAD_CHUNK_SIZE = 5 * 1024 * 1024;
+
+const UPLOADS_PATH = '/v1/uploads';
+
+export interface AcceptedUpload {
+  kind: 'accepted';
+  documentId: number;
+  jobId: number;
+}
+
+export interface InitUploadSessionParams {
+  docName: string;
+  title?: string;
+  file: File;
+  chunkSize?: number;
+  signal?: AbortSignal;
+}
+
+async function sha256HexOf(buffer: ArrayBuffer): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', buffer);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+/** ① 初始化分块会话（声明全文 SHA-256 与原始文件名） */
+async function initUploadSession(params: InitUploadSessionParams): Promise<number> {
+  const chunkSize = params.chunkSize ?? UPLOAD_CHUNK_SIZE;
+  const totalChunks = Math.ceil(params.file.size / chunkSize);
+  const contentSha256 = await sha256HexOf(await params.file.arrayBuffer());
+  const payload = {
+    docName: params.docName,
+    title: params.title?.trim() || undefined,
+    totalSize: params.file.size,
+    chunkSize,
+    totalChunks,
+    contentSha256,
+    fileName: params.file.name,
+  };
+  const data = await apiRequest<unknown>(UPLOADS_PATH, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    signal: params.signal,
+  });
+  return toNumber(asRecord(data).uploadId);
+}
+
+/** ② 上传单块（raw body，同 seq 重传 = 幂等覆盖） */
+async function uploadChunk(uploadId: number, seq: number, chunk: Blob, signal?: AbortSignal): Promise<void> {
+  const response = await apiFetch(`${UPLOADS_PATH}/${uploadId}/chunks/${seq}`, {
+    method: 'PUT',
+    body: chunk,
+    headers: { 'Content-Type': 'application/octet-stream' },
+    signal,
+  });
+  await ensureOk(response);
+}
+
+/** ③ 完成会话：异步开启时返回 202 + 任务定位信息，否则同步返回最终入库结果 */
+async function completeUploadSession(
+  uploadId: number,
+  signal?: AbortSignal,
+): Promise<AcceptedUpload | { kind: 'completed'; result: UploadResult }> {
+  const response = await apiFetch(`${UPLOADS_PATH}/${uploadId}/complete`, { method: 'POST', signal });
+  const payload: unknown = await response.json().catch(() => null);
+  if (response.status === 202) {
+    const data = asRecord(asRecord(payload).data);
+    return {
+      kind: 'accepted',
+      documentId: toNumber(data.documentId),
+      jobId: toNumber(data.jobId),
+    };
+  }
+  await ensureOk(response);
+  return { kind: 'completed', result: normalizeUploadResult(asRecord(payload).data) };
+}
+
+export interface IngestionJobStatus {
+  status: string;
+  error: { code: string; message: string } | null;
+}
+
+function normalizeJobStatus(raw: unknown): IngestionJobStatus {
+  const payload = asRecord(raw);
+  const error = asRecord(payload.error);
+  return {
+    status: typeof payload.status === 'string' ? payload.status : 'UNKNOWN',
+    error: error.code
+      ? { code: String(error.code), message: typeof error.message === 'string' ? error.message : '' }
+      : null,
+  };
+}
+
+/** 任务状态查询（contracts §4） */
+export async function getIngestionJobStatus(
+  documentId: number,
+  jobId: number,
+  signal?: AbortSignal,
+): Promise<IngestionJobStatus> {
+  const data = await apiRequest<unknown>(
+    `${DOCUMENTS_PATH}/${documentId}/ingestion-jobs/${jobId}`,
+    { signal },
+  );
+  return normalizeJobStatus(data);
+}
+
+const JOB_TERMINAL_STATUSES = new Set(['READY', 'FAILED']);
+const JOB_POLL_INTERVAL_MS = 1000;
+const JOB_POLL_TIMEOUT_MS = 120_000;
+
+/** 轮询任务至终态：READY / FAILED（或超时/中止则抛 ApiError） */
+export async function pollIngestionJob(
+  documentId: number,
+  jobId: number,
+  signal?: AbortSignal,
+): Promise<IngestionJobStatus> {
+  const deadline = Date.now() + JOB_POLL_TIMEOUT_MS;
+  for (;;) {
+    const status = await getIngestionJobStatus(documentId, jobId, signal);
+    if (JOB_TERMINAL_STATUSES.has(status.status)) return status;
+    if (Date.now() >= deadline) {
+      throw new ApiError({ code: 'JOB_POLL_TIMEOUT', message: '入库处理超时，请稍后在文档列表查看结果', status: 408 });
+    }
+    await new Promise((resolve) => setTimeout(resolve, JOB_POLL_INTERVAL_MS));
+  }
+}
+
+export interface ChunkedUploadParams {
+  file: File;
+  docName: string;
+  title?: string;
+  onProgress?: (percent: number) => void;
+  signal?: AbortSignal;
+}
+
+/**
+ * 分块上传编排（> 一次性阈值的大文件）：初始化 → 逐块 → 完成 → （202 时）轮询至终态。
+ * 对外语义与 `uploadDocument` 一致：返回最终 `UploadOutcome`，失败抛 `ApiError`。
+ */
+export async function uploadDocumentChunked(params: ChunkedUploadParams): Promise<UploadOutcome> {
+  const uploadId = await initUploadSession({
+    docName: params.docName,
+    title: params.title,
+    file: params.file,
+    signal: params.signal,
+  });
+  const chunkSize = UPLOAD_CHUNK_SIZE;
+  const totalChunks = Math.ceil(params.file.size / chunkSize);
+  for (let seq = 0; seq < totalChunks; seq++) {
+    if (params.signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+    const chunk = params.file.slice(seq * chunkSize, Math.min((seq + 1) * chunkSize, params.file.size));
+    await uploadChunk(uploadId, seq, chunk, params.signal);
+    params.onProgress?.(Math.min(99, Math.round(((seq + 1) / totalChunks) * 100)));
+  }
+  const outcome = await completeUploadSession(uploadId, params.signal);
+  if (outcome.kind === 'completed') {
+    params.onProgress?.(100);
+    return outcome;
+  }
+  // 202：轮询任务至终态并归一为 UploadOutcome
+  const job = await pollIngestionJob(outcome.documentId, outcome.jobId, params.signal);
+  params.onProgress?.(100);
+  if (job.status === 'READY') {
+    return {
+      kind: 'completed',
+      result: {
+        docName: params.docName,
+        title: params.title?.trim() ?? null,
+        status: 'INGESTED',
+        version: 0,
+        chunkCount: 0,
+        fileSizeBytes: params.file.size,
+        pipelines: [],
+      },
+    };
+  }
+  return {
+    kind: 'completed',
+    result: {
+      docName: params.docName,
+      title: params.title?.trim() ?? null,
+      status: 'FAILED',
+      version: 0,
+      chunkCount: 0,
+      fileSizeBytes: params.file.size,
+      pipelines: [],
+      failureMessage: job.error?.message ?? undefined,
+    },
+  };
 }

@@ -159,4 +159,9 @@ public class DocumentIngestionJobService {
     public int recoverExpiredLeases() {
         return jobMapper.recoverExpiredLeases();
     }
+
+    /** 记录抽取字符数（022 FR-011 最小观测集）；租约失效时不写入，不影响任务流转。 */
+    public void recordExtractedChars(Long id, String token, long extractedChars) {
+        jobMapper.recordExtractedChars(id, token, extractedChars);
+    }
 }

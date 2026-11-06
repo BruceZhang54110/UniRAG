@@ -22,10 +22,12 @@ public class DocumentIngestionWorker {
     private final TenantMapper tenants;
     private final AsyncIngestionProperties properties;
     private final DocumentIngestionRetryPolicy retryPolicy;
+    private final com.unirag.ingestion.support.DocumentTextExtractor textExtractor;
 
     public DocumentIngestionWorker(DocumentIngestionJobClaimRepository claims, DocumentIngestionJobService jobs,
                                    IngestionService ingestion, DocumentStorage documentStorage, TenantMapper tenants,
-                                   AsyncIngestionProperties properties, DocumentIngestionRetryPolicy retryPolicy) {
+                                   AsyncIngestionProperties properties, DocumentIngestionRetryPolicy retryPolicy,
+                                   com.unirag.ingestion.support.DocumentTextExtractor textExtractor) {
         this.claims = claims;
         this.jobs = jobs;
         this.ingestion = ingestion;
@@ -33,6 +35,7 @@ public class DocumentIngestionWorker {
         this.tenants = tenants;
         this.properties = properties;
         this.retryPolicy = retryPolicy;
+        this.textExtractor = textExtractor;
     }
 
     public int runBatch() {
@@ -56,7 +59,8 @@ public class DocumentIngestionWorker {
             String docName = jobs.findDocumentName(job.getTenantId(), job.getDocumentId());
             if (docName == null || !jobs.markIngesting(job.getId(), token)) return;
             byte[] bytes = storage.read(version.getStoragePath());
-            String text = new String(bytes, StandardCharsets.UTF_8);
+            String text = textExtractor.extract(version.getFileName(), bytes);
+            jobs.recordExtractedChars(job.getId(), token, text.length());
             IngestOutcome outcome = ingestion.ingest(new IngestRequest(tenantCode, docName, version.getTitle(), text,
                     "async-job", version.getId(), job.getId(), job.getContentFingerprint()));
             if (outcome.status() != IngestOutcome.Status.INGESTED) {
@@ -66,8 +70,14 @@ public class DocumentIngestionWorker {
         } catch (Exception failure) {
             String code = failure instanceof JobFailure jobFailure ? jobFailure.code : retryPolicy.errorCode(failure);
             String message = retryPolicy.safeMessage(code);
-            jobs.markRetryOrFailed(job.getId(), token, job.getAttemptCount(), job.getMaxAttempts(), code, message,
-                    retryPolicy.delayAfter(job.getAttemptCount()));
+            if (failure instanceof com.unirag.ingestion.support.TextExtractionException) {
+                // 确定性解析失败（022 FR-004a / clarify Q1）：attempt 直接置 maxAttempts 走终态分支，不占用重试预算。
+                jobs.markRetryOrFailed(job.getId(), token, job.getMaxAttempts(), job.getMaxAttempts(),
+                        code, message, java.time.Duration.ZERO);
+            } else {
+                jobs.markRetryOrFailed(job.getId(), token, job.getAttemptCount(), job.getMaxAttempts(),
+                        code, message, retryPolicy.delayAfter(job.getAttemptCount()));
+            }
             log.warn("Ingestion job attempt failed: jobId={}, tenantId={}, code={}", job.getId(), job.getTenantId(), code);
         }
     }

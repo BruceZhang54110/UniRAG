@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
     private HttpStatus statusOf(String code) {
         return switch (code) {
             case "TENANT_CODE_REQUIRED", "VALIDATION_FAILED", "UNSUPPORTED_FILE_TYPE",
-                    "GRANULARITY_NOT_FOUND" -> HttpStatus.BAD_REQUEST;
+                    "GRANULARITY_NOT_FOUND", "PARSE_FAILED", "EMPTY_EXTRACTED_TEXT" -> HttpStatus.BAD_REQUEST;
             case "TENANT_NOT_FOUND", "UPLOAD_NOT_FOUND", "DOCUMENT_NOT_FOUND",
                     "DOCUMENT_INGESTION_JOB_NOT_FOUND", "SESSION_NOT_FOUND",
                     "ORIGINAL_FILE_UNAVAILABLE" -> HttpStatus.NOT_FOUND;
