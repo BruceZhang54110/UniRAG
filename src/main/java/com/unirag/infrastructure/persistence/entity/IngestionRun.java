@@ -43,6 +43,10 @@ public class IngestionRun {
     @TableField("error_message")
     private String errorMessage;
 
+    /** 021 结构感知无标题回退标注：STRUCTURE_FALLBACK_NO_HEADING；其余场景 NULL。 */
+    @TableField("note")
+    private String note;
+
     @TableField("started_at")
     private Date startedAt;
 

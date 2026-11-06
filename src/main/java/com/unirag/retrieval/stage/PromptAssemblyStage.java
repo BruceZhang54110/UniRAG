@@ -38,8 +38,11 @@ public class PromptAssemblyStage implements Stage<MergeResult, PromptBundle> {
             RetrievedChunk chunk = citations.get(i);
             prompt.append('[').append(i + 1).append("] 来源：docName=").append(chunk.docName())
                     .append("，pipelineKey=").append(chunk.pipelineKey())
-                    .append("，chunkIndex=").append(chunk.chunkIndex()).append('\n')
-                    .append(chunk.text()).append("\n\n");
+                    .append("，chunkIndex=").append(chunk.chunkIndex());
+            if (chunk.sectionPath() != null && !chunk.sectionPath().isEmpty()) {
+                prompt.append("，section=").append(chunk.sectionPath());
+            }
+            prompt.append('\n').append(chunk.text()).append("\n\n");
         }
         log.debug("[retrieval] trace={} PROMPT_ASSEMBLY citations={} promptChars={}",
                 ctx.traceId(), citations.size(), prompt.length());

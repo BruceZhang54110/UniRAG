@@ -117,15 +117,26 @@ public class VectorSearchStage implements Stage<QueryVector, VectorSearchResult>
                 : normalized.substring(0, LOG_TEXT_PREVIEW) + "…";
     }
 
-    /** 过滤以向量库原生能力执行（FR-002）：文档标识按请求给，粒度仅在其被显式指定时施加。 */
+    /** 过滤以向量库原生能力执行（FR-002）：文档标识按请求给，粒度仅在其被显式指定时施加；
+     * 章节限定（021）按值的层级等值命中对应累积路径键——section_1=章 即含其全部子节。 */
     private static Filter filterFor(RetrievalRequest request, TargetTable target) {
         Filter filter = request.documentId() == null
                 ? null
                 : new IsEqualTo(META_DOCUMENT_ID, request.documentId());
-        if (request.granularity() == null) {
-            return filter;
+        if (request.granularity() != null) {
+            Filter pipelineFilter = new IsEqualTo(META_PIPELINE_KEY, target.pipelineKey());
+            filter = filter == null ? pipelineFilter : filter.and(pipelineFilter);
         }
-        Filter pipelineFilter = new IsEqualTo(META_PIPELINE_KEY, target.pipelineKey());
-        return filter == null ? pipelineFilter : filter.and(pipelineFilter);
+        if (request.section() != null) {
+            Filter sectionFilter = new IsEqualTo(sectionKey(request.section()), request.section());
+            filter = filter == null ? sectionFilter : filter.and(sectionFilter);
+        }
+        return filter;
+    }
+
+    /** 章节值 → 层级键：无 "/" 命中 section_1（章，含全部子节），一个 "/" 命中 section_2，依此递推（上限 6 级）。 */
+    static String sectionKey(String section) {
+        int depth = section.split("/", -1).length;
+        return "section_" + Math.min(depth, 6);
     }
 }

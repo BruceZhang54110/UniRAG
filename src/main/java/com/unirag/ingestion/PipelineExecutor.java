@@ -38,9 +38,16 @@ public class PipelineExecutor {
     static final String META_PIPELINE_KEY = "pipeline_key";
     static final String META_CHUNK_INDEX = "chunk_index";
     static final String META_DOCUMENT_VERSION_ID = "document_version_id";
+    static final String META_SECTION_PATH = "section_path";
+
+    /** 结构感知逐级累积路径键上限（data-model.md §4）。 */
+    static final int MAX_SECTION_LEVELS = 6;
 
     static final String CHUNK_LEVEL_PARENT = "PARENT";
     static final String CHUNK_LEVEL_CHILD = "CHILD";
+
+    /** 结构感知无标题回退标注（写入 ingestion_run.note，data-model.md §3）。 */
+    static final String NOTE_STRUCTURE_FALLBACK = "STRUCTURE_FALLBACK_NO_HEADING";
 
     static final int MAX_ERROR_LENGTH = 500;
 
@@ -102,7 +109,8 @@ public class PipelineExecutor {
             }
             chunkService.saveBatch(chunks);
 
-            saveRun(document, pipeline, RunStatus.SUCCESS, chunks.size(), null, startedAt);
+            saveRun(document, pipeline, RunStatus.SUCCESS, chunks.size(), null,
+                    plan.structureFallback() ? NOTE_STRUCTURE_FALLBACK : null, startedAt);
             log.info("Pipeline ingestion succeeded: tenant={}, doc={}, pipeline={}, chunks={}",
                     tenantCode, document.getDocName(), pipeline.getPipelineKey(), chunks.size());
             return RunOutcome.success(pipeline, chunks.size());
@@ -112,7 +120,7 @@ public class PipelineExecutor {
             log.error("Pipeline ingestion failed: tenant={}, doc={}, pipeline={}, reason={}",
                     tenantCode, document.getDocName(), pipeline.getPipelineKey(), reason);
             if (findPreviousRun(document, pipeline) == null) {
-                saveRun(document, pipeline, RunStatus.FAILED, 0, reason, startedAt);
+                saveRun(document, pipeline, RunStatus.FAILED, 0, reason, null, startedAt);
             }
             return RunOutcome.failed(pipeline, reason);
         }
@@ -158,15 +166,24 @@ public class PipelineExecutor {
     /** 切片计划：子块片段（含契约 metadata）+ 需先落库的父块行 + 每个子块所属父块下标。 */
     private record SplitPlan(List<TextSegment> segments,
                              List<DocumentChunk> parentRows,
-                             List<Integer> childParentIndexes) {
+                             List<Integer> childParentIndexes,
+                             List<String> childSectionPaths,
+                             boolean structureFallback) {
+
+        private SplitPlan(List<TextSegment> segments, List<DocumentChunk> parentRows,
+                          List<Integer> childParentIndexes) {
+            this(segments, parentRows, childParentIndexes, List.of(), false);
+        }
     }
 
-    /** 切片并附加契约四键 metadata（contracts §3）；父子策略额外产出父块行与归属下标。 */
+    /** 切片并附加契约四键 metadata（contracts §3）；父子/结构感知策略额外产出父块行与归属。 */
     private SplitPlan split(IngestionPipeline pipeline, Document document, String content) {
-        boolean parentChild = DocumentSplitterFactory.STRATEGY_PARENT_CHILD
-                .equalsIgnoreCase(String.valueOf(pipeline.getStrategy()).trim());
-        if (parentChild) {
+        String strategy = String.valueOf(pipeline.getStrategy()).trim();
+        if (DocumentSplitterFactory.STRATEGY_PARENT_CHILD.equalsIgnoreCase(strategy)) {
             return splitParentChild(pipeline, document, content);
+        }
+        if (DocumentSplitterFactory.STRATEGY_STRUCTURE_AWARE.equalsIgnoreCase(strategy)) {
+            return splitStructureAware(pipeline, document, content);
         }
         DocumentSplitter splitter = DocumentSplitterFactory.create(
                 pipeline.getStrategy(), pipeline.getMaxSegmentTokens(), pipeline.getOverlapTokens(), tokenizer);
@@ -187,18 +204,58 @@ public class PipelineExecutor {
         List<Integer> childParentIndexes = new ArrayList<>();
         for (int parentIndex = 0; parentIndex < splits.size(); parentIndex++) {
             ParentChildSplitter.ParentSplit split = splits.get(parentIndex);
-            parentRows.add(parentRow(document, pipeline, parentIndex, split.parentText(), now));
+            parentRows.add(parentRow(document, pipeline, parentIndex, split.parentText(), now, null));
             for (String childText : split.childTexts()) {
-                segments.add(segmentWithContractMetadata(document, pipeline, childText, segments.size()));
+                segments.add(segmentWithContractMetadata(document, pipeline, childText, segments.size(), null));
                 childParentIndexes.add(parentIndex);
             }
         }
         return new SplitPlan(segments, parentRows, childParentIndexes);
     }
 
+    /**
+     * 结构感知切分（021）：章节充当父块角色（澄清 Q1-A）——小章节单父块，超大章节多父块；
+     * 子块 metadata 携带 section_path 与逐级累积 section_N；零标题回退递归等价单级产出。
+     */
+    private SplitPlan splitStructureAware(IngestionPipeline pipeline, Document document, String content) {
+        StructureAwareSplitter splitter = new StructureAwareSplitter(
+                pipeline.getMaxSegmentTokens(), pipeline.getOverlapTokens(),
+                pipeline.getParentMaxTokens(), tokenizer);
+        StructureAwareSplitter.StructureSplit structure =
+                splitter.splitWithStructure(dev.langchain4j.data.document.Document.from(content));
+        if (structure.fallback()) {
+            DocumentSplitter recursive = DocumentSplitterFactory.create(
+                    DocumentSplitterFactory.STRATEGY_RECURSIVE,
+                    pipeline.getMaxSegmentTokens(), pipeline.getOverlapTokens(), tokenizer);
+            List<TextSegment> raw = recursive.split(dev.langchain4j.data.document.Document.from(content));
+            return new SplitPlan(withContractMetadata(document, pipeline, raw),
+                    List.of(), List.of(), List.of(), true);
+        }
+        Date now = new Date();
+        List<DocumentChunk> parentRows = new ArrayList<>();
+        List<TextSegment> segments = new ArrayList<>();
+        List<Integer> childParentIndexes = new ArrayList<>();
+        List<String> childSectionPaths = new ArrayList<>();
+        int parentIndex = 0;
+        for (StructureAwareSplitter.SectionSplit sectionSplit : structure.splits()) {
+            for (ParentChildSplitter.ParentSplit parentSplit : sectionSplit.parentSplits()) {
+                parentRows.add(parentRow(document, pipeline, parentIndex, parentSplit.parentText(),
+                        now, sectionSplit.sectionPath()));
+                for (String childText : parentSplit.childTexts()) {
+                    segments.add(segmentWithContractMetadata(document, pipeline, childText,
+                            segments.size(), sectionSplit.sectionPath()));
+                    childParentIndexes.add(parentIndex);
+                    childSectionPaths.add(sectionSplit.sectionPath());
+                }
+                parentIndex++;
+            }
+        }
+        return new SplitPlan(segments, parentRows, childParentIndexes, childSectionPaths, false);
+    }
+
     /** 父块行：仅落库不向量化（FR-004），seq 在 (document, pipeline, version, PARENT) 内连续。 */
     private DocumentChunk parentRow(Document document, IngestionPipeline pipeline,
-                                    int parentIndex, String content, Date now) {
+                                    int parentIndex, String content, Date now, String sectionPath) {
         DocumentChunk parent = new DocumentChunk();
         parent.setDocumentId(document.getId());
         parent.setDocumentVersionId(document.getIngestionVersionId());
@@ -209,6 +266,7 @@ public class PipelineExecutor {
         parent.setEmbeddingId(null);
         parent.setChunkLevel(CHUNK_LEVEL_PARENT);
         parent.setParentChunkId(null);
+        parent.setSectionPath(sectionPath);
         parent.setCreatedAt(now);
         return parent;
     }
@@ -221,14 +279,17 @@ public class PipelineExecutor {
                                                    List<TextSegment> raw) {
         List<TextSegment> segments = new ArrayList<>(raw.size());
         for (int i = 0; i < raw.size(); i++) {
-            segments.add(segmentWithContractMetadata(document, pipeline, raw.get(i).text(), i));
+            segments.add(segmentWithContractMetadata(document, pipeline, raw.get(i).text(), i, null));
         }
         return segments;
     }
 
+    /**
+     * 契约 metadata 组装：恰好四键（contracts §3）；版本摄取追加版本键；
+     * 结构感知追加 section_path（可空串）与逐级累积 section_N（N≤6，前言无 section_N）。
+     */
     private TextSegment segmentWithContractMetadata(Document document, IngestionPipeline pipeline,
-                                                    String text, int chunkIndex) {
-        // 新建 metadata（勿 copy 切片器产物），保证恰好契约四键（contracts §3）
+                                                    String text, int chunkIndex, String sectionPath) {
         Metadata metadata = new Metadata();
         metadata.put(META_DOC_NAME, document.getDocName());
         metadata.put(META_DOCUMENT_ID, document.getId());
@@ -236,6 +297,16 @@ public class PipelineExecutor {
         metadata.put(META_CHUNK_INDEX, chunkIndex);
         if (document.getIngestionVersionId() != null) {
             metadata.put(META_DOCUMENT_VERSION_ID, document.getIngestionVersionId());
+        }
+        if (sectionPath != null) {
+            metadata.put(META_SECTION_PATH, sectionPath);
+            if (!sectionPath.isEmpty()) {
+                String[] segments = sectionPath.split("/");
+                for (int level = 0; level < Math.min(segments.length, MAX_SECTION_LEVELS); level++) {
+                    metadata.put("section_" + (level + 1),
+                            String.join("/", java.util.Arrays.copyOfRange(segments, 0, level + 1)));
+                }
+            }
         }
         return TextSegment.from(text, metadata);
     }
@@ -259,6 +330,9 @@ public class PipelineExecutor {
             if (parentChild) {
                 chunk.setParentChunkId(plan.parentRows().get(plan.childParentIndexes().get(i)).getId());
             }
+            if (!plan.childSectionPaths().isEmpty()) {
+                chunk.setSectionPath(plan.childSectionPaths().get(i));
+            }
             chunk.setCreatedAt(now);
             chunks.add(chunk);
         }
@@ -266,7 +340,7 @@ public class PipelineExecutor {
     }
 
     private void saveRun(Document document, IngestionPipeline pipeline, RunStatus status,
-                         int chunkCount, String errorMessage, Date startedAt) {
+                         int chunkCount, String errorMessage, String note, Date startedAt) {
         IngestionRun run = new IngestionRun();
         run.setDocumentId(document.getId());
         run.setDocumentVersionId(document.getIngestionVersionId());
@@ -275,6 +349,7 @@ public class PipelineExecutor {
         run.setStatus(status.name());
         run.setChunkCount(chunkCount);
         run.setErrorMessage(errorMessage);
+        run.setNote(note);
         run.setStartedAt(startedAt);
         run.setFinishedAt(new Date());
         runService.save(run);

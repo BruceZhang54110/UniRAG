@@ -15,13 +15,14 @@
             <result property="embeddingId" column="embedding_id" jdbcType="VARCHAR"/>
             <result property="chunkLevel" column="chunk_level" jdbcType="VARCHAR"/>
             <result property="parentChunkId" column="parent_chunk_id" jdbcType="BIGINT"/>
+            <result property="sectionPath" column="section_path" jdbcType="VARCHAR"/>
             <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,document_id,document_version_id,pipeline_id,
         seq_index,content,token_count,
-        embedding_id,chunk_level,parent_chunk_id,created_at
+        embedding_id,chunk_level,parent_chunk_id,section_path,created_at
     </sql>
 
     <select id="findByDocumentAndPipeline" resultMap="BaseResultMap">
@@ -50,6 +51,7 @@
         <result property="embeddingId" column="embedding_id" jdbcType="VARCHAR"/>
         <result property="chunkLevel" column="chunk_level" jdbcType="VARCHAR"/>
         <result property="parentChunkId" column="parent_chunk_id" jdbcType="BIGINT"/>
+        <result property="sectionPath" column="section_path" jdbcType="VARCHAR"/>
         <result property="childSeq" column="child_seq" jdbcType="INTEGER"/>
         <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -58,7 +60,7 @@
     <select id="findParentsByChildSeqIndexes" resultMap="ParentByChildMap">
         SELECT p.id, p.document_id, p.document_version_id, p.pipeline_id,
                p.seq_index, p.content, p.token_count, p.embedding_id,
-               p.chunk_level, p.parent_chunk_id, p.created_at,
+               p.chunk_level, p.parent_chunk_id, p.section_path, p.created_at,
                c.seq_index AS child_seq
         FROM document_chunk c
         JOIN document_chunk p ON p.id = c.parent_chunk_id
@@ -68,5 +70,19 @@
         <foreach collection="childSeqIndexes" item="seq" open="(" separator="," close=")">
             #{seq}
         </foreach>
+    </select>
+
+    <!-- 021 章节存在性：租户作用域内 section_path 等值或子节前缀（starts_with 无通配符转义问题） -->
+    <select id="countBySectionPrefix" resultType="long">
+        SELECT count(*)
+        FROM document_chunk dc
+        JOIN document d ON d.id = dc.document_id
+        JOIN tenant t ON t.id = d.tenant_id
+        WHERE t.tenant_code = #{tenantCode}
+          AND dc.section_path IS NOT NULL
+          AND (dc.section_path = #{section} OR starts_with(dc.section_path, #{section} || '/'))
+        <if test="documentId != null">
+          AND dc.document_id = #{documentId}
+        </if>
     </select>
 </mapper>

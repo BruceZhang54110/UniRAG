@@ -20,6 +20,9 @@ public final class DocumentSplitterFactory {
     /** 父子两级切分策略标识（020-parent-child-chunking）。 */
     public static final String STRATEGY_PARENT_CHILD = "PARENT_CHILD";
 
+    /** 结构感知切分策略标识（021-structure-aware-chunking）。 */
+    public static final String STRATEGY_STRUCTURE_AWARE = "STRUCTURE_AWARE";
+
     private DocumentSplitterFactory() {
     }
 

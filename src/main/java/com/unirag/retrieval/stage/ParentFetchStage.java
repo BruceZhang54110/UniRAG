@@ -112,7 +112,8 @@ public class ParentFetchStage implements Stage<MergeResult, MergeResult> {
             }
             parentHits.putIfAbsent(parent.getId(), new RetrievedChunk(child.documentId(), child.docName(),
                     child.pipelineKey(), child.documentVersionId(), parent.getSeqIndex(),
-                    child.score(), parent.getContent(), child.rerankScore()));
+                    child.score(), parent.getContent(), child.rerankScore())
+                    .withSectionPath(child.sectionPath()));
         }
 
         // 预算截断：按管线配置的父块数量与 token 双上限，各自作用于本管线命中（入序保留）

@@ -13,13 +13,14 @@
             <result property="status" column="status" jdbcType="VARCHAR"/>
             <result property="chunkCount" column="chunk_count" jdbcType="INTEGER"/>
             <result property="errorMessage" column="error_message" jdbcType="VARCHAR"/>
+            <result property="note" column="note" jdbcType="VARCHAR"/>
             <result property="startedAt" column="started_at" jdbcType="TIMESTAMP"/>
             <result property="finishedAt" column="finished_at" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,document_id,document_version_id,job_id,pipeline_id,
-        status,chunk_count,error_message,
+        status,chunk_count,error_message,note,
         started_at,finished_at
     </sql>
 

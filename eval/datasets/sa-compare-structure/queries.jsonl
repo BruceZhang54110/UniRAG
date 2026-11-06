@@ -1,0 +1,4 @@
+{"id":"q-001","question":"基本原则包含哪些内容？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"smart-manufacturing.md","span":"坚持应用牵引与创新驱动，围绕设计目标、约束条件与工程实践展开系统部署"}]}
+{"id":"q-002","question":"质量检测升级重点做什么？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"smart-manufacturing.md","span":"推动机器视觉在质检环节规模化应用，围绕缺陷识别、误报控制与追溯闭环展开讨论"}]}
+{"id":"q-003","question":"供应链协同平台围绕哪些环节展开？","tags":["fact"],"split":"dev","answerable":true,"relevant":[{"doc":"smart-manufacturing.md","span":"建设跨企业的供应链协同平台，围绕需求预测、库存优化与物流调度展开讨论"}]}
+{"id":"q-004","question":"平台支持虚拟货币支付吗？","tags":["unanswerable"],"split":"test","answerable":false,"relevant":[]}

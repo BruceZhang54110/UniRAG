@@ -22,6 +22,11 @@ public interface DocumentChunkService extends IService<DocumentChunk> {
                                                                        List<Integer> childSeqIndexes);
 
     /**
+     * 章节存在性判定（021 FR-007）：租户作用域内 section_path 等值或子节前缀；可选限定单文档。
+     */
+    boolean sectionExists(String tenantCode, Long documentId, String section);
+
+    /**
      * 删除某文档在某管线下的全部切片行（"先清后写"清理，research.md R6）。
      */
     void deleteByDocumentAndPipeline(Long documentId, Long pipelineId);

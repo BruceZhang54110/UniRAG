@@ -104,6 +104,25 @@ public abstract class AbstractIngestionIT extends AbstractPostgresIntegrationTes
                 tenantId, pipelineKey, childTokens, overlap, parentTokens, storeKey, modelKey);
     }
 
+    /** 插入结构感知摄取管线（021-structure-aware-chunking，幂等 upsert）。 */
+    protected void insertStructureAwarePipeline(long tenantId, String pipelineKey, int childTokens, int overlap,
+                                                int sectionTokens, String storeKey, String modelKey) {
+        jdbcTemplate.update("""
+                INSERT INTO ingestion_pipeline
+                    (tenant_id, pipeline_key, strategy, max_segment_tokens, overlap_tokens, parent_max_tokens,
+                     embedding_store_key, embedding_model_key, enabled)
+                VALUES (?, ?, 'STRUCTURE_AWARE', ?, ?, ?, ?, ?, TRUE)
+                ON CONFLICT (tenant_id, pipeline_key) DO UPDATE
+                SET strategy = EXCLUDED.strategy,
+                    max_segment_tokens = EXCLUDED.max_segment_tokens,
+                    overlap_tokens = EXCLUDED.overlap_tokens,
+                    parent_max_tokens = EXCLUDED.parent_max_tokens,
+                    embedding_store_key = EXCLUDED.embedding_store_key,
+                    embedding_model_key = EXCLUDED.embedding_model_key,
+                    enabled = TRUE, deleted = FALSE""",
+                tenantId, pipelineKey, childTokens, overlap, sectionTokens, storeKey, modelKey);
+    }
+
     /** 清理本类租户的上期残留数据（开发库跨运行累积，保证条数断言确定性）。 */
     protected void cleanupTenant(String tenantCode, String... vectorTables) {
         Long tenantId = jdbcTemplate.query(

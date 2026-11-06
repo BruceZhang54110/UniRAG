@@ -56,6 +56,10 @@ public class DocumentChunk {
     @com.baomidou.mybatisplus.annotation.TableField(exist = false)
     private Integer childSeq;
 
+    /** 结构感知策略的章节路径（最深层级）；前言为空串；回退与既有策略为 NULL。 */
+    @TableField("section_path")
+    private String sectionPath;
+
     @TableField("created_at")
     private Date createdAt;
 }

@@ -32,4 +32,12 @@ public interface DocumentChunkMapper extends BaseMapper<DocumentChunk> {
     java.util.Map<Integer, DocumentChunk> findParentsByChildSeqIndexes(@Param("documentId") Long documentId,
                                                                        @Param("pipelineId") Long pipelineId,
                                                                        @Param("childSeqIndexes") List<Integer> childSeqIndexes);
+
+    /**
+     * 章节存在性判定（021 FR-007）：按租户作用域查 section_path 前缀（层级边界对齐），
+     * 可选限定单文档；section 与子节路径（section/…）均算存在。
+     */
+    long countBySectionPrefix(@Param("tenantCode") String tenantCode,
+                              @Param("documentId") Long documentId,
+                              @Param("section") String section);
 }

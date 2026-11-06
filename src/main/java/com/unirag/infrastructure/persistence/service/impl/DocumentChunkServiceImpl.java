@@ -28,6 +28,14 @@ public class DocumentChunkServiceImpl
     }
 
     @Override
+    public boolean sectionExists(String tenantCode, Long documentId, String section) {
+        if (section == null || section.isBlank()) {
+            return false;
+        }
+        return baseMapper.countBySectionPrefix(tenantCode, documentId, section) > 0;
+    }
+
+    @Override
     public void deleteByDocumentAndPipeline(Long documentId, Long pipelineId) {
         baseMapper.deleteByDocumentAndPipeline(documentId, pipelineId);
     }

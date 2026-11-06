@@ -29,12 +29,16 @@ import java.util.List;
 @Service
 public class RetrievalService {
 
+    /** 021 章节不存在时的空结果原因标记（FR-007：明确提示，不静默全库检索）。 */
+    public static final String EMPTY_REASON_SECTION_NOT_FOUND = "SECTION_NOT_FOUND";
+
     private final TenantContext tenantContext;
     private final DefaultPipeline pipeline;
     private final ObservationMetrics metrics;
     private final RerankSupport rerankSupport;
     private final RerankProperties rerankProperties;
     private final QueryRewriteSupport rewriteSupport;
+    private final com.unirag.infrastructure.persistence.service.DocumentChunkService chunkService;
     private final List<Stage<?, ?>> chain;
 
     public RetrievalService(TenantContext tenantContext,
@@ -43,6 +47,7 @@ public class RetrievalService {
                             RerankSupport rerankSupport,
                             RerankProperties rerankProperties,
                             QueryRewriteSupport rewriteSupport,
+                            com.unirag.infrastructure.persistence.service.DocumentChunkService chunkService,
                             QueryEmbeddingStage queryEmbeddingStage,
                             VectorSearchStage vectorSearchStage,
                             MergeStage mergeStage) {
@@ -52,6 +57,7 @@ public class RetrievalService {
         this.rerankSupport = rerankSupport;
         this.rerankProperties = rerankProperties;
         this.rewriteSupport = rewriteSupport;
+        this.chunkService = chunkService;
         this.chain = List.of(queryEmbeddingStage, vectorSearchStage, mergeStage);
     }
 
@@ -68,6 +74,12 @@ public class RetrievalService {
         StageContext ctx = new StageContext(traceId, StageResult.KIND_RETRIEVAL, tenantCode, tenantId,
                 null, resolved.query(), resolved.documentId());
         long startedAt = System.nanoTime();
+        // 021 FR-007：章节限定先行存在性判定——不存在即明确空结果，不下推向量检索
+        if (resolved.section() != null && !chunkService.sectionExists(
+                tenantCode, resolved.documentId(), resolved.section())) {
+            metrics.recordRetrieval(tenantCode, StageStatus.DEGRADED, elapsed(startedAt));
+            return new RetrievalResult(traceId, List.of(), 0, List.of(), EMPTY_REASON_SECTION_NOT_FOUND);
+        }
         MergeResult merged;
         try {
             merged = (MergeResult) pipeline.run(chain, resolved, ctx);
@@ -79,7 +91,7 @@ public class RetrievalService {
         metrics.recordRetrieval(tenantCode,
                 merged.failedTables().isEmpty() ? StageStatus.SUCCESS : StageStatus.DEGRADED,
                 elapsed(startedAt));
-        return new RetrievalResult(traceId, merged.chunks(), merged.searchedTables(), merged.failedTables());
+        return new RetrievalResult(traceId, merged.chunks(), merged.searchedTables(), merged.failedTables(), null);
     }
 
     private static Duration elapsed(long startedAt) {
@@ -91,10 +103,18 @@ public class RetrievalService {
      *
      * @param searchedTables 归并前实际检索到的表数
      * @param failedTables   被隔离的单表故障
+     * @param emptyReason    021：空结果原因标记（如 SECTION_NOT_FOUND）；正常结果为 {@code null}
      */
     public record RetrievalResult(String traceId,
                                   List<RetrievedChunk> chunks,
                                   int searchedTables,
-                                  List<FailedTable> failedTables) {
+                                  List<FailedTable> failedTables,
+                                  String emptyReason) {
+
+        /** 兼容 021 前调用方：无空结果原因。 */
+        public RetrievalResult(String traceId, List<RetrievedChunk> chunks,
+                               int searchedTables, List<FailedTable> failedTables) {
+            this(traceId, chunks, searchedTables, failedTables, null);
+        }
     }
 }

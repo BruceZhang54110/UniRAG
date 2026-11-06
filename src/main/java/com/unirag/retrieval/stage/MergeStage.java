@@ -33,6 +33,8 @@ public class MergeStage implements Stage<VectorSearchResult, MergeResult> {
 
     static final String META_DOCUMENT_VERSION_ID = "document_version_id";
 
+    static final String META_SECTION_PATH = "section_path";
+
     private static final Comparator<RetrievedChunk> ORDER = Comparator
             .comparingDouble(RetrievedChunk::score).reversed()
             .thenComparingLong(RetrievedChunk::documentId)
@@ -81,6 +83,8 @@ public class MergeStage implements Stage<VectorSearchResult, MergeResult> {
                 metadata.getLong(META_DOCUMENT_VERSION_ID),
                 chunkIndex,
                 match.score(),
-                match.embedded().text());
+                match.embedded().text(),
+                null,
+                metadata.getString(META_SECTION_PATH));
     }
 }
