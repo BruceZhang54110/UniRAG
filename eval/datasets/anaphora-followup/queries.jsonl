@@ -1,0 +1,3 @@
+{"id":"af-001","question":"实施方案对租户隔离提出了什么要求？","tags":["fact","round1"],"split":"dev","answerable":true,"relevant":[{"doc":"plan-a.md","span":"坚持租户隔离不动摇"}]}
+{"id":"af-002","question":"语音转写按什么方式计费？","tags":["fact","round1"],"split":"dev","answerable":true,"relevant":[{"doc":"manual-b.md","span":"套餐按服务量小时计价"}]}
+{"id":"af-003","question":"上传后的文档由谁处理？","tags":["fact","round1"],"split":"dev","answerable":true,"relevant":[{"doc":"plan-a.md","span":"由后台 worker 轮询处理"}]}

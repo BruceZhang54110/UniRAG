@@ -1,0 +1,23 @@
+{
+  "name": "anaphora-followup",
+  "tenant": "eval_anaphora_followup",
+  "store": {
+    "table": "embeddings_eval_anaphora_followup",
+    "dimension": 8
+  },
+  "pipelines": [
+    {
+      "key": "fine",
+      "maxSegmentTokens": 64,
+      "overlapTokens": 8,
+      "modelKey": "eval-embedding",
+      "storeKey": "eval-store"
+    }
+  ],
+  "retrieval": {"topK": 3, "recallTopK": 5, "minScore": 0.0, "rerank": false, "rewrite": false},
+  "metrics": {"k": [1, 3, 5], "diagnosticTopK": 10},
+  "conversation": {
+    "note": "两轮会话场景见 scenarios.jsonl；需会话感知 harness 扩展执行（eval/datasets/anaphora-followup/README.md）",
+    "metrics": ["candidate-doc-concentration", "false-inherit-rate"]
+  }
+}

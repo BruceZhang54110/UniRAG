@@ -1,0 +1,16 @@
+{"id":"an-001","session":"sess-an-001","tags":["anaphora-inherit"],"rounds":[
+  {"role":"user","question":"实施方案对租户隔离提出了什么要求？","expect":{"citable":"plan-a.md"}},
+  {"role":"user","question":"这篇文档还提出了哪些要求？","expect":{"decision":"INHERITED","doc":"plan-a.md","concentration":1.0}}]}
+{"id":"an-002","session":"sess-an-002","tags":["anaphora-inherit"],"rounds":[
+  {"role":"user","question":"语音转写按什么方式计价？","expect":{"citable":"manual-b.md"}},
+  {"role":"user","question":"该文档的接入流程是什么？","expect":{"decision":"INHERITED","doc":"manual-b.md","concentration":1.0}}]}
+{"id":"an-003","session":"sess-an-003","tags":["anaphora-negative"],"rounds":[
+  {"role":"user","question":"实施方案对租户隔离提出了什么要求？","expect":{"citable":"plan-a.md"}},
+  {"role":"user","question":"语音转写支持方言吗？","expect":{"decision":"NO_ANAPHORA","concentration":null}}]}
+{"id":"an-004","session":"sess-an-004","tags":["anaphora-negative"],"rounds":[
+  {"role":"user","question":"实施方案的核心内容是什么？","expect":{"citable":"plan-a.md"}},
+  {"role":"user","question":"失败轮插入点","expect":{"inject":"FAILED_ROUND"}},
+  {"role":"user","question":"这篇文档的重点是什么？","expect":{"decision":"PREVIOUS_NOT_CITABLE","concentration":null}}]}
+{"id":"an-005","session":"sess-an-005","tags":["anaphora-inherit"],"rounds":[
+  {"role":"user","question":"上传后的文档由谁处理？","expect":{"citable":"plan-a.md"}},
+  {"role":"user","question":"其中异步摄取失败会怎样？","expect":{"decision":"INHERITED","doc":"plan-a.md","concentration":1.0}}]}
