@@ -28,8 +28,8 @@ class ChatHistoryWriterIT extends AbstractPostgresIntegrationTest {
 
     @Test
     void 轮次单调递增且同轮双行成对可见() {
-        writer.recordRound(tenantId, session, "问题一", "回答一", "SUCCESS", null, "t1");
-        writer.recordRound(tenantId, session, "问题二", null, "FAILED", "LLM_UNAVAILABLE", "t2");
+        writer.recordRound(tenantId, session, "问题一", "回答一", "SUCCESS", null, "t1", null);
+        writer.recordRound(tenantId, session, "问题二", null, "FAILED", "LLM_UNAVAILABLE", "t2", null);
 
         ChatHistoryWriter.PageResult page = writer.findMessages(tenantId, session, 0, 50);
         assertThat(page.total()).isEqualTo(4);
@@ -44,7 +44,7 @@ class ChatHistoryWriterIT extends AbstractPostgresIntegrationTest {
     @Test
     void 分页返回正确窗口() {
         for (int i = 1; i <= 3; i++) {
-            writer.recordRound(tenantId, session, "问题" + i, "回答" + i, "SUCCESS", null, "t" + i);
+            writer.recordRound(tenantId, session, "问题" + i, "回答" + i, "SUCCESS", null, "t" + i, null);
         }
 
         ChatHistoryWriter.PageResult first = writer.findMessages(tenantId, session, 0, 2);
@@ -60,7 +60,7 @@ class ChatHistoryWriterIT extends AbstractPostgresIntegrationTest {
     void 会话存在性双判与级联删除幂等() {
         assertThat(writer.existsSession(tenantId, session)).isFalse();
 
-        writer.recordRound(tenantId, session, "问题", "回答", "SUCCESS", null, "t1");
+        writer.recordRound(tenantId, session, "问题", "回答", "SUCCESS", null, "t1", null);
         assertThat(writer.existsSession(tenantId, session)).isTrue();
 
         writer.deleteBySession(tenantId, session);

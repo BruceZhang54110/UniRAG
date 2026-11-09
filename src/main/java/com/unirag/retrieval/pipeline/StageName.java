@@ -38,5 +38,8 @@ public enum StageName {
     PROMPT_ASSEMBLY,
 
     /** 聊天模型调用。 */
-    CHAT_GENERATION
+    CHAT_GENERATION,
+
+    /** 引用继承判定；仅用于观测（023）：实际判定发生在检索入口，不进入检索阶段链。 */
+    CITATION_INHERIT
 }

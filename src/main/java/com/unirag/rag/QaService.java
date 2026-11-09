@@ -97,7 +97,7 @@ public class QaService {
     private void recordFailedRound(QaRequest request, String traceId, Long tenantId, RuntimeException e) {
         try {
             chatHistoryWriter.recordRound(tenantId, request.sessionId(), request.question(),
-                    null, "FAILED", e.getClass().getSimpleName(), traceId);
+                    null, "FAILED", e.getClass().getSimpleName(), traceId, null);
         } catch (RuntimeException ignored) {
             // best-effort：历史缺失的可见性由生成阶段观测与日志承担
         }

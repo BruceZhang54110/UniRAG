@@ -27,7 +27,7 @@ class ChatHistoryWriterFailureTest {
                 .thenThrow(new IllegalStateException("db down"));
 
         assertThatCode(() -> writer.recordRound(1L, "s-1", "问题", "回答",
-                "SUCCESS", null, "trace")).doesNotThrowAnyException();
+                "SUCCESS", null, "trace", null)).doesNotThrowAnyException();
 
         when(messageMapper.deleteBySession(anyLong(), anyString()))
                 .thenThrow(new IllegalStateException("db down"));

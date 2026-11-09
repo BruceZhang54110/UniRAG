@@ -67,7 +67,7 @@ class ChatHistoryAtomicTest {
 
         // 整轮一次调用：问题原文 + 已生成部分 + ABORTED + CLIENT_ABORTED + traceId
         verify(historyWriter).recordRound(eq(1L), eq("s-1"), eq("中止场景问题"),
-                eq("已生成部分"), eq("ABORTED"), eq("CLIENT_ABORTED"), eq("trace-abort"));
+                eq("已生成部分"), eq("ABORTED"), eq("CLIENT_ABORTED"), eq("trace-abort"), any());
     }
 
     private static com.unirag.retrieval.model.RetrievedChunk chunk() {

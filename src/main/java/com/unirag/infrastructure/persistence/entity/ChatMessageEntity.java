@@ -51,6 +51,10 @@ public class ChatMessageEntity {
     @TableField("trace_id")
     private String traceId;
 
+    /** 该轮答案最终引用的文档标识 CSV（保留重复计票）；仅 AI 成功轮非空（023）。 */
+    @TableField("cited_document_ids")
+    private String citedDocumentIds;
+
     @TableField("created_at")
     private Date createdAt;
 }

@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -93,7 +94,7 @@ public class ChatGenerationStage implements Stage<PromptBundle, QaAnswer> {
             if (chatMemoryProperties.recordNoContextRound() && ctx.queryDigest() != null) {
                 remember(memory, ctx, AiMessage.from(noContext.answer()));
             }
-            recordHistory(ctx, noContext.answer(), "SUCCESS", QaAnswer.NO_CONTEXT);
+            recordHistory(ctx, noContext.answer(), List.of(), "SUCCESS", QaAnswer.NO_CONTEXT);
             return noContext;
         }
         List<ChatMessage> messages = new ArrayList<>();
@@ -221,14 +222,27 @@ public class ChatGenerationStage implements Stage<PromptBundle, QaAnswer> {
         if (!degraded) {
             remember(memory, ctx, aiMessage);
         }
-        recordHistory(ctx, answer, degraded ? "ABORTED" : "SUCCESS", degradeReason);
+        recordHistory(ctx, answer, citations, degraded ? "ABORTED" : "SUCCESS", degradeReason);
         return new QaAnswer(answer, citations, degraded, degradeReason);
     }
 
     /** 完整历史追加（017）：best-effort，与记忆写回互不依赖；无会话标识时不记录。 */
-    private void recordHistory(StageContext ctx, String answer, String status, String degradeReason) {
+    private void recordHistory(StageContext ctx, String answer, List<RetrievedChunk> citations,
+                               String status, String degradeReason) {
         chatHistoryWriter.recordRound(ctx.tenantId(), ctx.sessionId(), ctx.queryDigest(),
-                answer, status, degradeReason, ctx.traceId());
+                answer, status, degradeReason, ctx.traceId(), citedDocIdsOf(citations));
+    }
+
+    /** 最终引用 → 文档标识列表（保留重复计票，023；父子回填后同文档多引用属正常）。 */
+    private static List<Long> citedDocIdsOf(List<RetrievedChunk> citations) {
+        if (citations == null || citations.isEmpty()) {
+            return null;
+        }
+        List<Long> docIds = citations.stream()
+                .map(RetrievedChunk::documentId)
+                .filter(Objects::nonNull)
+                .toList();
+        return docIds.isEmpty() ? null : docIds;
     }
 
     /** 流式模型解析；租户未配置（或未启用流式）时返回空，走缓冲降级（R3）。 */

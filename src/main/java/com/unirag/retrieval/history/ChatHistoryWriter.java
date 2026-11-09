@@ -39,14 +39,15 @@ public class ChatHistoryWriter {
     /**
      * 追加一轮问答历史。status：SUCCESS（含 NO_CONTEXT 降级）/ ABORTED / FAILED；
      * answer 为 null（失败轮）时存空串。整轮为单位，冲突时跳过并 warn。
+     * citedDocIds：AI 成功轮最终引用的文档标识（保留重复计票，023）；其余轮传 null。
      */
     public void recordRound(Long tenantId, String sessionId, String question, String answer,
-                            String status, String degradeReason, String traceId) {
+                            String status, String degradeReason, String traceId, List<Long> citedDocIds) {
         if (tenantId == null || sessionId == null || sessionId.isBlank()) {
             return;
         }
         try {
-            doRecordRound(tenantId, sessionId, question, answer, status, degradeReason, traceId);
+            doRecordRound(tenantId, sessionId, question, answer, status, degradeReason, traceId, citedDocIds);
         } catch (RuntimeException e) {
             log.warn("[chat-history] 历史写入失败: tenant={}, session={}, trace={}, status={}, type={}",
                     tenantId, sessionId, traceId, status, e.getClass().getName());
@@ -55,12 +56,31 @@ public class ChatHistoryWriter {
 
     @Transactional
     protected void doRecordRound(Long tenantId, String sessionId, String question, String answer,
-                                 String status, String degradeReason, String traceId) {
+                                 String status, String degradeReason, String traceId,
+                                 List<Long> citedDocIds) {
         long roundSeq = messageMapper.nextRoundSeq(tenantId, sessionId);
         messageMapper.insert(message(tenantId, sessionId, roundSeq, "USER",
-                question == null ? "" : question, status, degradeReason, traceId));
+                question == null ? "" : question, status, degradeReason, traceId, null));
         messageMapper.insert(message(tenantId, sessionId, roundSeq, "AI",
-                answer == null ? "" : answer, status, degradeReason, traceId));
+                answer == null ? "" : answer, status, degradeReason, traceId, toCsv(citedDocIds)));
+    }
+
+    /** 引用文档标识 CSV（保留重复计票；null/空 → NULL 列；仅 AI 消息携带）。 */
+    private static String toCsv(List<Long> citedDocIds) {
+        if (citedDocIds == null || citedDocIds.isEmpty()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Long id : citedDocIds) {
+            if (id == null) {
+                continue;
+            }
+            if (!sb.isEmpty()) {
+                sb.append(',');
+            }
+            sb.append(id);
+        }
+        return sb.isEmpty() ? null : sb.toString();
     }
 
     /**
@@ -106,7 +126,8 @@ public class ChatHistoryWriter {
 
     private static ChatMessageEntity message(Long tenantId, String sessionId, long roundSeq,
                                              String role, String content, String status,
-                                             String degradeReason, String traceId) {
+                                             String degradeReason, String traceId,
+                                             String citedDocumentIds) {
         ChatMessageEntity entity = new ChatMessageEntity();
         entity.setTenantId(tenantId);
         entity.setSessionId(sessionId);
@@ -116,6 +137,7 @@ public class ChatHistoryWriter {
         entity.setStatus(status);
         entity.setDegradeReason(degradeReason);
         entity.setTraceId(traceId);
+        entity.setCitedDocumentIds(citedDocumentIds);
         entity.setCreatedAt(new Date());
         return entity;
     }
